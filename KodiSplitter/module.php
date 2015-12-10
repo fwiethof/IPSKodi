@@ -63,9 +63,9 @@ class KodiSplitter extends IPSModule
             }
             // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
 
-            if (IPS_GetProperty($ParentID, 'Open') <> $ParentOpen)
+            if (IPS_GetProperty($ParentID, 'Open') <> $Open)
             {
-                IPS_SetProperty($ParentID, 'Open', $ParentOpen);
+                IPS_SetProperty($ParentID, 'Open', $Open);
                 $ChangeParentSetting = true;
             }
             if ($ChangeParentSetting)
