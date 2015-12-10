@@ -1633,10 +1633,10 @@ class ISCP_API_Data_Mapping extends stdClass
 class Kodi_RPC_Data extends stdClass
 {
 
-    public $Method;
-    public $Error;
-    public $Params;
-    public $Id;
+    private $Method;
+    private $Error;
+    private $Params;
+    private $Id=0;
 
     public function __construct($Method = null, $Params = null)
     {
@@ -1675,7 +1675,8 @@ class Kodi_RPC_Data extends stdClass
     public function GetDataFromJSONIPSObject($Data)
     {
         $Json = json_decode(utf8_decode($Data));
-        $this->Id = $Json->id;
+        if (property_exists($Json, 'id'))
+            $this->Id = $Json->id;
         if (property_exists($Json, 'error'))
             $this->Error = $Json->error;
         if (property_exists($Json, 'method'))
