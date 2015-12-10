@@ -392,6 +392,11 @@ class KodiSplitter extends IPSModule
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
+    protected function GetParent()
+    {
+        $instance = IPS_GetInstance($this->InstanceID);
+        return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
+    }
 
     protected function HasActiveParent()
     {
