@@ -1634,6 +1634,7 @@ class Kodi_RPC_Data extends stdClass
 {
 
     public $Method;
+    public $Error;
     public $Params;
     public $Id;
 
@@ -1646,27 +1647,41 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetDataFromJSONKodiObject($Data)
     {
-        $this->Method = $Data->Method;
         $this->Id = $Data->Id;
-        $this->Params = $this->DecodeUTF8($Data->Params);
+        if (property_exists($Data, 'error'))
+            $this->Error = $Data->error;
+        if (property_exists($Data, 'method'))
+            $this->Method = $Data->method;
+        if (property_exists($Json, 'params'))
+            $this->Params = $this->DecodeUTF8($Data->Params);
     }
 
     public function ToKodiObjectJSONString($GUID)
     {
         $SendData = new stdClass();
         $SendData->DataID = $GUID;
-        $SendData->Method = $this->Method;
-        $SendData->Id = $this->Id;        
-        $SendData->Params = $this->EncodeUTF8($this->Params);
+        $SendData->Id = $this->Id;
+        if (!is_null($this->Method))
+        {
+            $SendData->Method = $this->Method;
+            $SendData->Params = $this->EncodeUTF8($this->Params);
+        }
+        if (!is_null($this->Error))
+            $SendData->Error = $this->Error;
+
         return json_encode($SendData);
     }
 
     public function GetDataFromJSONIPSObject($Data)
     {
         $Json = json_decode(utf8_decode($Data));
-        $this->Method = $Json->method;
         $this->Id = $Json->id;
-        $this->Params = $Json->params;
+        if (property_exists($Json, 'error'))
+            $this->Error = $Json->error;
+        if (property_exists($Json, 'method'))
+            $this->Method = $Json->method;
+        if (property_exists($Json, 'params'))
+            $this->Params = $Json->params;
     }
 
     public function ToIPSJSONString($GUID)
