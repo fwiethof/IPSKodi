@@ -1,0 +1,48 @@
+{
+    "elements":
+            [
+                {
+                    "name": "Open",
+                    "type": "CheckBox",
+                    "caption": "Open"
+                },
+                {
+                    "name": "Host",
+                    "type": "ValidationTextBox",
+                    "caption": "LMS Adresse"
+                },
+                {
+                    "name": "Port",
+                    "type": "NumberSpinner",
+                    "caption": "JSON-RPC TCP-Port"
+                },
+                {
+                    "name": "Webport",
+                    "type": "NumberSpinner",
+                    "caption": "Webserver Port"
+                }
+            ],
+    "status":
+            [
+                {
+                    "code": 102,
+                    "icon": "active",
+                    "caption": "Kodi ereichbar."
+                },
+                {
+                    "code": 104,
+                    "icon": "inactive",
+                    "caption": "Interface geschlossen."
+                },
+                {
+                    "code": 202,
+                    "icon": "error",
+                    "caption": "Adresse und Port darf nicht leer sein."
+                },
+                {
+                    "code": 203,
+                    "icon": "error",
+                    "caption": "Verbindung zu Kodi verloren."
+                }
+            ]
+}
