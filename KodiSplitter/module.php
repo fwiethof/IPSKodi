@@ -150,12 +150,16 @@ class KodiSplitter extends IPSModule
 
     public function Play()
     {
-        $KodiData = new Kodi_RPC_Data('Player.PlayPause', (object) $obj->playerid = 0);
+        $Params = new StdClass();
+        $Params->playerid=0;
+        $KodiData = new Kodi_RPC_Data('Player.PlayPause', $Params);
         $this->SendDataToParent($KodiData);
     }
 
-    public function Pause()
+    public function RawSend(string $Method,$Params)
     {
+        $KodiData = new Kodi_RPC_Data($Method, $Params);
+        $this->SendDataToParent($KodiData);
         
     }
 
