@@ -1,4 +1,5 @@
 <?
+
 if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind.
 {
 // --- BASE MESSAGE
@@ -1634,16 +1635,19 @@ class Kodi_RPC_Data extends stdClass
 
     public $Method;
     public $Params;
+    public $Id;
 
     public function __construct($Method = null, $Params = null)
     {
         $this->Method = $Method;
         $this->Params = $Params;
+        $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
     public function GetDataFromJSONKodiObject($Data)
     {
         $this->Method = $Data->Method;
+        $this->Id = $Data->Id;
         $this->Params = $this->DecodeUTF8($Data->Params);
     }
 
@@ -1652,6 +1656,7 @@ class Kodi_RPC_Data extends stdClass
         $SendData = new stdClass();
         $SendData->DataID = $GUID;
         $SendData->Method = $this->Method;
+        $SendData->Id = $this->Id;        
         $SendData->Params = $this->EncodeUTF8($this->Params);
         return json_encode($SendData);
     }
@@ -1660,6 +1665,7 @@ class Kodi_RPC_Data extends stdClass
     {
         $Json = json_decode(utf8_decode($Data));
         $this->Method = $Json->method;
+        $this->Id = $Json->id;
         $this->Params = $Json->params;
     }
 
@@ -1669,6 +1675,7 @@ class Kodi_RPC_Data extends stdClass
         $RPC->jsonrpc = "2.0";
         $RPC->method = $this->Method;
         $RPC->params = $this->Params;
+        $RPC->id = $this->Id;
         $SendData = new stdClass;
         $SendData->DataID = $GUID;
         $SendData->Buffer = utf8_encode(json_encode($RPC));
