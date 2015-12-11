@@ -511,8 +511,10 @@ class KodiSplitter extends IPSModule
 
     protected function SetStatus($InstanceStatus)
     {
+        IPS_LogMessage('OldState',IPS_GetInstance($this->InstanceID)['InstanceStatus']);
         if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
             parent::SetStatus($InstanceStatus);
+        IPS_LogMessage('NewState',IPS_GetInstance($this->InstanceID)['InstanceStatus']);        
     }
 
     protected function SetSummary($data)

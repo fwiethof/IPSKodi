@@ -1643,14 +1643,20 @@ class Kodi_RPC_Data extends stdClass
     {
         $this->Namespace = $Namespace;
         $this->Method = $Method;
-        $this->Params = (object) $Params;
+        if (is_array($Params))
+            $this->Params = (object) $Params;
+        if (!is_object($this->Params))
+            throw new Exception('Invalid Parameter');
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
     public function __call($name, $arguments)
     {
         $this->Method = $name;
-        $this->Params = (object) $arguments;
+        if (is_array($arguments))
+            $this->Params = (object) $arguments;
+        if (!is_object($this->Params))
+            throw new Exception('Invalid Parameter');
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
@@ -1712,7 +1718,7 @@ class Kodi_RPC_Data extends stdClass
     {
         $RPC = new stdClass();
         $RPC->jsonrpc = "2.0";
-        $RPC->method = $this->Namespace.'.'.$this->Method;
+        $RPC->method = $this->Namespace . '.' . $this->Method;
         $RPC->params = $this->Params;
         $RPC->id = $this->Id;
         $SendData = new stdClass;
