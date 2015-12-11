@@ -1633,12 +1633,17 @@ class ISCP_API_Data_Mapping extends stdClass
 class Kodi_RPC_Data extends stdClass
 {
 
-/*    private $Namespace;
+    private $Namespace;
     private $Method;
     private $Error;
     private $Params;
     private $Result;
-      public $Id;*/
+    private $Id;
+
+    public function __get($name)
+    {
+        return $this->{$name};
+    }
 
     public function __construct($Namespace = null, $Method = null, $Params = null)
     {
