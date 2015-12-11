@@ -27,8 +27,8 @@ class KodiSplitter extends IPSModule
         $Open = $this->ReadPropertyBoolean('Open');
         $NewState = IS_ACTIVE;
 
-        /*        if (!$Open)
-          $NewState = IS_INACTIVE; */
+        if (!$Open)
+            $NewState = IS_INACTIVE;
 
         if ($this->ReadPropertyString('Host') == '')
         {
@@ -121,10 +121,9 @@ class KodiSplitter extends IPSModule
                         $this->SetStatus($NewState);
                     break;
             }
-        } else
-        {
-            $this->SetStatus(IS_INACTIVE);
         }
+        else
+            $this->SetStatus($NewState);
     }
 
 ################## PRIVATE     
