@@ -1643,15 +1643,12 @@ class Kodi_RPC_Data extends stdClass
     {
         $this->Namespace = $Namespace;
         $this->Method = $Method;
-        if (!is_null($Params))
-        {
-            IPS_LogMessage('Param1', print_r($Params, true));
-            if (is_array($Params))
-                $this->Params = (object) $Params;
-            IPS_LogMessage('Param2', print_r($this->Params, true));
-            if (!is_object($this->Params))
-                throw new Exception('Invalid Parameter');
-        }
+        IPS_LogMessage('Param1', print_r($Params, true));
+        if (is_array($Params))
+            $this->Params = (object) $Params;
+        IPS_LogMessage('Param2', print_r($this->Params, true));
+        if (is_object($Params))
+            $this->Params = (object) $Params;
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
@@ -1659,12 +1656,12 @@ class Kodi_RPC_Data extends stdClass
     {
         $this->Method = $name;
         IPS_LogMessage('ParamCall1', print_r($arguments, true));
-
         if (is_array($arguments))
             $this->Params = (object) $arguments;
         IPS_LogMessage('ParamCall2', print_r($this->Params, true));
-        if (!is_object($this->Params))
-            throw new Exception('Invalid Parameter');
+        if (is_object($arguments))
+            $this->Params = $arguments;
+
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
