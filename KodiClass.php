@@ -1699,7 +1699,7 @@ class Kodi_RPC_Data extends stdClass
             $SendData->Namespace = $this->Namespace;
         if (!is_null($this->Method))
             $SendData->Method = $this->Method;
-        if (!is_null($this->Param))
+        if (!is_null($this->Params))
             $SendData->Params = $this->EncodeUTF8($this->Params);
         if (!is_null($this->Error))
             $SendData->Error = $this->Error;
