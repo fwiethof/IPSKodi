@@ -1655,12 +1655,12 @@ class Kodi_RPC_Data extends stdClass
     public function __call($name, $arguments)
     {
         $this->Method = $name;
-        IPS_LogMessage('ParamCall1', print_r($arguments, true));
-        if (is_array($arguments))
-            $this->Params = (object) $arguments;
+        IPS_LogMessage('ParamCall1', print_r($arguments[0], true));
+        if (is_array($arguments[0]))
+            $this->Params = (object) $arguments[0];
         IPS_LogMessage('ParamCall2', print_r($this->Params, true));
-        if (is_object($arguments))
-            $this->Params = $arguments;
+        if (is_object($arguments[0]))
+            $this->Params = $arguments[0];
 
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
