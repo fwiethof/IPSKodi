@@ -8,7 +8,7 @@ class KodiDevicePlayer extends IPSModule
     public function Create()
     {
         parent::Create();
-        $this->ConnectParent("{EB1697D1-2A88-4A1A-89D9-807D73EEA7C9}");
+        $this->ConnectParent("{D2F106B5-4473-4C19-A48F-812E8BAA316C}");
         $this->RegisterPropertyInteger("Player", 1);
     }
 

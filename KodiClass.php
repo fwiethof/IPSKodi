@@ -1675,18 +1675,18 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetDataFromJSONKodiObject($Data)
     {
-        if (property_exists($Data, 'error'))
-            $this->Error = $Data->error;
-        if (property_exists($Data, 'result'))
-            $this->Result = $Data->result;
-        if (property_exists($Data, 'namespace'))
-            $this->Namespace = $Data->namespace;
-        if (property_exists($Data, 'method'))
-            $this->Method = $Data->method;
-        if (property_exists($Data, 'params'))
+        if (property_exists($Data, 'Error'))
+            $this->Error = $Data->Error;
+        if (property_exists($Data, 'Result'))
+            $this->Result = $Data->Result;
+        if (property_exists($Data, 'Namespace'))
+            $this->Namespace = $Data->Namespace;
+        if (property_exists($Data, 'Method'))
+            $this->Method = $Data->Method;
+        if (property_exists($Data, 'Params'))
             $this->Params = $this->DecodeUTF8($Data->Params);
-        if (property_exists($Data, 'id'))
-            $this->Id = $Data->id;
+        if (property_exists($Data, 'Id'))
+            $this->Id = $Data->Id;
     }
 
     public function ToKodiObjectJSONString($GUID)
