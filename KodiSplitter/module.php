@@ -4,6 +4,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
 class KodiSplitter extends IPSModule
 {
+
     public function Create()
     {
         parent::Create();
@@ -26,8 +27,8 @@ class KodiSplitter extends IPSModule
         $Open = $this->ReadPropertyBoolean('Open');
         $NewState = IS_ACTIVE;
 
-        if (!$Open)
-            $NewState = IS_INACTIVE;
+        /*        if (!$Open)
+          $NewState = IS_INACTIVE; */
 
         if ($this->ReadPropertyString('Host') == '')
         {
@@ -120,6 +121,9 @@ class KodiSplitter extends IPSModule
                         $this->SetStatus($NewState);
                     break;
             }
+        } else
+        {
+            $this->SetStatus(IS_INACTIVE);
         }
     }
 
@@ -150,7 +154,7 @@ class KodiSplitter extends IPSModule
     public function Play()
     {
         $Params = new StdClass();
-        $Params->playerid=1;
+        $Params->playerid = 1;
         $KodiData = new Kodi_RPC_Data('Player');
         $KodiData->PlayPause($Params);
         $this->SendDataToParent($KodiData);
@@ -159,15 +163,14 @@ class KodiSplitter extends IPSModule
     public function Pause()
     {
         $KodiData = new Kodi_RPC_Data('Player');
-        $KodiData->PlayPause(array('playerid'=>1));
+        $KodiData->PlayPause(array('playerid' => 1));
         $this->SendDataToParent($KodiData);
     }
 
-    public function RawSend(string $Namespace,string $Method,$Params)
+    public function RawSend(string $Namespace, string $Method, $Params)
     {
-        $KodiData = new Kodi_RPC_Data($Namespace,$Method, $Params);
+        $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
         $this->SendDataToParent($KodiData);
-        
     }
 
 ################## DATAPOINT RECEIVE FROM CHILD
@@ -403,6 +406,7 @@ class KodiSplitter extends IPSModule
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
+
     protected function GetParent()
     {
         $instance = IPS_GetInstance($this->InstanceID);
@@ -511,10 +515,10 @@ class KodiSplitter extends IPSModule
 
     protected function SetStatus($InstanceStatus)
     {
-        IPS_LogMessage('OldState',IPS_GetInstance($this->InstanceID)['InstanceStatus']);
+        IPS_LogMessage('OldState', IPS_GetInstance($this->InstanceID)['InstanceStatus']);
         if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
             parent::SetStatus($InstanceStatus);
-        IPS_LogMessage('NewState',IPS_GetInstance($this->InstanceID)['InstanceStatus']);        
+        IPS_LogMessage('NewState', IPS_GetInstance($this->InstanceID)['InstanceStatus']);
     }
 
     protected function SetSummary($data)
