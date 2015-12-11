@@ -4,7 +4,6 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
 class KodiSplitter extends IPSModule
 {
-
     public function Create()
     {
         parent::Create();
@@ -151,14 +150,22 @@ class KodiSplitter extends IPSModule
     public function Play()
     {
         $Params = new StdClass();
-        $Params->playerid=0;
-        $KodiData = new Kodi_RPC_Data('Player.PlayPause', $Params);
+        $Params->playerid=1;
+        $KodiData = new Kodi_RPC_Data('Player');
+        $KodiData->PlayPause($Params);
         $this->SendDataToParent($KodiData);
     }
 
-    public function RawSend(string $Method,$Params)
+    public function Pause()
     {
-        $KodiData = new Kodi_RPC_Data($Method, $Params);
+        $KodiData = new Kodi_RPC_Data('Player');
+        $KodiData->PlayPause(array('playerid'=>1));
+        $this->SendDataToParent($KodiData);
+    }
+
+    public function RawSend(string $Namespace,string $Method,$Params)
+    {
+        $KodiData = new Kodi_RPC_Data($Namespace,$Method, $Params);
         $this->SendDataToParent($KodiData);
         
     }
