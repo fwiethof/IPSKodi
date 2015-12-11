@@ -228,7 +228,7 @@ class KodiSplitter extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        $KodiData = new Kodi_RPC_Data();
+        $KodiData = new Kodi_RPC_Data('');
         $KodiData->GetDataFromJSONIPSObject($data->Buffer);
         IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
         /*
