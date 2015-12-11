@@ -219,7 +219,7 @@ class KodiSplitter extends IPSModule
     private function SendDataToDevice(Kodi_RPC_Data $KodiData)
     {
 //        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
-        $Data = $KodiData->ToJSONString('{73249F91-710A-4D24-B1F1-A72F216C2BDC}');
+        $Data = $KodiData->ToKodiObjectJSONString('{73249F91-710A-4D24-B1F1-A72F216C2BDC}');
         IPS_SendDataToChildren($this->InstanceID, $Data);
     }
 
@@ -228,7 +228,7 @@ class KodiSplitter extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        $KodiData = new Kodi_RPC_Data('');
+        $KodiData = new Kodi_RPC_Data();
         $KodiData->GetDataFromJSONIPSObject($data->Buffer);
         IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
         $this->SendDataToDevice($KodiData);
