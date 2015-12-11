@@ -1633,16 +1633,18 @@ class ISCP_API_Data_Mapping extends stdClass
 class Kodi_RPC_Data extends stdClass
 {
 
-    private $Namespace;
-    private $Method;
-    private $Error;
-    private $Params;
-    private $Id;
+//    private $Namespace;
+//    private $Method;
+//    private $Error;
+//    private $Params;
+//    public $Id;
 
-    public function __construct($Namespace, $Method = null, $Params = null)
+    public function __construct($Namespace = null, $Method = null, $Params = null)
     {
-        $this->Namespace = $Namespace;
-        $this->Method = $Method;
+        if (!is_null($Namespace))
+            $this->Namespace = $Namespace;
+        if (!is_null($Method))
+            $this->Method = $Method;
         IPS_LogMessage('Param1', print_r($Params, true));
         if (is_array($Params))
             $this->Params = (object) $Params;
@@ -1667,9 +1669,10 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetDataFromJSONKodiObject($Data)
     {
-        $this->Id = $Data->Id;
         if (property_exists($Data, 'error'))
             $this->Error = $Data->error;
+        if (property_exists($Data, 'result'))
+            $this->Result = $Data->result;
         if (property_exists($Data, 'namespace'))
             $this->Namespace = $Data->namespace;
         if (property_exists($Data, 'method'))
@@ -1684,18 +1687,19 @@ class Kodi_RPC_Data extends stdClass
     {
         $SendData = new stdClass();
         $SendData->DataID = $GUID;
-        $SendData->Id = $this->Id;
+        if (!is_null($this->Id))
+            $SendData->Id = $this->Id;
         if (!is_null($this->Namespace))
-        {
             $SendData->Namespace = $this->Namespace;
-        }
         if (!is_null($this->Method))
-        {
             $SendData->Method = $this->Method;
+        if (!is_null($this->Param))
             $SendData->Params = $this->EncodeUTF8($this->Params);
-        }
         if (!is_null($this->Error))
             $SendData->Error = $this->Error;
+        if (!is_null($this->Result))
+            $SendData->Result = $this->Result;
+
 
         return json_encode($SendData);
     }
@@ -1717,6 +1721,8 @@ class Kodi_RPC_Data extends stdClass
         }
         if (property_exists($Json, 'params'))
             $this->Params = $Json->params;
+        if (property_exists($Json, 'result'))
+            $this->Result = $Json->result;
     }
 
     public function ToIPSJSONString($GUID)

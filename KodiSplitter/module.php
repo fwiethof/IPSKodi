@@ -144,7 +144,7 @@ class KodiSplitter extends IPSModule
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
-
+/*
     public function RequestState()
     {
         
@@ -165,7 +165,7 @@ class KodiSplitter extends IPSModule
         $KodiData->PlayPause(array('playerid' => 1));
         $this->SendDataToParent($KodiData);
     }
-
+*/
     public function RawSend(string $Namespace, string $Method, $Params)
     {
         $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
@@ -179,8 +179,8 @@ class KodiSplitter extends IPSModule
         $Data = json_decode($JSONString);
         if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
             return false;
-        $KodiData = new Kopi_RPC_Data();
-        $KodiData->GetDataFromJSONObject($Data);
+        $KodiData = new Kodi_RPC_Data();
+        $KodiData->GetDataFromJSONKodiObject($Data);
         try
         {
             $this->ForwardDataFromDevice($KodiData);
@@ -195,7 +195,7 @@ class KodiSplitter extends IPSModule
 
 ################## DATAPOINTS DEVICE
 
-    private function ForwardDataFromDevice(Kopi_RPC_Data $KodiData)
+    private function ForwardDataFromDevice(Kodi_RPC_Data $KodiData)
     {
         /*      if (is_bool($APIData->Data))
           {
@@ -216,7 +216,7 @@ class KodiSplitter extends IPSModule
         }
     }
 
-    private function SendDataToDevice(Kopi_RPC_Data $KodiData)
+    private function SendDataToDevice(Kodi_RPC_Data $KodiData)
     {
 //        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
         $Data = $KodiData->ToJSONString('{73249F91-710A-4D24-B1F1-A72F216C2BDC}');
@@ -524,7 +524,7 @@ class KodiSplitter extends IPSModule
     }
 
 ################## SEMAPHOREN Helper  - private  
-
+/*
     private function lock($ident)
     {
         for ($i = 0; $i < 100; $i++)
@@ -545,7 +545,7 @@ class KodiSplitter extends IPSModule
     {
         IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
     }
-
+*/
 }
 
 ?>

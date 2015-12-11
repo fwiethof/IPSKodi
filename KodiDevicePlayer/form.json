@@ -1,0 +1,18 @@
+{
+    "elements":
+            [
+                {
+                    "name": "Player",
+                    "type": "NumberSpinner",
+                    "caption": "Player-ID"
+                }
+            ],
+    "actions":
+            [
+                {
+                    "type": "Button",
+                    "label": "Request State",
+                    "onClick": "KODI_RequestState($id);"
+                }
+            ]
+}
