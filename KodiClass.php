@@ -1643,10 +1643,13 @@ class Kodi_RPC_Data extends stdClass
     {
         $this->Namespace = $Namespace;
         $this->Method = $Method;
-        if (is_array($Params))
-            $this->Params = (object) $Params;
-        if (!is_object($this->Params))
-            throw new Exception('Invalid Parameter');
+        if (!is_null($Params))
+        {
+            if (is_array($Params))
+                $this->Params = (object) $Params;
+            if (!is_object($this->Params))
+                throw new Exception('Invalid Parameter');
+        }
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
