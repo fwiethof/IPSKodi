@@ -1645,10 +1645,10 @@ class Kodi_RPC_Data extends stdClass
             $this->Namespace = $Namespace;
         if (!is_null($Method))
             $this->Method = $Method;
-        IPS_LogMessage('Param1', print_r($Params, true));
+//        IPS_LogMessage('Param1', print_r($Params, true));
         if (is_array($Params))
             $this->Params = (object) $Params;
-        IPS_LogMessage('Param2', print_r($this->Params, true));
+//        IPS_LogMessage('Param2', print_r($this->Params, true));
         if (is_object($Params))
             $this->Params = (object) $Params;
         $this->Id = round(fmod(microtime(true) * 1000, 10000));

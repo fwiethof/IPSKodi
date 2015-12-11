@@ -231,6 +231,7 @@ class KodiSplitter extends IPSModule
         $KodiData = new Kodi_RPC_Data('');
         $KodiData->GetDataFromJSONIPSObject($data->Buffer);
         IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
+        $this->SendDataToDevice($KodiData);
         /*
           //IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
           $bufferID = $this->GetIDForIdent("BufferIN");
@@ -362,7 +363,7 @@ class KodiSplitter extends IPSModule
         IPS_LogMessage('Kodi_send', print_r($Data, true));
         $JsonString = $Data->ToIPSJSONString('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}');
         $ret = IPS_SendDataToParent($this->InstanceID, $JsonString);
-        IPS_LogMessage('Kodi_ret', print_r($ret, true));
+//        IPS_LogMessage('Kodi_ret', print_r($ret, true));
         // Frame bauen
         /*        if ($this->Mode == ISCPSplitter::LAN)
           {
