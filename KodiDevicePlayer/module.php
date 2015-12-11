@@ -19,7 +19,7 @@ class KodiDevicePlayer extends IPSModule
         $this->RegisterVariableString("ReplyJSONData", "ReplyJSONData", "", -3);
         IPS_SetHidden($this->GetIDForIdent('ReplyJSONData'), true);
 
-        if (IPS_GetKernelRunlevel == KR_READY)
+        if (IPS_GetKernelRunlevel() == KR_READY)
             $this->RequestState();
     }
 
