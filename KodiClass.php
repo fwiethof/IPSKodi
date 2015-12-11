@@ -1683,9 +1683,9 @@ class Kodi_RPC_Data extends stdClass
             $this->Namespace = $Data->namespace;
         if (property_exists($Data, 'method'))
             $this->Method = $Data->method;
-        if (property_exists($Json, 'params'))
+        if (property_exists($Data, 'params'))
             $this->Params = $this->DecodeUTF8($Data->Params);
-        if (property_exists($Id, 'id'))
+        if (property_exists($Data, 'id'))
             $this->Id = $Data->id;
     }
 
