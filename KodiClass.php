@@ -1632,14 +1632,20 @@ class ISCP_API_Data_Mapping extends stdClass
 
 class KodiRPCException extends Exception
 {
-/*    public $Code;
-    public $Message;
-    
-    public function __construct($message,$code)
+    /*    public $Code;
+      public $Message;
+
+      public function __construct($message,$code)
+      {
+      $this->Code = $code;
+      $this->Message=$message;
+      } */
+
+    public function getMessage()
     {
-        $this->Code = $code;
-        $this->Message=$message;
-    }*/
+        return parent::getMessage();
+    }
+
 }
 
 class Kodi_RPC_Data extends stdClass
@@ -1684,7 +1690,7 @@ class Kodi_RPC_Data extends stdClass
 
         $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
-    
+
     public function GetResult()
     {
         if (!is_null($this->Error))
@@ -1695,14 +1701,13 @@ class Kodi_RPC_Data extends stdClass
         {
             return $this->Result;
         }
-
     }
 
     public function GetErrorObject()
     {
-        return new KodiRPCException( $this->Error->message,$this->Error->code);
+        return new KodiRPCException($this->Error->message, $this->Error->code);
     }
-    
+
     public function GetDataFromJSONKodiObject($Data)
     {
         if (property_exists($Data, 'Error'))
