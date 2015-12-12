@@ -1640,19 +1640,20 @@ class KodiRPCException extends Exception
       $this->Code = $code;
       $this->Message=$message;
       } */
-    public function __construct($message, $code , Exception $previous = null) {
+
+    public function __construct($message, $code, Exception $previous = null)
+    {
         parent::__construct($message, $code, $previous);
     }
 
-/*    public function getErrorMsg()
-    {
-        return $this->message;
-    }*/
-    /*public function getMessage()
-    {
-        return parent::getMessage();
-    }*/
-
+    /*    public function getErrorMsg()
+      {
+      return $this->message;
+      } */
+    /* public function getMessage()
+      {
+      return parent::getMessage();
+      } */
 }
 
 class Kodi_RPC_Data extends stdClass
@@ -1712,6 +1713,8 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetErrorObject()
     {
+        if (property_exists($this->Error, 'stack'))
+            return new KodiRPCException($this->Error->stack->message, $this->Error->code);
         return new KodiRPCException($this->Error->message, $this->Error->code);
     }
 
