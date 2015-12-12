@@ -1644,7 +1644,7 @@ class KodiRPCException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function _call($name, $arguments)
+    public function __call($name, $arguments)
     {
         parent::$name();
     }
