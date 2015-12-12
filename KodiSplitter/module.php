@@ -195,18 +195,10 @@ class KodiSplitter extends IPSModule
 
     private function ForwardDataFromDevice(Kodi_RPC_Data $KodiData)
     {
-        /*      if (is_bool($APIData->Data))
-          {
-          $APIData->Data = ISCP_API_Commands::$BoolValueMapping($APIData->Data);
-          }
-          elseif (is_int($APIData->Data))
-          {
-          $APIData->Data = strlen(dechex($APIData->Data)) == 1 ? "0" . dechex($APIData->Data) : dechex($APIData->Data);
-          }
-          $Frame = "!1" . $APIData->APICommand . $APIData->Data . chr(0x0D) . chr(0x0A);
-         */ try
+
+        try
         {
-            $this->SendDataToParent($Frame);
+            $this->SendDataToParent($KodiData);
         }
         catch (Exception $ex)
         {
@@ -254,10 +246,10 @@ class KodiSplitter extends IPSModule
         }
         else
             SetValueString($bufferID, '');
-        
+
         // Empfangs Lock aufheben
         $this->unlock("bufferin");
-        
+
         // Pakete verarbeiten
         foreach ($JSONLine as $JSON)
         {
@@ -559,28 +551,28 @@ class KodiSplitter extends IPSModule
     }
 
 ################## SEMAPHOREN Helper  - private  
-    
-      private function lock($ident)
-      {
-      for ($i = 0; $i < 100; $i++)
-      {
-      if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
-      {
-      return true;
-      }
-      else
-      {
-      IPS_Sleep(mt_rand(1, 5));
-      }
-      }
-      return false;
-      }
 
-      private function unlock($ident)
-      {
-      IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
-      }
-     
+    private function lock($ident)
+    {
+        for ($i = 0; $i < 100; $i++)
+        {
+            if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
+            {
+                return true;
+            }
+            else
+            {
+                IPS_Sleep(mt_rand(1, 5));
+            }
+        }
+        return false;
+    }
+
+    private function unlock($ident)
+    {
+        IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
+    }
+
 }
 
 ?>

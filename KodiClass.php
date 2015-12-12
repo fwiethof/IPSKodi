@@ -1705,8 +1705,6 @@ class Kodi_RPC_Data extends stdClass
             $SendData->Error = $this->Error;
         if (!is_null($this->Result))
             $SendData->Result = $this->Result;
-
-
         return json_encode($SendData);
     }
 
