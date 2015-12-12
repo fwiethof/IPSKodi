@@ -1644,9 +1644,9 @@ class KodiRPCException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function __call($name, $arguments)
+    public function getErrorMsg()
     {
-        parent::$name();
+        return $this->message;
     }
     /*public function getMessage()
     {
