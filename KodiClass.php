@@ -1736,7 +1736,8 @@ class Kodi_RPC_Data extends stdClass
         $RPC = new stdClass();
         $RPC->jsonrpc = "2.0";
         $RPC->method = $this->Namespace . '.' . $this->Method;
-        $RPC->params = $this->Params;
+        if (!is_null($this->Params))
+            $RPC->params = $this->Params;
         $RPC->id = $this->Id;
         $SendData = new stdClass;
         $SendData->DataID = $GUID;

@@ -169,11 +169,6 @@ class KodiSplitter extends IPSModule
       }
      */
 
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
-        $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
-        $this->SendDataToParent($KodiData);
-    }
 
 ################## DATAPOINT RECEIVE FROM CHILD
 
@@ -264,10 +259,10 @@ class KodiSplitter extends IPSModule
         $this->unlock("bufferin");
         
         // Pakete verarbeiten
-        foreach ($JSONLine as $Key => $JSON)
+        foreach ($JSONLine as $JSON)
         {
             $KodiData->GetDataFromJSONIPSObject($JSON);
-            IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
+//            IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
             $this->SendDataToDevice($KodiData);
         }
 
@@ -399,7 +394,7 @@ class KodiSplitter extends IPSModule
         if (!$this->HasActiveParent())
             throw new Exception("Instance has no active Parent.", E_USER_NOTICE);
 
-        IPS_LogMessage('Kodi_send', print_r($Data, true));
+//        IPS_LogMessage('Kodi_send', print_r($Data, true));
         $JsonString = $Data->ToIPSJSONString('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}');
         $ret = IPS_SendDataToParent($this->InstanceID, $JsonString);
 //        IPS_LogMessage('Kodi_ret', print_r($ret, true));

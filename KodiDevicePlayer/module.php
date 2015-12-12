@@ -43,6 +43,12 @@ class KodiDevicePlayer extends IPSModule
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
+    
+    public function RawSend(string $Namespace, string $Method, $Params)
+    {
+        $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
+        $this->SendDataToParent($KodiData);
+    }
 
     public function Mute(boolean $Value)
     {
