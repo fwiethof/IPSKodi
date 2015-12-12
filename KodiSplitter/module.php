@@ -564,7 +564,7 @@ class KodiSplitter extends IPSModule
     }
 
 ################## SEMAPHOREN Helper  - private  
-    /*
+    
       private function lock($ident)
       {
       for ($i = 0; $i < 100; $i++)
@@ -585,7 +585,7 @@ class KodiSplitter extends IPSModule
       {
       IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
       }
-     */
+     
 }
 
 ?>
