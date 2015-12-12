@@ -162,8 +162,9 @@ class KodiDevicePlayer extends IPSModule
     protected function SendDataToParent($Data)
     {
         // API-Daten verpacken und dann versenden.
+        IPS_LogMessage('SendDataToSplitter:'.$this->InstanceID,print_r($Data,true));        
         $JSONString = $Data->ToKodiObjectJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
-//        IPS_LogMessage('SendDataToSplitter:'.$this->InstanceID,$JSONString);
+
         // Daten senden
         return @IPS_SendDataToParent($this->InstanceID, $JSONString);
     }
