@@ -53,7 +53,9 @@ class KodiDevicePlayer extends IPSModule
         }   
         catch (KodiRPCException $ex)
         {
-            trigger_error($ex->getMessage(), E_USER_NOTICE);
+            var_dump($ex);
+            var_dump($ret);
+            //trigger_error($ex->getMessage(), E_USER_NOTICE);
             return false;
         }
         return $ret;
