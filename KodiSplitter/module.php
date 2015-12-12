@@ -72,6 +72,8 @@ class KodiSplitter extends IPSModule
                 @IPS_ApplyChanges($ParentID);
         }
         // Eigene Profile
+        $this->RegisterVariableString("BufferIN", "BufferIN", "", -1);
+        IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
 //        $this->RegisterVariableString("Nodes", "Nodes", "", -5);
 //        $this->RegisterVariableString("BufferIN", "BufferIN", "", -4);
 //        $this->RegisterVariableString("CommandOut", "CommandOut", "", -3);
@@ -144,28 +146,29 @@ class KodiSplitter extends IPSModule
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
-/*
-    public function RequestState()
-    {
-        
-    }
+    /*
+      public function RequestState()
+      {
 
-    public function Play()
-    {
-        $Params = new StdClass();
-        $Params->playerid = 1;
-        $KodiData = new Kodi_RPC_Data('Player');
-        $KodiData->PlayPause($Params);
-        $this->SendDataToParent($KodiData);
-    }
+      }
 
-    public function Pause()
-    {
-        $KodiData = new Kodi_RPC_Data('Player');
-        $KodiData->PlayPause(array('playerid' => 1));
-        $this->SendDataToParent($KodiData);
-    }
-*/
+      public function Play()
+      {
+      $Params = new StdClass();
+      $Params->playerid = 1;
+      $KodiData = new Kodi_RPC_Data('Player');
+      $KodiData->PlayPause($Params);
+      $this->SendDataToParent($KodiData);
+      }
+
+      public function Pause()
+      {
+      $KodiData = new Kodi_RPC_Data('Player');
+      $KodiData->PlayPause(array('playerid' => 1));
+      $this->SendDataToParent($KodiData);
+      }
+     */
+
     public function RawSend(string $Namespace, string $Method, $Params)
     {
         $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
@@ -228,10 +231,46 @@ class KodiSplitter extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
+        $bufferID = $this->GetIDForIdent("BufferIN");
+
+        // Empfangs Lock setzen
+        if (!$this->lock("bufferin"))
+        {
+            trigger_error("ReceiveBuffer is locked", E_USER_WARNING);
+            return false;
+        }
+
+        // Datenstream zusammenfügen
+        $head = GetValueString($bufferID);
+        SetValueString($bufferID, '');
+
         $KodiData = new Kodi_RPC_Data();
-        $KodiData->GetDataFromJSONIPSObject($data->Buffer);
-        IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
-        $this->SendDataToDevice($KodiData);
+        $Data = $head . utf8_decode($data->Buffer);
+
+        // Stream in einzelne Pakete schneiden
+        $Data = str_replace('}{', '}---{', $Data, $Count);
+        $JSONLine = explode('---', $Data);
+
+        if (is_null(json_decode($JSONLine[$Count])))
+        {
+            // Rest vom Stream wieder in den Empfangsbuffer schieben
+            $tail = array_pop($JSONLine);
+            SetValueString($bufferID, $tail);
+        }
+        else
+            SetValueString($bufferID, '');
+        
+        // Empfangs Lock aufheben
+        $this->unlock("bufferin");
+        
+        // Pakete verarbeiten
+        foreach ($JSONLine as $Key => $JSON)
+        {
+            $KodiData->GetDataFromJSONIPSObject($JSON);
+            IPS_LogMessage("Kodi_rec", print_r($KodiData, true));
+            $this->SendDataToDevice($KodiData);
+        }
+
         /*
           //IPS_LogMessage('ReceiveDataFrom???:'.$this->InstanceID,  print_r($data,1));
           $bufferID = $this->GetIDForIdent("BufferIN");
@@ -525,28 +564,28 @@ class KodiSplitter extends IPSModule
     }
 
 ################## SEMAPHOREN Helper  - private  
-/*
-    private function lock($ident)
-    {
-        for ($i = 0; $i < 100; $i++)
-        {
-            if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
-            {
-                return true;
-            }
-            else
-            {
-                IPS_Sleep(mt_rand(1, 5));
-            }
-        }
-        return false;
-    }
+    /*
+      private function lock($ident)
+      {
+      for ($i = 0; $i < 100; $i++)
+      {
+      if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
+      {
+      return true;
+      }
+      else
+      {
+      IPS_Sleep(mt_rand(1, 5));
+      }
+      }
+      return false;
+      }
 
-    private function unlock($ident)
-    {
-        IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
-    }
-*/
+      private function unlock($ident)
+      {
+      IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
+      }
+     */
 }
 
 ?>

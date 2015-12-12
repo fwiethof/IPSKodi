@@ -1712,7 +1712,7 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetDataFromJSONIPSObject($Data)
     {
-        $Json = json_decode(utf8_decode($Data));
+        $Json = json_decode($Data);
         if (property_exists($Json, 'id'))
             $this->Id = $Json->id;
         else
