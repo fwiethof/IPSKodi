@@ -47,7 +47,15 @@ class KodiDevicePlayer extends IPSModule
     public function RawSend(string $Namespace, string $Method, $Params)
     {
         $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
-        $this->Send($KodiData);
+        try
+        {
+            $ret = $this->Send($KodiData);
+        }   
+        catch (Exception $ex)
+        {
+            trigger_error($ex->getMessage(), $ex->getCode());
+        }
+        return $ret;
     }
 
     public function Mute(boolean $Value)
