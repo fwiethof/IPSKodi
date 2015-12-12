@@ -1689,7 +1689,7 @@ class Kodi_RPC_Data extends stdClass
     {
         if (!is_null($this->Error))
         {
-            return $this->GetErrorObject;
+            return $this->GetErrorObject();
         }
         if (!is_null($this->Result))
         {
