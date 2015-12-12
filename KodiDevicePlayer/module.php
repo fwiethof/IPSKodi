@@ -164,7 +164,12 @@ class KodiDevicePlayer extends IPSModule
         }
         //            Senddata('TX_Status','OK')
         $this->unlock('RequestSendData');
-        return $ReplayKodiData;
+        $ret = $ReplayKodiData->GetResult();
+        if (is_a($ret,'KodiRPCException'))
+        {
+            throw $ret;
+        }
+        return $ret;
     }
 
     protected function SendDataToParent($Data)
