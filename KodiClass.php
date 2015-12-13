@@ -167,14 +167,14 @@ class KodiBase extends IPSModule
 
         if (IPS_GetKernelRunlevel() == KR_READY)
             if ($this->HasActiveParent())
-                $this->RequestProperties(self::$Properties);
+                $this->RequestProperties(static::$Properties);
     }
 
 ################## PRIVATE     
 
     private function RequestProperties(array $Properties)
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetProperties', array("properties" => $Properties));
+        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', array("properties" => $Properties));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -207,7 +207,7 @@ class KodiBase extends IPSModule
 
     public function RequestState(string $Ident)
     {
-        if (!in_array($Ident, self::$Properties))
+        if (!in_array($Ident, static::$Properties))
         {
             trigger_error('Property not found.');
             return false;
