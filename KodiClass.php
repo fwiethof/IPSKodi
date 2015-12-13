@@ -1715,7 +1715,7 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetEvent()
     {
-        return $this->Params;
+        return $this->Params->data;
     }
 
     private function GetErrorObject()
