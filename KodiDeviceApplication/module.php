@@ -69,10 +69,13 @@ class KodiDeviceApplication extends KodiBase
         {
             case "mute":
                 $ret = $this->Mute($Value);
+                break;                
             case "volume":
                 $ret = $this->Volume($Value);
+                break;                
             case "quit":
                 $ret = $this->Quit();
+                break;
             default:
                 return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
