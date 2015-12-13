@@ -100,15 +100,17 @@ class KodiDevicePlayer extends IPSModule
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
+        $this->Decode($ret->GetResult());
+
+
         return true;
     }
 
-    private function Decode(Kodi_RPC_Data $KodiData)
+    private function Decode($KodiPayload)
     {
-        $ret = $KodiData->GetEvent();
-        IPS_LogMessage('DecodeJSONData', print_r($ret, true));
+        IPS_LogMessage('DecodeJSONData', print_r($KodiPayload, true));
 
-        foreach ($ret as $param => $value)
+        foreach ($KodiPayload as $param => $value)
         {
             switch ($param)
             {
@@ -270,7 +272,7 @@ class KodiDevicePlayer extends IPSModule
         $KodiData->GetDataFromJSONKodiObject($Data);
 //        IPS_LogMessage('ReceiveJSONData', print_r($KodiData, true));
         //Variable nachführen
-        $this->Decode($KodiData);
+        $this->Decode($KodiData->GetEvent());
     }
 
     private function Send(Kodi_RPC_Data $KodiData)
