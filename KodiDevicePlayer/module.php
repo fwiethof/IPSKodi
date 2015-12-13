@@ -125,7 +125,7 @@ class KodiDevicePlayer extends IPSModule
                     $this->SetValueString("name", $value);
                     break;
                 case "version":
-                    $this->SetValueString("version", $value['major'] . ' ' . $value['tag'] . ' ' . $value['minor']);
+                    $this->SetValueString("version", $value->major.'.'. $value->minor);
                     break;
             }
         }
