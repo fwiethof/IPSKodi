@@ -296,9 +296,9 @@ class KodiBase extends IPSModule
         return @IPS_SendDataToParent($this->InstanceID, $JSONString);
     }
 
-################## DUMMYS / WOARKAROUNDS - private
+################## DUMMYS / WOARKAROUNDS - protected
 
-    private function SetValueBoolean($Ident, $value)
+    protected function SetValueBoolean($Ident, $value)
     {
         $id = $this->GetIDForIdent($Ident);
         if (GetValueBoolean($id) <> $value)
@@ -309,7 +309,7 @@ class KodiBase extends IPSModule
         return false;
     }
 
-    private function SetValueInteger($Ident, $value)
+    protected function SetValueInteger($Ident, $value)
     {
         $id = $this->GetIDForIdent($Ident);
         if (GetValueInteger($id) <> $value)
@@ -320,7 +320,7 @@ class KodiBase extends IPSModule
         return false;
     }
 
-    private function SetValueString($Ident, $value)
+    protected function SetValueString($Ident, $value)
     {
         $id = $this->GetIDForIdent($Ident);
         if (GetValueString($id) <> $value)
@@ -331,7 +331,6 @@ class KodiBase extends IPSModule
         return false;
     }
 
-################## DUMMYS / WOARKAROUNDS - protected
 
     private function WaitForResponse($Id)
     {
@@ -370,7 +369,7 @@ class KodiBase extends IPSModule
         return false;
     }
 
-    protected function HasActiveParent()
+    private function HasActiveParent()
     {
 //        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
         $instance = IPS_GetInstance($this->InstanceID);
@@ -629,17 +628,6 @@ class Kodi_RPC_Data extends stdClass
             }
         }
         return $item;
-    }
-
-    public function GetMapping()
-    {
-        $this->Mapping = ISCP_API_Data_Mapping::GetMapping($this->APICommand);
-    }
-
-    public function GetSubCommand()
-    {
-//        IPS_LogMessage('GetSubCommand', print_r(ISCP_API_Command_Mapping::GetMapping($this->APICommand), 1));
-        $this->APISubCommand = (object) ISCP_API_Command_Mapping::GetMapping($this->APICommand);
     }
 
 }
