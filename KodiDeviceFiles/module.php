@@ -2,15 +2,11 @@
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
-class KodiDevicePlayer extends KodiBase
+class KodiDeviceFiles extends KodiBase
 {
 
-    static $Namespace = 'Application';
+    static $Namespace = 'Files';
     static $Properties = array(
-//        "volume",
-//        "muted",
-//        "name",
-//        "version"
     );
 
     public function Create()

@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
-class KodiDevicePlayer extends KodiBase
+class KodiDeviceGUI extends KodiBase
 {
 
     static $Namespace = 'Application';
@@ -88,7 +88,7 @@ class KodiDevicePlayer extends KodiBase
     {
         parent::RawSend($Namespace, $Method, $Params);
     }
-//
+
 //    public function Mute(boolean $Value)
 //    {
 //        if (!is_bool($Value))

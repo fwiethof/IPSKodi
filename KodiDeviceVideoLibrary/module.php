@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
-class KodiDevicePlayer extends KodiBase
+class KodiDeviceVideoLibrary extends KodiBase
 {
 
     static $Namespace = 'Application';
@@ -44,19 +44,19 @@ class KodiDevicePlayer extends KodiBase
         {
             switch ($param)
             {
-//                case "mute":
-//                case "muted":
-//                    $this->SetValueBoolean("mute", $value);
-//                    break;
-//                case "volume":
-//                    $this->SetValueInteger("volume", $value);
-//                    break;
-//                case "name":
-//                    $this->SetValueString("name", $value);
-//                    break;
-//                case "version":
-//                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-//                    break;
+                case "mute":
+                case "muted":
+                    $this->SetValueBoolean("mute", $value);
+                    break;
+                case "volume":
+                    $this->SetValueInteger("volume", $value);
+                    break;
+                case "name":
+                    $this->SetValueString("name", $value);
+                    break;
+                case "version":
+                    $this->SetValueString("version", $value->major . '.' . $value->minor);
+                    break;
             }
         }
     }

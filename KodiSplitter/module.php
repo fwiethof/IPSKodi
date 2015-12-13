@@ -114,6 +114,11 @@ class KodiSplitter extends IPSModule
                           @IPS_ApplyChanges($Device);
                           }
                           } */
+
+                        $InstanceIDs = IPS_GetInstanceList();
+                        foreach ($InstanceIDs as $IID)
+                            if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)
+                                @IPS_ApplyChanges($IID);
                     }
                     break;
                 case KR_INIT:
@@ -123,8 +128,7 @@ class KodiSplitter extends IPSModule
                         $this->SetStatus($NewState);
                     break;
             }
-        }
-        else
+        } else
             $this->SetStatus($NewState);
     }
 
@@ -182,8 +186,7 @@ class KodiSplitter extends IPSModule
         try
         {
             $this->ForwardDataFromDevice($KodiData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
@@ -199,8 +202,7 @@ class KodiSplitter extends IPSModule
         try
         {
             $this->SendDataToParent($KodiData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
             throw new Exception($ex->getMessage(), $ex->getCode());
         }
@@ -243,8 +245,7 @@ class KodiSplitter extends IPSModule
             // Rest vom Stream wieder in den Empfangsbuffer schieben
             $tail = array_pop($JSONLine);
             SetValueString($bufferID, $tail);
-        }
-        else
+        } else
             SetValueString($bufferID, '');
 
         // Empfangs Lock aufheben
@@ -494,8 +495,7 @@ class KodiSplitter extends IPSModule
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
                 IPS_SetEventActive($id, true);
-            }
-            else
+            } else
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
                 IPS_SetEventActive($id, false);
@@ -559,8 +559,7 @@ class KodiSplitter extends IPSModule
             if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            }
-            else
+            } else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }

@@ -1,11 +1,11 @@
 {
-    "id": "{BA014AD9-9568-4F12-BE31-17D37BFED06D}",
-    "name": "KodiDevicePlayer",
+    "id": "{03E18A60-02FD-45E8-8A2C-1F8E247C92D0}",
+    "name": "KodiDeviceSystem",
     "type": 3,
     "vendor": "Kodi",
-    "aliases": ["Kodi Playerstatus"],
+    "aliases": ["Kodi System"],
     "parentRequirements": ["{0222A902-A6FA-4E94-94D3-D54AA4666321}"],
     "childRequirements": [],
     "implemented": ["{73249F91-710A-4D24-B1F1-A72F216C2BDC}"],
-    "prefix": "KODI_PLAYER"
+    "prefix": "KODI_SYS"
 }

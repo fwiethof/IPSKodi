@@ -184,12 +184,14 @@ class KodiBase extends IPSModule
 
     protected function Decode($KodiPayload)
     {
+        
     }
 
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
     {
+        
     }
 
 ################## PUBLIC
@@ -207,6 +209,8 @@ class KodiBase extends IPSModule
 
     public function RequestState(string $Ident)
     {
+        if ($Ident == 'ALL')
+            return $this->RequestProperties(static::$Properties);
         if (!in_array($Ident, static::$Properties))
         {
             trigger_error('Property not found.');
@@ -214,6 +218,7 @@ class KodiBase extends IPSModule
         }
         return $this->RequestProperties(array($Ident));
     }
+
 ################## Datapoints
 
     public function ReceiveData($JSONString)
@@ -330,7 +335,6 @@ class KodiBase extends IPSModule
         }
         return false;
     }
-
 
     private function WaitForResponse($Id)
     {

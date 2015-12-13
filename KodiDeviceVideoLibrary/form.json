@@ -1,13 +1,14 @@
 {
     "elements":
             [
+
             ],
     "actions":
             [
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "KODI_PLAYER_RequestState($id,'ALL');"
+                    "onClick": "KODI_VIDEOLIB__RequestState($id,'ALL');"
                 }
             ]
 }

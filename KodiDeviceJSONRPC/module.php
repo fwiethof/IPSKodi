@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
-class KodiDevicePlayer extends KodiBase
+class KodiDeviceJSONRPC extends KodiBase
 {
 
     static $Namespace = 'Application';

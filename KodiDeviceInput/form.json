@@ -7,7 +7,7 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "KODI_PLAYER_RequestState($id,'ALL');"
+                    "onClick": "KODI_INPUT_RequestState($id,'ALL');"
                 }
             ]
 }
