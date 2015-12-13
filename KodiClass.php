@@ -503,7 +503,6 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetResult()
     {
-        IPS_LogMessage('GetResult', print_r($this, true));        
         if (!is_null($this->Error))
         {
             return $this->GetErrorObject();

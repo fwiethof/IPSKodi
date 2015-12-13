@@ -86,7 +86,7 @@ class KodiDeviceInput extends KodiBase
 
     public function RawSend(string $Namespace, string $Method, $Params)
     {
-        parent::RawSend($Namespace, $Method, $Params);
+      return  parent::RawSend($Namespace, $Method, $Params);
     }
 //
 //    public function Mute(boolean $Value)
@@ -132,7 +132,7 @@ class KodiDeviceInput extends KodiBase
 
     public function RequestState(string $Ident)
     {
-        parent::RequestState($Ident);
+    return    parent::RequestState($Ident);
     }
 
     /*
