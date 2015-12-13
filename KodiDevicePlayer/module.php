@@ -219,7 +219,7 @@ class KodiDevicePlayer extends IPSModule
 
     public function RequestState(string $Ident)
     {
-        if (!array_key_exists($Ident, self::properties))
+        if (!in_array($Ident, self::$Properties))
         {
             trigger_error('Property not found.');
             return false;
