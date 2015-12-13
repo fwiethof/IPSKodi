@@ -105,10 +105,8 @@ class KodiDevicePlayer extends IPSModule
 
     private function Decode(Kodi_RPC_Data $KodiData)
     {
-        $ret = $KodiData->GetResult();
+        $ret = $KodiData->GetEvent();
         IPS_LogMessage('DecodeJSONData', print_r($ret, true));
-        if (is_a($ret, 'KodiRPCException'))
-            return;
 
         foreach ($ret as $param => $value)
         {
@@ -125,7 +123,7 @@ class KodiDevicePlayer extends IPSModule
                     $this->SetValueString("name", $value);
                     break;
                 case "version":
-                    $this->SetValueString("version", $value->major.'.'. $value->minor);
+                    $this->SetValueString("version", $value->major . '.' . $value->minor);
                     break;
             }
         }
@@ -191,6 +189,7 @@ class KodiDevicePlayer extends IPSModule
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
+        $this->SetValueBoolean("mute", $ret);
         return $ret['mute'] === $Value;
     }
 
@@ -205,6 +204,7 @@ class KodiDevicePlayer extends IPSModule
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
+        $this->SetValueInteger("volume", $ret);
         return $ret['volume'] === $Value;
     }
 
@@ -264,6 +264,7 @@ class KodiDevicePlayer extends IPSModule
             SetValueString($ReplyJSONDataID, $JSONString);
             $this->unlock('ReplyJSONData');
 //        IPS_LogMessage('ReceiveAPIData2', print_r($APIData, true));
+            return true;
         }
         $KodiData = new Kodi_RPC_Data();
         $KodiData->GetDataFromJSONKodiObject($Data);
