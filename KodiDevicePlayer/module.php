@@ -100,7 +100,7 @@ class KodiDevicePlayer extends IPSModule
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        $this->Decode($ret->GetResult());
+        $this->Decode($ret);
 
 
         return true;
