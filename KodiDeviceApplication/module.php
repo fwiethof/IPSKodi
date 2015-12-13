@@ -68,14 +68,16 @@ class KodiDeviceApplication extends KodiBase
         switch ($Ident)
         {
             case "mute":
-                return $this->Mute($Value);
+                $ret = $this->Mute($Value);
             case "volume":
-                return $this->Volume($Value);
+                $ret = $this->Volume($Value);
             case "quit":
-                return $this->Quit();
+                $ret = $this->Quit();
             default:
                 return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
+        if (!$ret)
+                return trigger_error('Error on write data.', E_USER_NOTICE);
     }
 
 ################## PUBLIC
@@ -96,12 +98,12 @@ class KodiDeviceApplication extends KodiBase
             trigger_error('Value must be boolean', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => (bool)$Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         $this->SetValueBoolean("mute", $ret);
-        return $ret['mute'] === (bool)$Value;
+        return $ret === $Value;
     }
 
     public function Volume(integer $Value)
@@ -113,12 +115,12 @@ class KodiDeviceApplication extends KodiBase
         }
 //        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->SetVolume(array("volume" => (int)$Value));
+        $KodiData->SetVolume(array("volume" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         $this->SetValueInteger("volume", $ret);
-        return $ret['volume'] === (int)$Value;
+        return $ret === $Value;
     }
 
     public function Quit()
