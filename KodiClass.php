@@ -1712,23 +1712,19 @@ class Kodi_RPC_Data extends stdClass
         }
     }
 
-    public function GetErrorObject()
+    private function GetErrorObject()
     {
-        if (is_null($this->Error))
-            return false;
-        else
-        {
-            if (property_exists($this->Error, 'data'))
-                if (property_exists($this->Error->data, 'stack'))
-                    if (property_exists($this->Error->data->stack, 'message'))
-                        return new KodiRPCException($this->Error->data->stack->message, $this->Error->code);
-                    else
-                        return new KodiRPCException($this->Error->data->stack, $this->Error->code);
+
+        if (property_exists($this->Error, 'data'))
+            if (property_exists($this->Error->data, 'stack'))
+                if (property_exists($this->Error->data->stack, 'message'))
+                    return new KodiRPCException($this->Error->data->stack->message, $this->Error->code);
                 else
-                    return new KodiRPCException($this->Error->data, $this->Error->code);
+                    return new KodiRPCException($this->Error->data->stack, $this->Error->code);
             else
-                return new KodiRPCException($this->Error->message, $this->Error->code);
-        }
+                return new KodiRPCException($this->Error->data, $this->Error->code);
+        else
+            return new KodiRPCException($this->Error->message, $this->Error->code);
     }
 
     public function GetDataFromJSONKodiObject($Data)
