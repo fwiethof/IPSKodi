@@ -491,10 +491,10 @@ class Kodi_RPC_Data extends stdClass
     public function __call($name, $arguments)
     {
         $this->Method = $name;
-        IPS_LogMessage('ParamCall1', print_r($arguments[0], true));
+//        IPS_LogMessage('ParamCall1', print_r($arguments[0], true));
         if (is_array($arguments[0]))
             $this->Params = (object) $arguments[0];
-        IPS_LogMessage('ParamCall2', print_r($this->Params, true));
+//        IPS_LogMessage('ParamCall2', print_r($this->Params, true));
         if (is_object($arguments[0]))
             $this->Params = $arguments[0];
 
@@ -503,6 +503,7 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetResult()
     {
+        IPS_LogMessage('GetResult', print_r($this, true));        
         if (!is_null($this->Error))
         {
             return $this->GetErrorObject();
@@ -516,6 +517,7 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetEvent()
     {
+        IPS_LogMessage('GetEvent', print_r($this, true));        
         return $this->Params->data;
     }
 
