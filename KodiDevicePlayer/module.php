@@ -256,9 +256,6 @@ class KodiDevicePlayer extends IPSModule
         if ($Data->DataID <> '{73249F91-710A-4D24-B1F1-A72F216C2BDC}')
             return false;
 
-        if ($Data->Namespace <> self::$Namespace)
-            return false;
-
         if (property_exists($Data, 'Id')) //Reply
         {
             $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
