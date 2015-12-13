@@ -5,11 +5,11 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 class KodiDeviceGUI extends KodiBase
 {
 
-    static $Namespace = 'Application';
+    static $Namespace = 'GUI';
     static $Properties = array(
-//        "volume",
-//        "muted",
-//        "name",
+        "currentwindow",
+        "id",
+        "label"
 //        "version"
     );
 

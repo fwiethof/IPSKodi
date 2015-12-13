@@ -7,7 +7,7 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "KODI_GUI_RequestState($id,'ALL');"
+                    "onClick": "KODIGUI_RequestState($id,'ALL');"
                 }
             ]
 }

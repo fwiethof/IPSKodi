@@ -8,7 +8,7 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "KODI_VIDEOLIB__RequestState($id,'ALL');"
+                    "onClick": "KODIVIDEOLIB__RequestState($id,'ALL');"
                 }
             ]
 }

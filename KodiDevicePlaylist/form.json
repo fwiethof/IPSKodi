@@ -7,7 +7,7 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "KODI_PLAYLIST_RequestState($id,'ALL');"
+                    "onClick": "KODIPLAYLIST_RequestState($id,'ALL');"
                 }
             ]
 }

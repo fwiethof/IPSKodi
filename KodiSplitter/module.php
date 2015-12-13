@@ -131,7 +131,6 @@ class KodiSplitter extends IPSModule
         } else
             $this->SetStatus($NewState);
     }
-
 ################## PRIVATE     
 
     private function RequestKodiState()

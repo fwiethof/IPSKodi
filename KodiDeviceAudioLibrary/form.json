@@ -7,7 +7,7 @@
                 {
                     "type": "Button",
                     "label": "Request State",
-                    "onClick": "KODI_AUDIOLIB_RequestState($id,'ALL');"
+                    "onClick": "KODIAUDIOLIB_RequestState($id,'ALL');"
                 }
             ]
 }
