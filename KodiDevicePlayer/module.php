@@ -87,7 +87,8 @@ class KodiDevicePlayer extends IPSModule
         $this->EnableAction("volume");
 
         if (IPS_GetKernelRunlevel() == KR_READY)
-            $this->RequestProperties(self::$Properties);
+            if ($this->HasActiveParent())
+                $this->RequestProperties(self::$Properties);
     }
 
 ################## PRIVATE     
