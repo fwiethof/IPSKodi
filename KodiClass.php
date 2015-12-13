@@ -142,6 +142,8 @@ if (@constant('IPS_BASE') == null) //Nur wenn Konstanten noch nicht bekannt sind
     define('vtInteger', 1);
     define('vtFloat', 2);
     define('vtString', 3);
+    define('vtArray', 8);
+    define('vtObject', 9);
 }
 
 //  API Datentypen
@@ -153,7 +155,8 @@ class IPSVarType extends stdClass
     const vtInteger = 1;
     const vtFloat = 2;
     const vtString = 3;
-    const vtDualInteger = 10;
+    const vtArray = 8;
+    const vtObject = 9;
 
 }
 
@@ -1586,8 +1589,7 @@ class ISCP_API_Command_Mapping extends stdClass
               $this->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
               $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
              */
-        }
-        else
+        } else
             return null;
     }
 
@@ -1623,8 +1625,7 @@ class ISCP_API_Data_Mapping extends stdClass
               $this->EnableAction = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::EnableAction];
               $this->Profile = ISCP_API_Commands::$VarMapping[$Cmd][ISCP_API_Commands::Profile];
              */
-        }
-        else
+        } else
             return null;
     }
 
@@ -1713,16 +1714,21 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetErrorObject()
     {
-        if (property_exists($this->Error, 'data'))
-            if (property_exists($this->Error->data, 'stack'))
-                if (property_exists($this->Error->data->stack, 'message'))
-                    return new KodiRPCException($this->Error->data->stack->message, $this->Error->code);
-                else
-                    return new KodiRPCException($this->Error->data->stack, $this->Error->code);
-            else
-                return new KodiRPCException($this->Error->data, $this->Error->code);
+        if (is_null($this->Error))
+            return false;
         else
-            return new KodiRPCException($this->Error->message, $this->Error->code);
+        {
+            if (property_exists($this->Error, 'data'))
+                if (property_exists($this->Error->data, 'stack'))
+                    if (property_exists($this->Error->data->stack, 'message'))
+                        return new KodiRPCException($this->Error->data->stack->message, $this->Error->code);
+                    else
+                        return new KodiRPCException($this->Error->data->stack, $this->Error->code);
+                else
+                    return new KodiRPCException($this->Error->data, $this->Error->code);
+            else
+                return new KodiRPCException($this->Error->message, $this->Error->code);
+        }
     }
 
     public function GetDataFromJSONKodiObject($Data)
