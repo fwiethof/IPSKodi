@@ -96,12 +96,12 @@ class KodiDeviceApplication extends KodiBase
             trigger_error('Value must be boolean', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => (bool)$Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         $this->SetValueBoolean("mute", $ret);
-        return $ret['mute'] === $Value;
+        return $ret['mute'] === (bool)$Value;
     }
 
     public function Volume(integer $Value)
@@ -113,12 +113,12 @@ class KodiDeviceApplication extends KodiBase
         }
 //        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->SetVolume(array("volume" => $Value));
+        $KodiData->SetVolume(array("volume" => (int)$Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         $this->SetValueInteger("volume", $ret);
-        return $ret['volume'] === $Value;
+        return $ret['volume'] === (int)$Value;
     }
 
     public function Quit()
