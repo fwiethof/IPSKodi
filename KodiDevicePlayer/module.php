@@ -5,14 +5,34 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 class KodiDevicePlayer extends KodiBase
 {
 
-    static $Namespace = 'Application';
+    static $Namespace = 'Player';
     static $Properties = array(
-//        "volume",
-//        "muted",
-//        "name",
-//        "version"
+        "type",
+        "partymode",
+        "speed",
+        "time",
+        "percentage",
+        "totaltime",
+        "playlistid",
+        "position",
+        "repeat",
+        "shuffled",
+        "canseek",
+        "canchangespeed",
+        "canmove",
+        "canzoom",
+        "canrotate",
+        "canshuffle",
+        "canrepeat",
+        "currentaudiostream",
+        "audiostreams",
+        "subtitleenabled",
+        "currentsubtitle",
+        "subtitles",
+        "live"
     );
-
+    private $PlayerId;
+    
     public function Create()
     {
         parent::Create();
@@ -31,14 +51,13 @@ class KodiDevicePlayer extends KodiBase
 //        $this->EnableAction("mute");
 //        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
 //        $this->EnableAction("volume");
-
         //Never delete this line!
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
 
-    protected function Decode($KodiPayload)
+    protected function Decode($Method, $KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {
@@ -86,8 +105,9 @@ class KodiDevicePlayer extends KodiBase
 
     public function RawSend(string $Namespace, string $Method, $Params)
     {
-      return  parent::RawSend($Namespace, $Method, $Params);
+        return parent::RawSend($Namespace, $Method, $Params);
     }
+
 //
 //    public function Mute(boolean $Value)
 //    {
@@ -132,16 +152,11 @@ class KodiDevicePlayer extends KodiBase
 
     public function RequestState(string $Ident)
     {
-      return  parent::RequestState($Ident);
+        return parent::RequestState($Ident);
     }
 
     /*
       public function Pause()
-      {
-
-      }
-
-      public function Sleep(integer $Value)
       {
 
       }
@@ -151,10 +166,6 @@ class KodiDevicePlayer extends KodiBase
 
       }
 
-      public function Shutdown()
-      {
-
-      }
      */
 ################## Datapoints
 
@@ -162,7 +173,7 @@ class KodiDevicePlayer extends KodiBase
     {
         return parent::ReceiveData($JSONString);
     }
-
+/*
     protected function Send(Kodi_RPC_Data $KodiData)
     {
         return parent::Send($KodiData);
@@ -172,6 +183,7 @@ class KodiDevicePlayer extends KodiBase
     {
         return parent::SendDataToParent($Data);
     }
+*/
 }
 
 ?>

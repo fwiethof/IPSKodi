@@ -178,11 +178,11 @@ class KodiBase extends IPSModule
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        $this->Decode($ret);
+        $this->Decode('GetProperties', $ret);
         return true;
     }
 
-    protected function Decode($KodiPayload)
+    protected function Decode($Method, $KodiPayload)
     {
         
     }
@@ -238,8 +238,10 @@ class KodiBase extends IPSModule
         }
         $KodiData = new Kodi_RPC_Data();
         $KodiData->GetDataFromJSONKodiObject($Data);
+        if ($KodiData->Namespace <> static::$Namespace)
+            return false;
         //Variable nachführen
-        $this->Decode($KodiData->GetEvent());
+        $this->Decode($KodiData->Method, $KodiData->GetEvent());
     }
 
     protected function Send(Kodi_RPC_Data $KodiData)
@@ -364,12 +366,6 @@ class KodiBase extends IPSModule
                 }
             }
         }
-        if ($this->lock('ReplyJSONData'))
-        {
-            SetValueString($ReplyJSONDataID, '');
-            $this->unlock('ReplyJSONData');
-        }
-
         return false;
     }
 
@@ -516,7 +512,7 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetEvent()
     {
-        IPS_LogMessage('GetEvent', print_r($this, true));        
+        IPS_LogMessage('GetEvent', print_r($this, true));
         return $this->Params->data;
     }
 

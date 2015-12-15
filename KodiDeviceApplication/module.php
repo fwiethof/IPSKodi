@@ -38,7 +38,7 @@ class KodiDeviceApplication extends KodiBase
 
 ################## PRIVATE     
 
-    protected function Decode($KodiPayload)
+    protected function Decode($Method, $KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {
@@ -68,19 +68,17 @@ class KodiDeviceApplication extends KodiBase
         switch ($Ident)
         {
             case "mute":
-                $ret = $this->Mute($Value);
-                break;                
+                $this->Mute($Value);
+                break;
             case "volume":
-                $ret = $this->Volume($Value);
-                break;                
+                $this->Volume($Value);
+                break;
             case "quit":
-                $ret = $this->Quit();
+                $this->Quit();
                 break;
             default:
-                return trigger_error('Invalid Ident.', E_USER_NOTICE);
+                trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
-        if (!$ret)
-                return trigger_error('Error on write data.', E_USER_NOTICE);
     }
 
 ################## PUBLIC
@@ -101,7 +99,8 @@ class KodiDeviceApplication extends KodiBase
             trigger_error('Value must be boolean', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->SetMute(array("mute" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -140,34 +139,13 @@ class KodiDeviceApplication extends KodiBase
         return parent::RequestState($Ident);
     }
 
-    /*
-      public function Pause()
-      {
-
-      }
-
-      public function Sleep(integer $Value)
-      {
-
-      }
-
-      public function Stop()
-      {
-
-      }
-
-      public function Shutdown()
-      {
-
-      }
-     */
 ################## Datapoints
 
     public function ReceiveData($JSONString)
     {
         return parent::ReceiveData($JSONString);
     }
-
+/*
     protected function Send(Kodi_RPC_Data $KodiData)
     {
         return parent::Send($KodiData);
@@ -177,6 +155,7 @@ class KodiDeviceApplication extends KodiBase
     {
         return parent::SendDataToParent($Data);
     }
+*/
 }
 
 ?>

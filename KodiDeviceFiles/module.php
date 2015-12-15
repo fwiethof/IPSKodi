@@ -34,7 +34,7 @@ class KodiDeviceFiles extends KodiBase
 
 ################## PRIVATE     
 
-    protected function Decode($KodiPayload)
+    protected function Decode($Method,$KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {

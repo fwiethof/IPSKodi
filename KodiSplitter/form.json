@@ -20,6 +20,16 @@
                     "name": "Webport",
                     "type": "NumberSpinner",
                     "caption": "Webserver Port"
+                },
+                {
+                    "name": "Watchdog",
+                    "type": "CheckBox",
+                    "caption": "Active"
+                },
+                {
+                    "name": "Interval",
+                    "type": "IntervalBox",
+                    "caption": "seconds"
                 }
             ],
     "status":

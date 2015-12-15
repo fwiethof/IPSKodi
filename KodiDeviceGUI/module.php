@@ -8,9 +8,10 @@ class KodiDeviceGUI extends KodiBase
     static $Namespace = 'GUI';
     static $Properties = array(
         "currentwindow",
-        "id",
-        "label"
-//        "version"
+        "currentcontrol",
+        "skin",
+        "fullscreen",
+        "stereoscopicmode"
     );
 
     public function Create()
@@ -20,44 +21,55 @@ class KodiDeviceGUI extends KodiBase
 
     public function ApplyChanges()
     {
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
 
+        $this->RegisterVariableString("currentwindow", "Aktuelles Fenster", "", 0);
+        $this->RegisterVariableInteger("currentwindowid", "Aktuelles Fenster (id)", "", 0);
+        IPS_SetHidden($this->GetIDForIdent('currentwindowid'), true);
+        $this->RegisterVariableString("currentcontrol", "Aktuelles Control", "", 1);
+        $this->RegisterVariableString("skin", "Aktuelles Skin", "", 2);
+        $this->RegisterVariableString("skinid", "Aktuelles Skin (id)", "", 2);
+        IPS_SetHidden($this->GetIDForIdent('skinid'), true);
+        $this->RegisterVariableBoolean("fullscreen", "Vollbild", "~Switch", 3);
+        $this->EnableAction("fullscreen");
+        $this->RegisterVariableBoolean("screensaver", "Bildschirmschoner", "~Switch", 4);
         //Never delete this line!
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
 
-    protected function Decode($KodiPayload)
+    protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
+        switch ($Method)
         {
-            switch ($param)
-            {
-//                case "mute":
-//                case "muted":
-//                    $this->SetValueBoolean("mute", $value);
-//                    break;
-//                case "volume":
-//                    $this->SetValueInteger("volume", $value);
-//                    break;
-//                case "name":
-//                    $this->SetValueString("name", $value);
-//                    break;
-//                case "version":
-//                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-//                    break;
-            }
+            case 'GetProperties':
+                foreach ($KodiPayload as $param => $value)
+                {
+                    switch ($param)
+                    {
+                        case "currentcontrol":
+                            $this->SetValueString("currentcontrol", $value->label);
+                            break;
+                        case "currentwindow":
+                            $this->SetValueString("currentwindow", $value->label);
+                            $this->SetValueInteger("currentwindowid", $value->id);
+                            break;
+                        case "fullscreen":
+                            $this->SetValueBoolean("fullscreen", $value);
+                            break;
+                        case "skin":
+                            $this->SetValueString("skin", $value->name);
+                            $this->SetValueString("skinid", $value->id);
+                            break;
+                    }
+                }
+                break;
+            case 'OnScreensaverDeactivated':
+                $this->SetValueBoolean("screensaver", false);
+                break;
+            case 'OnScreensaverActivated':
+                $this->SetValueBoolean("screensaver", true);
+                break;
         }
     }
 
@@ -67,14 +79,10 @@ class KodiDeviceGUI extends KodiBase
     {
         switch ($Ident)
         {
-//            case "mute":
-//                return $this->Mute($Value);
-//            case "volume":
-//                return $this->Volume($Value);
-//            case "quit":
-//                return $this->Quit();
-//            default:
-//                return trigger_error('Invalid Ident.', E_USER_NOTICE);
+            case "fullscreen":
+                $this->Fullscreen($Value);
+            default:
+                trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
     }
 
@@ -86,83 +94,85 @@ class KodiDeviceGUI extends KodiBase
 
     public function RawSend(string $Namespace, string $Method, $Params)
     {
-     return   parent::RawSend($Namespace, $Method, $Params);
+        return parent::RawSend($Namespace, $Method, $Params);
     }
 
-//    public function Mute(boolean $Value)
-//    {
-//        if (!is_bool($Value))
-//        {
-//            trigger_error('Value must be boolean', E_USER_NOTICE);
-//            return false;
-//        }
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueBoolean("mute", $ret);
-//        return $ret['mute'] === $Value;
-//    }
-//
-//    public function Volume(integer $Value)
-//    {
-//        if (!is_int($Value))
-//        {
-//            trigger_error('Value must be integer', E_USER_NOTICE);
-//            return false;
-//        }
-////        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace);
-//        $KodiData->SetVolume(array("volume" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueInteger("volume", $ret);
-//        return $ret['volume'] === $Value;
-//    }
-//
-//    public function Quit()
-//    {
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Quit');
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        return true;
-//    }
+    public function Fullscreen(boolean $Value)
+    {
+        if (!is_bool($Value))
+        {
+            trigger_error('Value must be boolean', E_USER_NOTICE);
+            return false;
+        }
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->SetFullscreen(array("fullscreen" => $Value));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        $this->SetValueBoolean("fullscreen", $ret);
+        return $ret === $Value;
+    }
+
+    public function ShowNotification(string $Title, string $Message, string $Image, integer $Timeout)
+    {
+        if (!is_string($Title))
+        {
+            trigger_error('Title must be string', E_USER_NOTICE);
+            return false;
+        }
+        if (!is_string($Message))
+        {
+            trigger_error('Message must be string', E_USER_NOTICE);
+            return false;
+        }
+        if (!is_int($Timeout))
+        {
+            trigger_error('Timeout must be integer', E_USER_NOTICE);
+            return false;
+        }
+
+        $Data = array("title" => $Title, "message" => $Message);
+
+        if (is_string($Image))
+            $Data['image'] = $Image;
+        if ($Timeout <> 0)
+            $Data['timeout'] = $Timeout;
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->ShowNotification($Data);
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return $ret === $Title;
+    }
+
+    public function ActivateWindow(string $Window)
+    {
+        if (!is_string($Window))
+        {
+            trigger_error('Window must be string', E_USER_NOTICE);
+            return false;
+        }
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->ActivateWindow(array('window' => $Window));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return $ret === $Window;
+    }
 
     public function RequestState(string $Ident)
     {
-      return  parent::RequestState($Ident);
+        return parent::RequestState($Ident);
     }
 
-    /*
-      public function Pause()
-      {
-
-      }
-
-      public function Sleep(integer $Value)
-      {
-
-      }
-
-      public function Stop()
-      {
-
-      }
-
-      public function Shutdown()
-      {
-
-      }
-     */
-################## Datapoints
+ ################# Datapoints
 
     public function ReceiveData($JSONString)
     {
         return parent::ReceiveData($JSONString);
     }
-
+/*
     protected function Send(Kodi_RPC_Data $KodiData)
     {
         return parent::Send($KodiData);
@@ -172,6 +182,7 @@ class KodiDeviceGUI extends KodiBase
     {
         return parent::SendDataToParent($Data);
     }
+*/
 }
 
 ?>

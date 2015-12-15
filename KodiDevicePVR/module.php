@@ -5,7 +5,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 class KodiDevicePVR extends KodiBase
 {
 
-    static $Namespace = 'Application';
+    static $Namespace = 'PVR';
     static $Properties = array(
 //        "volume",
 //        "muted",
@@ -38,7 +38,7 @@ class KodiDevicePVR extends KodiBase
 
 ################## PRIVATE     
 
-    protected function Decode($KodiPayload)
+    protected function Decode($Method,$KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {
@@ -135,34 +135,14 @@ class KodiDevicePVR extends KodiBase
       return  parent::RequestState($Ident);
     }
 
-    /*
-      public function Pause()
-      {
 
-      }
-
-      public function Sleep(integer $Value)
-      {
-
-      }
-
-      public function Stop()
-      {
-
-      }
-
-      public function Shutdown()
-      {
-
-      }
-     */
 ################## Datapoints
 
     public function ReceiveData($JSONString)
     {
         return parent::ReceiveData($JSONString);
     }
-
+/*
     protected function Send(Kodi_RPC_Data $KodiData)
     {
         return parent::Send($KodiData);
@@ -171,7 +151,7 @@ class KodiDevicePVR extends KodiBase
     protected function SendDataToParent($Data)
     {
         return parent::SendDataToParent($Data);
-    }
+    }*/
 }
 
 ?>

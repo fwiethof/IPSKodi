@@ -16,25 +16,24 @@ class KodiDeviceAudioLibrary extends KodiBase
 
     public function ApplyChanges()
     {
-/*        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-            Array(0, "Ausführen", "", -1)
-        ));
-        $this->RegisterVariableString("name", "Name", "", 0);
-        $this->RegisterVariableString("version", "Version", "", 1);
-        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-        $this->EnableAction("quit");
-        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-        $this->EnableAction("mute");
-        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-        $this->EnableAction("volume");
-*/
-        //Never delete this line!
+//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
+//            Array(0, "Ausführen", "", -1)
+//        ));
+//        $this->RegisterVariableString("name", "Name", "", 0);
+//        $this->RegisterVariableString("version", "Version", "", 1);
+//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
+//        $this->EnableAction("quit");
+//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
+//        $this->EnableAction("mute");
+//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
+//        $this->EnableAction("volume");
+
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
 
-    protected function Decode($KodiPayload)
+protected function Decode($Method, $KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {
@@ -135,34 +134,13 @@ class KodiDeviceAudioLibrary extends KodiBase
         return parent::RequestState($Ident);
     }
 
-    /*
-      public function Pause()
-      {
-
-      }
-
-      public function Sleep(integer $Value)
-      {
-
-      }
-
-      public function Stop()
-      {
-
-      }
-
-      public function Shutdown()
-      {
-
-      }
-     */
 ################## Datapoints
 
     public function ReceiveData($JSONString)
     {
         return parent::ReceiveData($JSONString);
     }
-
+/*
     protected function Send(Kodi_RPC_Data $KodiData)
     {
         return parent::Send($KodiData);
@@ -171,7 +149,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     protected function SendDataToParent($Data)
     {
         return parent::SendDataToParent($Data);
-    }
+    }*/
 }
 
 ?>
