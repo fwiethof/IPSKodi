@@ -81,8 +81,10 @@ class KodiDeviceGUI extends KodiBase
         {
             case "fullscreen":
                 $this->Fullscreen($Value);
+                break;
             default:
                 trigger_error('Invalid Ident.', E_USER_NOTICE);
+                break;
         }
     }
 

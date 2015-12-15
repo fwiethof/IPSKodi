@@ -44,7 +44,7 @@ class KodiDeviceSystem extends KodiBase
             case 'GetProperties':
                 foreach ($KodiPayload as $param => $value)
                 {
-                    IPS_SetHidden($this->GetIDForIdent(substr($param, 3)), $value);
+                    IPS_SetHidden($this->GetIDForIdent(substr($param, 3)), !$value);
                 }
                 break;
         }

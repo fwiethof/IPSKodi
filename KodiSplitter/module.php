@@ -151,6 +151,7 @@ class KodiSplitter extends IPSModule
             $this->SetStatus(203);
             return false;
         }
+        return true;
     }
 
     public function Watchdog()
