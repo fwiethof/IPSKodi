@@ -80,12 +80,9 @@ class KodiSplitter extends IPSModule
         // Eigene Profile
         $this->RegisterVariableString("BufferIN", "BufferIN", "", -1);
         IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
-//        $this->RegisterVariableString("Nodes", "Nodes", "", -5);
-//        $this->RegisterVariableString("BufferIN", "BufferIN", "", -4);
-//        $this->RegisterVariableString("CommandOut", "CommandOut", "", -3);
-//        IPS_SetHidden($this->GetIDForIdent('Nodes'), true);
-//        IPS_SetHidden($this->GetIDForIdent('CommandOut'), true);
-//        IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
+        $this->RegisterVariableString("ReplyJSONData", "ReplyJSONData", "", -3);
+        IPS_SetHidden($this->GetIDForIdent('ReplyJSONData'), true);
+
         $this->RegisterTimer('KeepAlive', 0, 'KODIRPC_KeepAlive($_IPS[\'TARGET\']);');
         if ($this->ReadPropertyBoolean('Watchdog'))
             $this->RegisterTimer('Watchdog', 0, 'KODIRPC_Watchdog($_IPS[\'TARGET\']);');
@@ -103,30 +100,6 @@ class KodiSplitter extends IPSModule
                     $this->SetStatus($NewState);
                     if ($NewState == IS_ACTIVE)
                     {
-
-                        /*                        $Data = new LMSData("listen", "1");
-                          try
-                          {
-                          $this->SendLMSData($Data);
-                          $this->RefreshPlayerList();
-                          $Data = new LMSData("rescan", "?", false);
-                          $this->SendLMSData($Data);
-                          }
-                          catch (Exception $exc)
-                          {
-                          trigger_error($exc->getMessage(), $exc->getCode());
-                          return false;
-                          }
-
-                          $DevicesIDs = IPS_GetInstanceListByModuleID("{118189F9-DC7E-4DF4-80E1-9A4DF0882DD7}");
-                          foreach ($DevicesIDs as $Device)
-                          {
-                          if (IPS_GetInstance($Device)['ConnectionID'] == $this->InstanceID)
-                          {
-                          @IPS_ApplyChanges($Device);
-                          }
-                          } */
-
                         $InstanceIDs = IPS_GetInstanceList();
                         foreach ($InstanceIDs as $IID)
                             if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)

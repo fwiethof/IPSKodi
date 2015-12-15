@@ -174,6 +174,7 @@ class KodiBase extends IPSModule
 
     private function RequestProperties(array $Properties)
     {
+        if (count($Properties) == 0) return true;
         $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', array("properties" => $Properties));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
