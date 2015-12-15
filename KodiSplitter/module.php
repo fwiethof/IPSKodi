@@ -263,7 +263,7 @@ class KodiSplitter extends IPSModule
                 $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
                 if (!$this->lock('ReplyJSONData'))
                     throw new Exception('ReplyJSONData is locked', E_USER_NOTICE);
-                SetValueString($ReplyJSONDataID, $KodiData->ToIPSJSONString(''));
+                SetValueString($ReplyJSONDataID, $KodiData->ToKodiObjectJSONString(''));
                 $this->unlock('ReplyJSONData');
             } else
             {
