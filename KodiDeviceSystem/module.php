@@ -61,7 +61,7 @@ class KodiDeviceSystem extends KodiBase
             case "hibernate":
             case "suspend":
             case "ejectOpticalDrive":
-                $this->{ucfirt($Ident)}();
+                $this->{ucfirst($Ident)}();
             default:
                 return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
