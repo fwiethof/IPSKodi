@@ -124,8 +124,9 @@ class KodiSplitter extends IPSModule
         } else
         {
             $this->SetStatus($NewState);
-            $this->SetTimerInterval("Watchdog", 0);
             $this->SetTimerInterval("KeepAlive", 0);
+            if ($this->ReadPropertyBoolean('Watchdog'))
+                $this->SetTimerInterval("Watchdog", 0);
         }
     }
 
