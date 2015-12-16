@@ -145,7 +145,7 @@ class KodiSplitter extends IPSModule
         $Result->Value = $value;
         $KodiData->Result = $Result;
         $KodiData->Id = null;
-        SendDataToDevice($KodiData);
+        $this->SendDataToDevice($KodiData);
     }
 
 ################## PUBLIC
