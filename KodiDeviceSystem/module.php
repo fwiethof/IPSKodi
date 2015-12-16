@@ -144,6 +144,7 @@ function wake($ip, $mac)
                 }
                 break;
             case 'Power':
+                IPS_LOGMESSAGE('EVENT',print_r($KodiPayload,1));
                 if ($KodiPayload['Value'])
                     $this->SetValueBoolean('Power', true);
                 else
