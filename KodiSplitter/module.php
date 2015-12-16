@@ -100,11 +100,14 @@ class KodiSplitter extends IPSModule
                     $this->SetStatus($NewState);
                     if ($NewState == IS_ACTIVE)
                     {
+                        $this->SendPowerEvent(true);
                         $InstanceIDs = IPS_GetInstanceList();
                         foreach ($InstanceIDs as $IID)
                             if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)
                                 @IPS_ApplyChanges($IID);
-                    }
+                    } else
+                        $this->SendPowerEvent(false);
+
                     if ($this->ReadPropertyBoolean('Watchdog'))
                     {
                         if ($this->ReadPropertyInteger("Interval") >= 5)
@@ -112,7 +115,9 @@ class KodiSplitter extends IPSModule
                         else
                             $this->SetTimerInterval("Watchdog", 0);
                     }
+
                     $this->SetTimerInterval("KeepAlive", 60);
+
                     break;
                 case KR_INIT:
                     if ($NewState == IS_ACTIVE)
@@ -124,6 +129,7 @@ class KodiSplitter extends IPSModule
         } else
         {
             $this->SetStatus($NewState);
+            $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
             if ($this->ReadPropertyBoolean('Watchdog'))
                 $this->SetTimerInterval("Watchdog", 0);
@@ -131,6 +137,15 @@ class KodiSplitter extends IPSModule
     }
 
 ################## PRIVATE     
+
+    private function SendPowerEvent($value)
+    {
+        $KodiData = new Kodi_RPC_Data('System', 'Power');
+        $KodiData->Result = (new stdClass)->Value = $value;
+        $KodiData->Id = null;
+        SendDataToDevice($KodiData);
+    }
+
 ################## PUBLIC
     /**
      * This function will be available automatically after the module is imported with the module control.
@@ -148,6 +163,7 @@ class KodiSplitter extends IPSModule
         if ($ret !== "pong")
         {
             trigger_error('Connection to Kodi lost.', E_USER_NOTICE);
+            $this->SendPowerEvent(false);
             $this->SetStatus(203);
             return false;
         }
@@ -165,6 +181,7 @@ class KodiSplitter extends IPSModule
         {
             if (!Sys_Ping($this->ReadPropertyString('Host'), 500))
             {
+                $this->SendPowerEvent(false);
                 $this->SetStatus(203);
                 return false;
             }

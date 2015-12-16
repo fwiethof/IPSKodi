@@ -22,6 +22,10 @@
                     "caption": "Webserver Port"
                 },
                 {
+                    "type": "Label",
+                    "label": "Erweiterte Power-On Überwachung"
+                },
+                {
                     "name": "Watchdog",
                     "type": "CheckBox",
                     "caption": "Active"

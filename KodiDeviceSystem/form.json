@@ -1,6 +1,58 @@
 {
     "elements":
             [
+                {
+                    "name": "PowerScript",
+                    "type": "SelectScript",
+                    "caption": "Einschalt-Script:"
+                }, {
+                    "name": "PowerOff",
+                    "type": "Select",
+                    "caption": "Ausschalt-Methode:",
+                    "options": [
+                        {
+                            "label": "Herunterfahren",
+                            "value": 0
+                        },
+                        {
+                            "label": "Ruhezustand",
+                            "value": 1
+                        },
+                        {
+                            "label": "Standby",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "label": "Vorlagen für Einschalt-Script"
+                },
+                {
+                    "name": "PreSelectScript",
+                    "type": "Select",
+                    "caption": "Vorlage:",
+                    "options": [
+                        {
+                            "label": "keine",
+                            "value": 0
+                        },
+                        {
+                            "label": "WOL per PHP",
+                            "value": 1
+                        },
+                        {
+                            "label": "Fritz-Box Project",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
+                    "name": "MACAddress",
+                    "type": "ValidationTextBox",
+                    "caption": "MAC-Adresse:"
+                }
+
             ],
     "actions":
             [

@@ -174,7 +174,8 @@ class KodiBase extends IPSModule
 
     private function RequestProperties(array $Properties)
     {
-        if (count($Properties) == 0) return true;
+        if (count($Properties) == 0)
+            return true;
         $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', array("properties" => $Properties));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -470,6 +471,11 @@ class Kodi_RPC_Data extends stdClass
     public function __get($name)
     {
         return $this->{$name};
+    }
+
+    public function __set($name, $value)
+    {
+        $this->{$name} = $value;
     }
 
     public function __construct($Namespace = null, $Method = null, $Params = null)
