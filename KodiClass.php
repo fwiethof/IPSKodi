@@ -493,7 +493,7 @@ class Kodi_RPC_Data extends stdClass
             $this->Id = round(fmod(microtime(true) * 1000, 10000));
         else
         {
-            if ($Id >= 0)
+            if ($Id > 0)
                 $this->Id = $Id;
         }
     }
