@@ -17,7 +17,7 @@ class KodiDeviceSystem extends KodiBase
     {
         parent::Create();
         $this->RegisterPropertyInteger('PowerScript', 0);
-        $this->RegisterPropertyInteger('PowerOFF', 0);
+        $this->RegisterPropertyInteger('PowerOff', 0);
         $this->RegisterPropertyInteger('PreSelectScript', 0);
         $this->RegisterPropertyString('MACAddress', 0);
     }
