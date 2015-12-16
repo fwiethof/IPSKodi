@@ -131,8 +131,8 @@ class KodiSplitter extends IPSModule
             $this->SetStatus($NewState);
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
-            if ($this->ReadPropertyBoolean('Watchdog'))
-                $this->SetTimerInterval("Watchdog", 0);
+            /*if ($this->ReadPropertyBoolean('Watchdog'))
+                $this->SetTimerInterval("Watchdog", 0);*/
         }
     }
 
@@ -140,10 +140,7 @@ class KodiSplitter extends IPSModule
 
     private function SendPowerEvent($value)
     {
-        $KodiData = new Kodi_RPC_Data('System', 'Power');
-        $Result = new stdClass();
-        $Result->Value = $value;
-        $KodiData->Result = $Result;
+        $KodiData = new Kodi_RPC_Data('System', 'Power',array("Value"=>$value));
         $KodiData->Id = null;
         $this->SendDataToDevice($KodiData);
     }

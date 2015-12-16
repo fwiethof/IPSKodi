@@ -472,11 +472,11 @@ class Kodi_RPC_Data extends stdClass
     {
         return $this->{$name};
     }
-
+/*
     public function __set($name, $value)
     {
         $this->{$name} = $value;
-    }
+    }*/
 
     public function __construct($Namespace = null, $Method = null, $Params = null)
     {

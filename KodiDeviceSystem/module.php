@@ -101,7 +101,7 @@ if ($_IPS["SENDER"] <> "Kodi.System")
 $ip = "255.255.255.255"; // Broadcast adresse
 return wake($ip,$mac);
 
-function wake($ip, $mac,)
+function wake($ip, $mac)
 {
   $nic = fsockopen("udp://" . $ip, 15);
   if($nic)
