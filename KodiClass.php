@@ -526,7 +526,7 @@ class Kodi_RPC_Data extends stdClass
 
     public function GetEvent()
     {
-        IPS_LogMessage('GetEvent', print_r($this, true));
+//        IPS_LogMessage('GetEvent', print_r($this, true));
         return $this->Params->data;
     }
 
