@@ -472,13 +472,14 @@ class Kodi_RPC_Data extends stdClass
     {
         return $this->{$name};
     }
-/*
-    public function __set($name, $value)
-    {
-        $this->{$name} = $value;
-    }*/
 
-    public function __construct($Namespace = null, $Method = null, $Params = null)
+    /*
+      public function __set($name, $value)
+      {
+      $this->{$name} = $value;
+      } */
+
+    public function __construct($Namespace = null, $Method = null, $Params = null, $Id = 0)
     {
         if (!is_null($Namespace))
             $this->Namespace = $Namespace;
@@ -488,7 +489,10 @@ class Kodi_RPC_Data extends stdClass
             $this->Params = (object) $Params;
         if (is_object($Params))
             $this->Params = (object) $Params;
-        $this->Id = round(fmod(microtime(true) * 1000, 10000));
+        if ($Id == 0)
+            $this->Id = round(fmod(microtime(true) * 1000, 10000));
+        else
+            $this->Id = $Id;
     }
 
     public function __call($name, $arguments)
