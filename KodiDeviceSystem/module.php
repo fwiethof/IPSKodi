@@ -39,7 +39,7 @@ class KodiDeviceSystem extends KodiBase
         if ($ID > 0)
         {
             IPS_SetHidden($ID, true);
-            IPS_SetProperty('PowerScript', $ID);
+            IPS_SetProperty($this->InstanceID,'PowerScript', $ID);
             IPS_SetProperty($this->InstanceID, 'PreSelectScript', 0);
             IPS_Applychanges($this->InstanceID);
             return true;
