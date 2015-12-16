@@ -30,10 +30,10 @@ class KodiDeviceSystem extends KodiBase
                 $ID = 0;
                 break;
             case 1:
-                $ID = $this->RegisterScript('WOLScript', 'Playlist Config', $this->CreateWOLScript(), -1);
+                $ID = $this->RegisterScript('WOLScript', 'Power ON', $this->CreateWOLScript(), -1);
                 break;
             case 2:
-                $ID = $this->RegisterScript('WOLScript', 'Playlist Config', $this->CreateFBPScript(), -1);
+                $ID = $this->RegisterScript('WOLScript', 'Power ON', $this->CreateFBPScript(), -1);
                 break;
         }
         if ($ID > 0)
