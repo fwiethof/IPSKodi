@@ -142,7 +142,7 @@ class KodiSplitter extends IPSModule
 
     private function SendPowerEvent($value)
     {
-        $KodiData = new Kodi_RPC_Data('System', 'Power', array("Value" => $value), null);
+        $KodiData = new Kodi_RPC_Data('System', 'Power', array("Value" => $value), 0);
 //        $KodiData->Id = null;
         $this->SendDataToDevice($KodiData);
     }
