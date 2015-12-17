@@ -31,7 +31,6 @@ class KodiDevicePlayer extends KodiBase
         "subtitles",
         "live"
     );
-    
     private $PlayerId = null;
 
     public function Create()
@@ -98,7 +97,8 @@ class KodiDevicePlayer extends KodiBase
     {
         $this->Init();
         IPS_LogMessage($Method, print_r($KodiPayload, true));
-        if ($KodiPayload->player - playerid <> $this->PlayerId)
+        if (property_exists($KodiPayload, 'player')
+                and ( $KodiPayload->player->playerid <> $this->PlayerId))
             return false;
         switch ($Method)
         {
