@@ -246,9 +246,9 @@ class KodiBase extends IPSModule
         $this->Decode($KodiData->Method, $KodiData->GetEvent());
     }
 
-    protected function Send(Kodi_RPC_Data $KodiData, boolean $needResponse = true)
+    protected function Send(Kodi_RPC_Data $KodiData, boolean $needResponse = null)
     {
-        if (!$needResponse)
+        if (!is_null($needResponse))
         {
             try
             {

@@ -31,6 +31,7 @@ class KodiDevicePlayer extends KodiBase
         "subtitles",
         "live"
     );
+    
     private $PlayerId = null;
 
     public function Create()
