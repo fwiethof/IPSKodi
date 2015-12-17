@@ -31,7 +31,7 @@ class KodiDevicePlayer extends KodiBase
         "subtitles",
         "live"
     );
-    private $PlayerId;
+    private $PlayerId = null;
 
     public function Create()
     {
@@ -60,14 +60,22 @@ class KodiDevicePlayer extends KodiBase
 
     private function Init()
     {
-        return $this->ReadPropertyInteger('PlayerID');
+        if (is_null($this->PlayerId))
+            $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
+    }
+
+    protected function RequestProperties(array $Params)
+    {
+        $this->Init();
+        $Params = array_merge($Params, array("playerid"=> $this->PlayerId));
+        parent::RequestProperties($Params);
     }
 
     protected function Decode($Method, $KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {
-            IPS_LogMessage($param,print_r($value,true));
+            IPS_LogMessage($param, print_r($value, true));
             switch ($param)
             {
 //                case "mute":

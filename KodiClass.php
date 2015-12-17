@@ -167,16 +167,16 @@ class KodiBase extends IPSModule
 
         if (IPS_GetKernelRunlevel() == KR_READY)
             if ($this->HasActiveParent())
-                $this->RequestProperties(static::$Properties);
+                $this->RequestProperties(array("properties" => static::$Properties));
     }
 
 ################## PRIVATE     
 
-    private function RequestProperties(array $Properties)
+    protected function RequestProperties(array $Params)
     {
-        if (count($Properties) == 0)
+        if (count($Params["properties"]) == 0)
             return true;
-        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', array("properties" => $Properties));
+        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', $Params);
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -212,13 +212,13 @@ class KodiBase extends IPSModule
     public function RequestState(string $Ident)
     {
         if ($Ident == 'ALL')
-            return $this->RequestProperties(static::$Properties);
+            return $this->RequestProperties(array("properties" => static::$Properties));
         if (!in_array($Ident, static::$Properties))
         {
             trigger_error('Property not found.');
             return false;
         }
-        return $this->RequestProperties(array($Ident));
+        return $this->RequestProperties(array("properties" => array($Ident)));
     }
 
 ################## Datapoints
