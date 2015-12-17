@@ -39,23 +39,25 @@ class KodiDeviceSystem extends KodiBase
         if ($ID > 0)
         {
             IPS_SetHidden($ID, true);
-            IPS_SetProperty($this->InstanceID,'PowerScript', $ID);
+            IPS_SetProperty($this->InstanceID, 'PowerScript', $ID);
             IPS_SetProperty($this->InstanceID, 'PreSelectScript', 0);
             IPS_Applychanges($this->InstanceID);
             return true;
         }
         $this->RegisterVariableBoolean("Power", "Power", "~Switch", 0);
         $this->EnableAction("Power");
-        $this->RegisterVariableInteger("shutdown", "Herunterfahren", "Action.Kodi", 4);
-        $this->EnableAction("shutdown");
-        $this->RegisterVariableInteger("hibernate", "Ruhezustand", "Action.Kodi", 2);
-        $this->EnableAction("hibernate");
         $this->RegisterVariableInteger("suspend", "Standby", "Action.Kodi", 1);
         $this->EnableAction("suspend");
+        $this->RegisterVariableInteger("hibernate", "Ruhezustand", "Action.Kodi", 2);
+        $this->EnableAction("hibernate");
         $this->RegisterVariableInteger("reboot", "Neustart", "Action.Kodi", 3);
         $this->EnableAction("reboot");
+        $this->RegisterVariableInteger("shutdown", "Herunterfahren", "Action.Kodi", 4);
+        $this->EnableAction("shutdown");
         $this->RegisterVariableInteger("ejectOpticalDrive", "Laufwerk öffnen", "Action.Kodi", 5);
         $this->EnableAction("ejectOpticalDrive");
+        $this->RegisterVariableBoolean("LowBatteryEvent", "Betterie leer Event", "", 6);
+        
 //Never delete this line!
         parent::ApplyChanges();
     }
@@ -144,12 +146,19 @@ function wake($ip, $mac)
                 }
                 break;
             case 'Power':
-                IPS_LOGMESSAGE('EVENT',print_r($KodiPayload,1));
                 if ($KodiPayload)
-                    $this->SetValueBoolean('Power', true);
-                else
-                    $this->SetValueBoolean('Power', false);
-                
+                    $this->SetValueBoolean('Power', $KodiPayload);
+                break;
+            case 'OnLowBattery':
+                IPS_SetValueBoolean($this->GetIDForIdent('LowBatteryEvent'),true);
+                break;
+            case 'OnQuit':
+            case 'OnRestart':
+            case 'OnSleep':
+                $this->SetValueBoolean('Power', false);
+                break;
+            case 'OnWake':
+                $this->SetValueBoolean('Power', true);
                 break;
         }
     }
@@ -198,7 +207,8 @@ function wake($ip, $mac)
         if ($Value)
         {
             return $this->WakeUp();
-        } else
+        }
+        else
         {
             switch ($this->ReadPropertyInteger('PowerOff'))
             {
@@ -223,7 +233,8 @@ function wake($ip, $mac)
                 return true;
             }
             trigger_error('Error on execute PowerOn-Script.', E_USER_NOTICE);
-        } else
+        }
+        else
             trigger_error('Invalid PowerScript for power on.', E_USER_NOTICE);
         return false;
     }

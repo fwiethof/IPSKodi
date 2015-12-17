@@ -41,6 +41,23 @@ class KodiDevicePlayer extends KodiBase
 
     public function ApplyChanges()
     {
+        $this->RegisterProfileIntegerEx("Status.Kodi", "Information", "", "", Array(
+            //Array(0, "Prev", "", -1),
+            Array(1, "Stop", "", -1),
+            Array(2, "Play", "", -1),
+            Array(3, "Pause", "", -1)
+                //Array(4, "Next", "", -1)
+        ));
+        $this->RegisterProfileInteger("Intensity.Kodi", "Intensity", "", " %", 0, 100, 1);
+
+        $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 3);
+        $this->EnableAction("Status");
+
+        $this->RegisterVariableString("totaltime", "Dauer", "", 24);
+        $this->RegisterVariableString("time", "Spielzeit", "", 25);
+        $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
+        $this->EnableAction("percentage");
+
 //        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
 //            Array(0, "Ausführen", "", -1)
 //        ));
@@ -64,34 +81,59 @@ class KodiDevicePlayer extends KodiBase
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
     }
 
+    private function GetTime($Time)
+    {
+        
+    }
+
     protected function RequestProperties(array $Params)
     {
         $this->Init();
-        $Params = array_merge($Params, array("playerid"=> $this->PlayerId));
+        $Params = array_merge($Params, array("playerid" => $this->PlayerId));
         parent::RequestProperties($Params);
     }
 
     protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
+        $this->Init();
+        IPS_LogMessage($Method, print_r($KodiPayload, true));
+        if ($KodiPayload->player - playerid <> $this->PlayerId)
+            return false;
+        switch ($Method)
         {
-            IPS_LogMessage($param, print_r($value, true));
-            switch ($param)
-            {
-//                case "mute":
-//                case "muted":
-//                    $this->SetValueBoolean("mute", $value);
-//                    break;
-//                case "volume":
-//                    $this->SetValueInteger("volume", $value);
-//                    break;
-//                case "name":
-//                    $this->SetValueString("name", $value);
-//                    break;
-//                case "version":
-//                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-//                    break;
-            }
+            case 'GetProperties':
+            case 'OnPropertyChanged':
+                foreach ($KodiPayload as $param => $value)
+                {
+                    IPS_LogMessage($param, print_r($value, true));
+                    switch ($param)
+                    {
+                        case "percentage":
+                            $this->SetValueInteger('percentage', (int) $value);
+                            break;
+                        case "totaltime":
+                        case "time":
+                            $this->SetValueString($Method, $this->GetTime($value));
+                            break;
+                    }
+                }
+                break;
+            case 'OnStop':
+                $this->SetValueInteger('Status', 1);
+                break;
+            case 'OnPlay':
+                $this->SetValueInteger('Status', 2);
+                $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId));
+                $this->Send($KodiData, FALSE);
+                break;
+            case 'OnPause':
+                $this->SetValueInteger('Status', 3);
+                break;
+            case 'OnSeek':
+                $this->SetValueString('time', $this->GetTime($KodiPayload->player->time));
+                break;
+            case 'OnSpeedChanged':
+                break;
         }
     }
 
@@ -101,6 +143,28 @@ class KodiDevicePlayer extends KodiBase
     {
         switch ($Ident)
         {
+            case "Status":
+                switch ($Value)
+                {
+                    /*                    case 0: //Prev
+                      //$this->PreviousButton();
+                      $result = $this->PreviousTrack();
+                      break; */
+                    case 1: //Stop
+                        $result = $this->Stop();
+                        break;
+                    case 2: //Play
+                        $result = $this->Play();
+                        break;
+                    case 3: //Pause
+                        $result = $this->Pause();
+                        break;
+                    /*                    case 4: //Next
+                      //$this->NextButton();
+                      $result = $this->NextTrack();
+                      break; */
+                }
+                break;
 //            case "mute":
 //                return $this->Mute($Value);
 //            case "volume":
@@ -123,22 +187,48 @@ class KodiDevicePlayer extends KodiBase
         return parent::RawSend($Namespace, $Method, $Params);
     }
 
-//
-//    public function Mute(boolean $Value)
-//    {
-//        if (!is_bool($Value))
-//        {
-//            trigger_error('Value must be boolean', E_USER_NOTICE);
-//            return false;
-//        }
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueBoolean("mute", $ret);
-//        return $ret['mute'] === $Value;
-//    }
-//
+    public function Play()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->speed === 1)
+        {
+            $this->SetValueInteger("Status", 2);
+            return true;
+        }
+        return false;
+    }
+
+    public function Pause()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->speed === 0)
+        {
+            $this->SetValueInteger("Status", 3);
+            return true;
+        }
+        return false;
+    }
+
+    public function Stop()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Stop', array("playerid" => $this->PlayerId));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+        {
+            $this->SetValueInteger("Status", 1);
+            return true;
+        }
+        return false;
+    }
+
 //    public function Volume(integer $Value)
 //    {
 //        if (!is_int($Value))

@@ -246,8 +246,25 @@ class KodiBase extends IPSModule
         $this->Decode($KodiData->Method, $KodiData->GetEvent());
     }
 
-    protected function Send(Kodi_RPC_Data $KodiData)
+    protected function Send(Kodi_RPC_Data $KodiData, boolean $needResponse = true)
     {
+        if (!$needResponse)
+        {
+            try
+            {
+                $ret = $this->SendDataToParent($KodiData);
+                if ($ret === false)
+                {
+                    throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
+                }
+            }
+            catch (Exception $ex)
+            {
+                    trigger_error($ex->getMessage(), $ex->getCode());
+                    return false;
+            }
+            return true;
+        }
         try
         {
             if (!$this->HasActiveParent())
@@ -285,10 +302,12 @@ class KodiBase extends IPSModule
                 throw $ret;
             }
             return $ret;
-        } catch (KodiRPCException $ex)
+        }
+        catch (KodiRPCException $ex)
         {
             trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        } catch (Exception $ex)
+        }
+        catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
         }
@@ -298,7 +317,7 @@ class KodiBase extends IPSModule
     protected function SendDataToParent($Data)
     {
         // API-Daten verpacken und dann versenden.
-        IPS_LogMessage('SendDataToSplitter:' . $this->InstanceID, print_r($Data, true));
+        //IPS_LogMessage('SendDataToSplitter:' . $this->InstanceID, print_r($Data, true));
         $JSONString = $Data->ToKodiObjectJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
 
         // Daten senden
@@ -392,7 +411,8 @@ class KodiBase extends IPSModule
         if (!IPS_VariableProfileExists($Name))
         {
             IPS_CreateVariableProfile($Name, 1);
-        } else
+        }
+        else
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
@@ -410,7 +430,8 @@ class KodiBase extends IPSModule
         {
             $MinValue = 0;
             $MaxValue = 0;
-        } else
+        }
+        else
         {
             $MinValue = $Associations[0][0];
             $MaxValue = $Associations[sizeof($Associations) - 1][0];
@@ -433,7 +454,8 @@ class KodiBase extends IPSModule
             if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            } else
+            }
+            else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }
@@ -550,7 +572,7 @@ class Kodi_RPC_Data extends stdClass
         if (property_exists($Data, 'Error'))
             $this->Error = $Data->Error;
         if (property_exists($Data, 'Result'))
-            $this->Result = $Data->Result;
+            $this->Result = $this->DecodeUTF8($Data->Result);
         if (property_exists($Data, 'Namespace'))
             $this->Namespace = $Data->Namespace;
         if (property_exists($Data, 'Method'))
@@ -576,7 +598,7 @@ class Kodi_RPC_Data extends stdClass
         if (!is_null($this->Error))
             $SendData->Error = $this->Error;
         if (!is_null($this->Result))
-            $SendData->Result = $this->Result;
+            $SendData->Result = $this->EncodeUTF8($this->Result);
         return json_encode($SendData);
     }
 
