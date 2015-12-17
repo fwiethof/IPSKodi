@@ -105,7 +105,8 @@ class KodiSplitter extends IPSModule
                         foreach ($InstanceIDs as $IID)
                             if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)
                                 @IPS_ApplyChanges($IID);
-                    } else
+                    }
+                    else
                         $this->SendPowerEvent(false);
 
                     if ($this->ReadPropertyBoolean('Watchdog'))
@@ -208,7 +209,8 @@ class KodiSplitter extends IPSModule
         try
         {
             $this->ForwardDataFromDevice($KodiData);
-        } catch (Exception $ex)
+        }
+        catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
@@ -224,7 +226,8 @@ class KodiSplitter extends IPSModule
         try
         {
             $this->SendDataToParent($KodiData);
-        } catch (Exception $ex)
+        }
+        catch (Exception $ex)
         {
             throw new Exception($ex->getMessage(), $ex->getCode());
         }
@@ -254,7 +257,7 @@ class KodiSplitter extends IPSModule
         // Datenstream zusammenfügen
         $head = GetValueString($bufferID);
         SetValueString($bufferID, '');
-
+        IPS_LogMessage('Buffer', print_r($data, true));
         $Data = $head . utf8_decode($data->Buffer);
 
         // Stream in einzelne Pakete schneiden
@@ -266,7 +269,8 @@ class KodiSplitter extends IPSModule
             // Rest vom Stream wieder in den Empfangsbuffer schieben
             $tail = array_pop($JSONLine);
             SetValueString($bufferID, $tail);
-        } else
+        }
+        else
             SetValueString($bufferID, '');
 
         // Empfangs Lock aufheben
@@ -334,10 +338,12 @@ class KodiSplitter extends IPSModule
                 throw $ret;
             }
             return $ret;
-        } catch (KodiRPCException $ex)
+        }
+        catch (KodiRPCException $ex)
         {
             trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        } catch (Exception $ex)
+        }
+        catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
         }
@@ -448,7 +454,8 @@ class KodiSplitter extends IPSModule
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
                 IPS_SetEventActive($id, true);
-            } else
+            }
+            else
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
                 IPS_SetEventActive($id, false);
@@ -511,7 +518,8 @@ class KodiSplitter extends IPSModule
             if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            } else
+            }
+            else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }
