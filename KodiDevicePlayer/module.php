@@ -190,6 +190,8 @@ class KodiDevicePlayer extends KodiBase
 
     public function Play()
     {
+        $this->Init();
+
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -204,6 +206,7 @@ class KodiDevicePlayer extends KodiBase
 
     public function Pause()
     {
+        $this->Init();
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -218,6 +221,7 @@ class KodiDevicePlayer extends KodiBase
 
     public function Stop()
     {
+        $this->Init();
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Stop', array("playerid" => $this->PlayerId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
