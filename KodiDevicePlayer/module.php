@@ -114,7 +114,7 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "totaltime":
                         case "time":
-                            $this->SetValueString($Method, $this->GetTime($value));
+                            $this->SetValueString($param, $this->GetTime($value));
                             break;
                     }
                 }
