@@ -68,7 +68,7 @@ class KodiDeviceSystem extends KodiBase
         $Address = str_replace('-', '', $Address);
         $Address = str_replace(':', '', $Address);
         if (strlen($Address) == 12)
-            return $Address . '"';
+            return strtoupper($Address) . '"';
         return '00AABB112233" /* Platzhalter für richtige Adresse */';
     }
 
@@ -149,7 +149,7 @@ function wake($ip, $mac)
                     $this->SetValueBoolean('Power', true);
                 else
                     $this->SetValueBoolean('Power', false);
-
+                
                 break;
         }
     }
@@ -222,7 +222,7 @@ function wake($ip, $mac)
                 $this->SetValueBoolean('Power', true);
                 return true;
             }
-            trigger_error('Invalid Ident.', E_USER_NOTICE);
+            trigger_error('Error on execute PowerOn-Script.', E_USER_NOTICE);
         } else
             trigger_error('Invalid PowerScript for power on.', E_USER_NOTICE);
         return false;

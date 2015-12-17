@@ -32,10 +32,11 @@ class KodiDevicePlayer extends KodiBase
         "live"
     );
     private $PlayerId;
-    
+
     public function Create()
     {
         parent::Create();
+        $this->RegisterPropertyInteger('PlayerID', 0);
     }
 
     public function ApplyChanges()
@@ -57,10 +58,16 @@ class KodiDevicePlayer extends KodiBase
 
 ################## PRIVATE     
 
+    private function Init()
+    {
+        return $this->ReadPropertyInteger('PlayerID');
+    }
+
     protected function Decode($Method, $KodiPayload)
     {
         foreach ($KodiPayload as $param => $value)
         {
+            IPS_LogMessage($param,print_r($value,true));
             switch ($param)
             {
 //                case "mute":
@@ -173,17 +180,18 @@ class KodiDevicePlayer extends KodiBase
     {
         return parent::ReceiveData($JSONString);
     }
-/*
-    protected function Send(Kodi_RPC_Data $KodiData)
-    {
-        return parent::Send($KodiData);
-    }
 
-    protected function SendDataToParent($Data)
-    {
-        return parent::SendDataToParent($Data);
-    }
-*/
+    /*
+      protected function Send(Kodi_RPC_Data $KodiData)
+      {
+      return parent::Send($KodiData);
+      }
+
+      protected function SendDataToParent($Data)
+      {
+      return parent::SendDataToParent($Data);
+      }
+     */
 }
 
 ?>

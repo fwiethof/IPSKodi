@@ -1,6 +1,24 @@
 {
     "elements":
-            [
+            [{
+                    "name": "PlayerID",
+                    "type": "Select",
+                    "caption": "Player:",
+                    "options": [
+                        {
+                            "label": "Audio",
+                            "value": 0
+                        },
+                        {
+                            "label": "Video",
+                            "value": 1
+                        },
+                        {
+                            "label": "Bilder",
+                            "value": 2
+                        }
+                    ]
+                }
             ],
     "actions":
             [
