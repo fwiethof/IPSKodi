@@ -71,7 +71,7 @@ class KodiDevicePlayer extends KodiBase
 //        $this->EnableAction("volume");
         //Never delete this line!
         parent::ApplyChanges();
-        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],array("time","percentage"));');
+        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],"ALL");');
     }
 
 ################## PRIVATE     
