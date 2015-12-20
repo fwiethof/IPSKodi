@@ -189,6 +189,17 @@ class KodiBase extends IPSModule
         
     }
 
+    protected function ConvertTime($Time)
+    {
+        $Time->minutes = str_pad($Time->minutes, 2, "00", STR_PAD_LEFT);
+        $Time->seconds = str_pad($Time->seconds, 2, "00", STR_PAD_LEFT);
+        if ($Time->hours > 0)
+        {
+            return $Time->hours . ":" . $Time->minutes . ":" . $Time->seconds;
+        }
+        return $Time->minutes . ":" . $Time->seconds;
+    }
+
 ################## ActionHandler
 
     public function RequestAction($Ident, $Value)
@@ -257,11 +268,10 @@ class KodiBase extends IPSModule
                 {
                     throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
                 }
-            }
-            catch (Exception $ex)
+            } catch (Exception $ex)
             {
-                    trigger_error($ex->getMessage(), $ex->getCode());
-                    return false;
+                trigger_error($ex->getMessage(), $ex->getCode());
+                return false;
             }
             return true;
         }
@@ -302,12 +312,10 @@ class KodiBase extends IPSModule
                 throw $ret;
             }
             return $ret;
-        }
-        catch (KodiRPCException $ex)
+        } catch (KodiRPCException $ex)
         {
             trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
         }
@@ -411,8 +419,7 @@ class KodiBase extends IPSModule
         if (!IPS_VariableProfileExists($Name))
         {
             IPS_CreateVariableProfile($Name, 1);
-        }
-        else
+        } else
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
@@ -430,8 +437,7 @@ class KodiBase extends IPSModule
         {
             $MinValue = 0;
             $MaxValue = 0;
-        }
-        else
+        } else
         {
             $MinValue = $Associations[0][0];
             $MaxValue = $Associations[sizeof($Associations) - 1][0];
@@ -445,6 +451,74 @@ class KodiBase extends IPSModule
         }
     }
 
+    protected function RegisterTimer($Name, $Interval, $Script)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id === false)
+            $id = 0;
+        if ($id > 0)
+        {
+            if (!IPS_EventExists($id))
+                throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_NOTICE);
+
+            if (IPS_GetEvent($id)['EventType'] <> 1)
+            {
+                IPS_DeleteEvent($id);
+                $id = 0;
+            }
+        }
+        if ($id == 0)
+        {
+            $id = IPS_CreateEvent(1);
+            IPS_SetParent($id, $this->InstanceID);
+            IPS_SetIdent($id, $Name);
+            if ($Interval > 0)
+            {
+                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+                IPS_SetEventActive($id, true);
+            } else
+            {
+                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
+                IPS_SetEventActive($id, false);
+            }
+        }
+        IPS_SetName($id, $Name);
+        IPS_SetHidden($id, true);
+        IPS_SetEventScript($id, $Script);
+    }
+
+    protected function UnregisterTimer($Name)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id > 0)
+        {
+            if (IPS_EventExists($id))
+                IPS_DeleteEvent($id);
+        }
+    }
+
+    protected function SetTimerInterval($Name, $Interval)
+    {
+        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+        if ($id === false)
+            throw new Exception('Timer not present', E_USER_WARNING);
+        if (!IPS_EventExists($id))
+            throw new Exception('Timer not present', E_USER_WARNING);
+        $Event = IPS_GetEvent($id);
+        if ($Interval < 1)
+        {
+            if ($Event['EventActive'])
+                IPS_SetEventActive($id, false);
+        }
+        else
+        {
+            if ($Event['CyclicTimeValue'] <> $Interval)
+                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+            if (!$Event['EventActive'])
+                IPS_SetEventActive($id, true);
+        }
+    }
+
 ################## SEMAPHOREN Helper  - private  
 
     private function lock($ident)
@@ -454,8 +528,7 @@ class KodiBase extends IPSModule
             if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            }
-            else
+            } else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }

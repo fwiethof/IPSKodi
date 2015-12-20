@@ -71,6 +71,7 @@ class KodiDevicePlayer extends KodiBase
 //        $this->EnableAction("volume");
         //Never delete this line!
         parent::ApplyChanges();
+        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],array("time","percentage"));');
     }
 
 ################## PRIVATE     
@@ -79,15 +80,6 @@ class KodiDevicePlayer extends KodiBase
     {
         if (is_null($this->PlayerId))
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
-    }
-
-    private function ConvertTime($Time)
-    {
-        if ($Time->hours > 0)
-        {
-            return $Time->hours . ":" . $Time->minutes . ":" . $Time->seconds;
-        }
-        return $Time->minutes . ":" . $Time->seconds;
     }
 
     protected function RequestProperties(array $Params)
@@ -125,13 +117,16 @@ class KodiDevicePlayer extends KodiBase
                 break;
             case 'OnStop':
                 $this->SetValueInteger('Status', 1);
+                $this->SetTimerInterval('PlayerStatus', 0);
                 break;
             case 'OnPlay':
                 $this->SetValueInteger('Status', 2);
-                IPS_RunScriptText('<? KODIPLAYER_GetItem($this->InstanceID);');
+                $this->SetTimerInterval('PlayerStatus', 2);
+                IPS_RunScriptText('<? KODIPLAYER_GetItem('.$this->InstanceID.');');
                 break;
             case 'OnPause':
                 $this->SetValueInteger('Status', 3);
+                $this->SetTimerInterval('PlayerStatus', 0);
                 break;
             case 'OnSeek':
                 $this->SetValueString('time', $this->ConvertTime($KodiPayload->player->time));
