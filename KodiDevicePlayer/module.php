@@ -79,12 +79,15 @@ class KodiDevicePlayer extends KodiBase
     {
         if (is_null($this->PlayerId))
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
-        
     }
 
-    private function GetTime($Time)
+    private function ConvertTime($Time)
     {
-        return $Time;
+        if ($Time->hours > 0)
+        {
+            return $Time->hours . ":" . $Time->minutes . ":" . $Time->seconds;
+        }
+        return $Time->minutes . ":" . $Time->seconds;
     }
 
     protected function RequestProperties(array $Params)
@@ -115,7 +118,7 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "totaltime":
                         case "time":
-                            $this->SetValueString($param, $this->GetTime($value));
+                            $this->SetValueString($param, $this->ConvertTime($value));
                             break;
                     }
                 }
@@ -131,7 +134,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueInteger('Status', 3);
                 break;
             case 'OnSeek':
-                $this->SetValueString('time', $this->GetTime($KodiPayload->player->time));
+                $this->SetValueString('time', $this->ConvertTime($KodiPayload->player->time));
                 break;
             case 'OnSpeedChanged':
                 break;
