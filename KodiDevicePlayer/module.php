@@ -50,7 +50,7 @@ class KodiDevicePlayer extends KodiBase
         ));
         $this->RegisterProfileInteger("Intensity.Kodi", "Intensity", "", " %", 0, 100, 1);
 
-        $this->RegisterVariableInteger("Status", "Status", "Status.Squeezebox", 3);
+        $this->RegisterVariableInteger("Status", "Status", "Status.Kodi", 3);
         $this->EnableAction("Status");
 
         $this->RegisterVariableString("totaltime", "Dauer", "", 24);
@@ -79,11 +79,12 @@ class KodiDevicePlayer extends KodiBase
     {
         if (is_null($this->PlayerId))
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
+        
     }
 
     private function GetTime($Time)
     {
-        
+        return $Time;
     }
 
     protected function RequestProperties(array $Params)
@@ -124,8 +125,7 @@ class KodiDevicePlayer extends KodiBase
                 break;
             case 'OnPlay':
                 $this->SetValueInteger('Status', 2);
-                $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId));
-                $this->Send($KodiData, FALSE);
+                IPS_RunScriptText('<? KODIPLAYER_GetItem($this->InstanceID);');
                 break;
             case 'OnPause':
                 $this->SetValueInteger('Status', 3);
@@ -186,6 +186,14 @@ class KodiDevicePlayer extends KodiBase
     public function RawSend(string $Namespace, string $Method, $Params)
     {
         return parent::RawSend($Namespace, $Method, $Params);
+    }
+
+    public function GetItem()
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId));
+        $ret = $this->Send($KodiData);
+        var_dump($ret);
     }
 
     public function Play()
