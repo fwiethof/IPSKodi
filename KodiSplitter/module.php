@@ -164,12 +164,10 @@ class KodiSplitter extends IPSModule
                     }
                     else
                     {
-                        IPS_SetProperty($ParentID, 'Open', false);
-
-                        if (IPS_HasChanges($ParentID))
+                        if (IPS_GetProperty($ParentID, 'Open'))
                         {
                             IPS_LogMessage('Kodi', '30');
-
+                            IPS_SetProperty($ParentID, 'Open', false);
                             @IPS_ApplyChanges($ParentID);
                         }
 
@@ -210,12 +208,10 @@ class KodiSplitter extends IPSModule
 
                         $NewState = IS_EBASE + 3;
                     }
-                    IPS_SetProperty($ParentID, 'Open', false);
-
-                    if (IPS_HasChanges($ParentID))
+                    if (IPS_GetProperty($ParentID, 'Open'))
                     {
                         IPS_LogMessage('Kodi', '30');
-
+                        IPS_SetProperty($ParentID, 'Open', false);
                         @IPS_ApplyChanges($ParentID);
                     }
                 }
