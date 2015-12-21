@@ -138,9 +138,16 @@ class KodiSplitter extends IPSModule
             {
                 $WatchdogTime = $this->ReadPropertyInteger('Interval');
                 if (!$this->HasActiveParent($ParentID))
+                {
                     $NewState = IS_EBASE + 3;
+                    IPS_SetProperty($ParentID, 'Open', false);
+
+                    if (IPS_HasChanges($ParentID))
+                        @IPS_ApplyChanges($ParentID);
+                }
             } else
                 $WatchdogTime = 0;
+
             $this->SetStatus($NewState);
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
