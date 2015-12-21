@@ -197,7 +197,6 @@ class KodiSplitter extends IPSModule
             {
                 IPS_LogMessage('Kodi', '27');
 
-                $WatchdogTime = $this->ReadPropertyInteger('Interval');
                 if (!$this->HasActiveParent($ParentID))
                 {
                     IPS_LogMessage('Kodi', '28');
@@ -205,8 +204,11 @@ class KodiSplitter extends IPSModule
                     if ($NewState == IS_ACTIVE)
                     {
                         IPS_LogMessage('Kodi', '29');
+                        $WatchdogTime = $this->ReadPropertyInteger('Interval');
 
                         $NewState = IS_EBASE + 3;
+                    } else {
+                        $WatchdogTime=0;
                     }
                     if (IPS_GetProperty($ParentID, 'Open'))
                     {
