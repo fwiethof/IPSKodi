@@ -296,13 +296,13 @@ class KodiSplitter extends IPSModule
                 $this->SetStatus(203);
                 return false;
             }
-            /*            $Parent = IPS_GetInstance($ParentID);
-              if ($Parent['InstanceStatus'] <> IS_ACTIVE)
-              {
-              $result = @IPS_ApplyChanges($ParentID);
-              if ($result) */
-            @IPS_ApplyChanges($this->InstanceID);
-//            }
+            $Parent = IPS_GetInstance($ParentID);
+            if ($Parent['InstanceStatus'] <> IS_ACTIVE)
+            {
+                $result = @IPS_ApplyChanges($ParentID);
+                if ($result)
+                    @IPS_ApplyChanges($this->InstanceID);
+            }
         }
     }
 
