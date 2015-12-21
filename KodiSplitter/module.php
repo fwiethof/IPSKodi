@@ -29,7 +29,7 @@ class KodiSplitter extends IPSModule
         parent::ApplyChanges();
 
         // Zwangskonfiguration des ClientSocket
-        $ChangeParentSetting = false;
+        //$OldState = IPS_GetInstance($this->InstanceID)['InstanceStatus']; //IS_EBASE + 3
         $Open = $this->ReadPropertyBoolean('Open');
         $NewState = IS_ACTIVE;
 
@@ -67,8 +67,13 @@ class KodiSplitter extends IPSModule
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
 //                $ChangeParentSetting = true;
             }
-            // Keine Verbindung erzwingen wenn Host leer ist, sonst folgt später Exception.
-
+            // Keine Verbindung erzwingen wenn Host offline ist
+            if ($Open)
+            {
+                $Open = Sys_Ping($this->ReadPropertyString('Host'), 500);
+                if (!$Open)
+                    $NewState = IS_EBASE + 3;
+            }
             if (IPS_GetProperty($ParentID, 'Open') <> $Open)
             {
                 IPS_SetProperty($ParentID, 'Open', $Open);
@@ -76,6 +81,13 @@ class KodiSplitter extends IPSModule
             }
             if (IPS_HasChanges($ParentID))
                 @IPS_ApplyChanges($ParentID);
+        } else
+        {
+            if ($Open)
+            {
+                $NewState = IS_INACTIVE;
+                $Open = false;
+            }
         }
         // Eigene Profile
         $this->RegisterVariableString("BufferIN", "BufferIN", "", -1);
@@ -101,21 +113,17 @@ class KodiSplitter extends IPSModule
                     if ($NewState == IS_ACTIVE)
                     {
                         $this->SendPowerEvent(true);
+                        $WatchdogTime = 0;
                         $InstanceIDs = IPS_GetInstanceList();
                         foreach ($InstanceIDs as $IID)
                             if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)
                                 @IPS_ApplyChanges($IID);
-                    }
-                    else
-                        $this->SendPowerEvent(false);
-
-                    if ($this->ReadPropertyBoolean('Watchdog'))
+                    } else
                     {
-                        $this->SetTimerInterval("Watchdog", 0);
+                        $this->SendPowerEvent(false);
+                        $WatchdogTime = $this->ReadPropertyInteger('Interval');
                     }
-
                     $this->SetTimerInterval("KeepAlive", 60);
-
                     break;
                 case KR_INIT:
                     if ($NewState == IS_ACTIVE)
@@ -126,16 +134,23 @@ class KodiSplitter extends IPSModule
             }
         } else
         {
+            if ($this->ReadPropertyBoolean('Open'))
+            {
+                $WatchdogTime = $this->ReadPropertyInteger('Interval');
+                if (!$this->HasActiveParent($ParentID))
+                    $NewState = IS_EBASE + 3;
+            } else
+                $WatchdogTime = 0;
             $this->SetStatus($NewState);
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
-            if ($this->ReadPropertyBoolean('Watchdog'))
-            {
-                if ($this->ReadPropertyInteger("Interval") >= 5)
-                    $this->SetTimerInterval("Watchdog", $this->ReadPropertyInteger("Interval"));
-                else
-                    $this->SetTimerInterval("Watchdog", 0);
-            }
+        }
+        if ($this->ReadPropertyBoolean('Watchdog'))
+        {
+            if ($WatchdogTime >= 5)
+                $this->SetTimerInterval("Watchdog", $WatchdogTime);
+            else
+                $this->SetTimerInterval("Watchdog", 0);
         }
     }
 
@@ -188,7 +203,7 @@ class KodiSplitter extends IPSModule
                 return false;
             }
             $Parent = IPS_GetInstance($ParentID);
-            if ($Parent['InstanceStatus'] >= 200)
+            if ($Parent['InstanceStatus'] <> IS_ACTIVE)
             {
                 $result = @IPS_ApplyChanges($ParentID);
                 if ($result)
@@ -209,8 +224,7 @@ class KodiSplitter extends IPSModule
         try
         {
             $this->ForwardDataFromDevice($KodiData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
             return false;
@@ -226,8 +240,7 @@ class KodiSplitter extends IPSModule
         try
         {
             $this->SendDataToParent($KodiData);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
             throw new Exception($ex->getMessage(), $ex->getCode());
         }
@@ -269,8 +282,7 @@ class KodiSplitter extends IPSModule
             // Rest vom Stream wieder in den Empfangsbuffer schieben
             $tail = array_pop($JSONLine);
             SetValueString($bufferID, $tail);
-        }
-        else
+        } else
             SetValueString($bufferID, '');
 
         // Empfangs Lock aufheben
@@ -338,12 +350,10 @@ class KodiSplitter extends IPSModule
                 throw $ret;
             }
             return $ret;
-        }
-        catch (KodiRPCException $ex)
+        } catch (KodiRPCException $ex)
         {
             trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        }
-        catch (Exception $ex)
+        } catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
         }
@@ -454,8 +464,7 @@ class KodiSplitter extends IPSModule
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
                 IPS_SetEventActive($id, true);
-            }
-            else
+            } else
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
                 IPS_SetEventActive($id, false);
@@ -518,8 +527,7 @@ class KodiSplitter extends IPSModule
             if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            }
-            else
+            } else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }

@@ -117,12 +117,16 @@ class KodiDevicePlayer extends KodiBase
                 break;
             case 'OnStop':
                 $this->SetValueInteger('Status', 1);
+                $this->SetValueString('totaltime', '');
+                $this->SetValueString('time', '');
+                $this->SetValueInteger('percentage', 0);
+
                 $this->SetTimerInterval('PlayerStatus', 0);
                 break;
             case 'OnPlay':
                 $this->SetValueInteger('Status', 2);
                 $this->SetTimerInterval('PlayerStatus', 2);
-                IPS_RunScriptText('<? KODIPLAYER_GetItem('.$this->InstanceID.');');
+                IPS_RunScriptText('<? KODIPLAYER_GetItem(' . $this->InstanceID . ');');
                 break;
             case 'OnPause':
                 $this->SetValueInteger('Status', 3);
