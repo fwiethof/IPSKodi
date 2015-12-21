@@ -205,11 +205,12 @@ class KodiSplitter extends IPSModule
                     {
                         IPS_LogMessage('Kodi', '29');
                         $WatchdogTime = $this->ReadPropertyInteger('Interval');
-
                         $NewState = IS_EBASE + 3;
-                    } else {
-                        $WatchdogTime=0;
                     }
+                    
+                    if ($NewState <> IS_EBASE + 2)
+                        $WatchdogTime = 0;
+
                     if (IPS_GetProperty($ParentID, 'Open'))
                     {
                         IPS_LogMessage('Kodi', '30');
