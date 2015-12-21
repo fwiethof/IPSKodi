@@ -109,7 +109,6 @@ class KodiSplitter extends IPSModule
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
-                    $this->SetStatus($NewState);
                     if ($NewState == IS_ACTIVE)
                     {
                         $this->SendPowerEvent(true);
@@ -127,9 +126,7 @@ class KodiSplitter extends IPSModule
                     break;
                 case KR_INIT:
                     if ($NewState == IS_ACTIVE)
-                        $this->SetStatus(203);
-                    else
-                        $this->SetStatus($NewState);
+                        $NewState = IS_EBASE + 3;
                     break;
             }
         } else
@@ -139,7 +136,8 @@ class KodiSplitter extends IPSModule
                 $WatchdogTime = $this->ReadPropertyInteger('Interval');
                 if (!$this->HasActiveParent($ParentID))
                 {
-                    $NewState = IS_EBASE + 3;
+                    if ($NewState == IS_ACTIVE)
+                        $NewState = IS_EBASE + 3;
                     IPS_SetProperty($ParentID, 'Open', false);
 
                     if (IPS_HasChanges($ParentID))
@@ -147,11 +145,11 @@ class KodiSplitter extends IPSModule
                 }
             } else
                 $WatchdogTime = 0;
-
-            $this->SetStatus($NewState);
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
         }
+        $this->SetStatus($NewState);
+
         if ($this->ReadPropertyBoolean('Watchdog'))
         {
             if ($WatchdogTime >= 5)
