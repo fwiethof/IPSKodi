@@ -154,7 +154,7 @@ class KodiSplitter extends IPSModule
                     {
 
                         $this->SendPowerEvent(true);
-                        $WatchdogTime = 0;
+                        $WatchdogTimer = 0;
                         $this->SetTimerInterval("KeepAlive", 60);
 
                         $InstanceIDs = IPS_GetInstanceList();
@@ -173,7 +173,7 @@ class KodiSplitter extends IPSModule
 
                         IPS_LogMessage('Kodi', '23');
                         $this->SendPowerEvent(false);
-                        $WatchdogTime = $this->ReadPropertyInteger('Interval');
+                        $WatchdogTimer = $this->ReadPropertyInteger('Interval');
                         $this->SetTimerInterval("KeepAlive", 0);
                         $NewState = IS_EBASE + 3;
                     }
@@ -204,12 +204,12 @@ class KodiSplitter extends IPSModule
                     if ($NewState == IS_ACTIVE)
                     {
                         IPS_LogMessage('Kodi', '29');
-                        $WatchdogTime = $this->ReadPropertyInteger('Interval');
+                        $WatchdogTimer = $this->ReadPropertyInteger('Interval');
                         $NewState = IS_EBASE + 3;
                     }
                     
-                    if ($NewState <> IS_EBASE + 2)
-                        $WatchdogTime = 0;
+                    if ($NewState == IS_EBASE + 2)
+                        $WatchdogTimer = 0;
 
                     if (IPS_GetProperty($ParentID, 'Open'))
                     {
@@ -222,7 +222,7 @@ class KodiSplitter extends IPSModule
             {
                 IPS_LogMessage('Kodi', '31');
 
-                $WatchdogTime = 0;
+                $WatchdogTimer = 0;
             }
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
@@ -233,11 +233,11 @@ class KodiSplitter extends IPSModule
         {
             IPS_LogMessage('Kodi', '32');
 
-            if ($WatchdogTime >= 5)
+            if ($WatchdogTimer >= 5)
             {
                 IPS_LogMessage('Kodi', '33');
 
-                $this->SetTimerInterval("Watchdog", $WatchdogTime);
+                $this->SetTimerInterval("Watchdog", $WatchdogTimer);
             } else
             {
                 IPS_LogMessage('Kodi', '33');
