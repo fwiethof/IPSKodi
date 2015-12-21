@@ -168,7 +168,7 @@ class KodiSplitter extends IPSModule
                         $this->SendPowerEvent(false);
                         $WatchdogTime = $this->ReadPropertyInteger('Interval');
                         $this->SetTimerInterval("KeepAlive", 0);
-                        $NewState=IS_EBASE+3;
+                        $NewState = IS_EBASE + 3;
                     }
                     break;
                 case KR_INIT:
@@ -287,13 +287,13 @@ class KodiSplitter extends IPSModule
                 $this->SetStatus(203);
                 return false;
             }
-            $Parent = IPS_GetInstance($ParentID);
-            if ($Parent['InstanceStatus'] <> IS_ACTIVE)
-            {
-                $result = @IPS_ApplyChanges($ParentID);
-                if ($result)
-                    IPS_ApplyChanges($this->InstanceID);
-            }
+            /*            $Parent = IPS_GetInstance($ParentID);
+              if ($Parent['InstanceStatus'] <> IS_ACTIVE)
+              {
+              $result = @IPS_ApplyChanges($ParentID);
+              if ($result) */
+            IPS_ApplyChanges($this->InstanceID);
+//            }
         }
     }
 
@@ -426,7 +426,7 @@ class KodiSplitter extends IPSModule
             if ($ReplayKodiData === false)
             {
                 $this->unlock('RequestSendData');
-                throw new Exception('Send Data Timeout', E_USER_NOTICE);
+                throw new Exception('No anwser from Kodi', E_USER_NOTICE);
             }
             $this->unlock('RequestSendData');
             $ret = $ReplayKodiData->GetResult();
