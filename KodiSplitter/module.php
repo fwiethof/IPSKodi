@@ -32,14 +32,20 @@ class KodiSplitter extends IPSModule
         //$OldState = IPS_GetInstance($this->InstanceID)['InstanceStatus']; //IS_EBASE + 3
         $Open = $this->ReadPropertyBoolean('Open');
         $NewState = IS_ACTIVE;
-
+        IPS_LogMessage('Kodi', '1');
         if (!$Open)
+        {
             $NewState = IS_INACTIVE;
-
+            IPS_LogMessage('Kodi', '2');
+        }
         if ($this->ReadPropertyString('Host') == '')
         {
+            IPS_LogMessage('Kodi', '3');
+
             if ($Open)
             {
+                IPS_LogMessage('Kodi', '4');
+
                 $NewState = IS_EBASE + 2;
                 $Open = false;
             }
@@ -47,8 +53,12 @@ class KodiSplitter extends IPSModule
 
         if ($this->ReadPropertyString('Port') == '')
         {
+            IPS_LogMessage('Kodi', '5');
+
             if ($Open)
             {
+                IPS_LogMessage('Kodi', '6');
+
                 $NewState = IS_EBASE + 2;
                 $Open = false;
             }
@@ -57,34 +67,56 @@ class KodiSplitter extends IPSModule
 
         if ($ParentID > 0)
         {
+            IPS_LogMessage('Kodi', '7');
+
             if (IPS_GetProperty($ParentID, 'Host') <> $this->ReadPropertyString('Host'))
             {
+                IPS_LogMessage('Kodi', '8');
+
                 IPS_SetProperty($ParentID, 'Host', $this->ReadPropertyString('Host'));
 //                $ChangeParentSetting = true;
             }
             if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
             {
+                IPS_LogMessage('Kodi', '9');
+
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
 //                $ChangeParentSetting = true;
             }
             // Keine Verbindung erzwingen wenn Host offline ist
             if ($Open)
             {
+                IPS_LogMessage('Kodi', '9');
+
                 $Open = @Sys_Ping($this->ReadPropertyString('Host'), 500);
                 if (!$Open)
+                {
+                    IPS_LogMessage('Kodi', '10');
+
                     $NewState = IS_EBASE + 3;
+                }
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $Open)
             {
+                IPS_LogMessage('Kodi', '11');
+
                 IPS_SetProperty($ParentID, 'Open', $Open);
 //                $ChangeParentSetting = true;
             }
             if (IPS_HasChanges($ParentID))
+            {
+                IPS_LogMessage('Kodi', '12');
+
                 @IPS_ApplyChanges($ParentID);
+            }
         } else
         {
+            IPS_LogMessage('Kodi', '13');
+
             if ($Open)
             {
+                IPS_LogMessage('Kodi', '14');
+
                 $NewState = IS_INACTIVE;
                 $Open = false;
             }
@@ -106,11 +138,17 @@ class KodiSplitter extends IPSModule
         if (($Open)
                 and ( $this->HasActiveParent($ParentID)))
         {
+            IPS_LogMessage('Kodi', '20');
+
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
+                    IPS_LogMessage('Kodi', '21');
+
                     if ($NewState == IS_ACTIVE)
                     {
+                        IPS_LogMessage('Kodi', '22');
+
                         $this->SendPowerEvent(true);
                         $WatchdogTime = 0;
                         $InstanceIDs = IPS_GetInstanceList();
@@ -119,32 +157,58 @@ class KodiSplitter extends IPSModule
                                 @IPS_ApplyChanges($IID);
                     } else
                     {
+                        IPS_LogMessage('Kodi', '23');
+
                         $this->SendPowerEvent(false);
                         $WatchdogTime = $this->ReadPropertyInteger('Interval');
                     }
                     $this->SetTimerInterval("KeepAlive", 60);
                     break;
                 case KR_INIT:
+                    IPS_LogMessage('Kodi', '24');
+
                     if ($NewState == IS_ACTIVE)
+                    {
+                        IPS_LogMessage('Kodi', '25');
+
                         $NewState = IS_EBASE + 3;
+                    }
                     break;
             }
         } else
         {
+            IPS_LogMessage('Kodi', '26');
+
             if ($this->ReadPropertyBoolean('Open'))
             {
+                IPS_LogMessage('Kodi', '27');
+
                 $WatchdogTime = $this->ReadPropertyInteger('Interval');
                 if (!$this->HasActiveParent($ParentID))
                 {
+                    IPS_LogMessage('Kodi', '28');
+
                     if ($NewState == IS_ACTIVE)
+                    {
+                        IPS_LogMessage('Kodi', '29');
+
                         $NewState = IS_EBASE + 3;
+                    }
                     IPS_SetProperty($ParentID, 'Open', false);
 
                     if (IPS_HasChanges($ParentID))
+                    {
+                        IPS_LogMessage('Kodi', '30');
+
                         @IPS_ApplyChanges($ParentID);
+                    }
                 }
             } else
+            {
+                        IPS_LogMessage('Kodi','31');
+
                 $WatchdogTime = 0;
+            }
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
         }
@@ -152,10 +216,20 @@ class KodiSplitter extends IPSModule
 
         if ($this->ReadPropertyBoolean('Watchdog'))
         {
+        IPS_LogMessage('Kodi','32');
+            
             if ($WatchdogTime >= 5)
+            {
+                        IPS_LogMessage('Kodi','33');
+
                 $this->SetTimerInterval("Watchdog", $WatchdogTime);
+            }
             else
+            {
+                        IPS_LogMessage('Kodi','33');
+
                 $this->SetTimerInterval("Watchdog", 0);
+            }
         }
     }
 
