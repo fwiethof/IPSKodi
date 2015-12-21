@@ -70,7 +70,7 @@ class KodiSplitter extends IPSModule
             // Keine Verbindung erzwingen wenn Host offline ist
             if ($Open)
             {
-                $Open = Sys_Ping($this->ReadPropertyString('Host'), 500);
+                $Open = @Sys_Ping($this->ReadPropertyString('Host'), 500);
                 if (!$Open)
                     $NewState = IS_EBASE + 3;
             }
@@ -203,7 +203,7 @@ class KodiSplitter extends IPSModule
         $ParentID = $this->GetParent();
         if ($ParentID > 0)
         {
-            if (!Sys_Ping($this->ReadPropertyString('Host'), 500))
+            if (!@Sys_Ping($this->ReadPropertyString('Host'), 500))
             {
                 $this->SendPowerEvent(false);
                 $this->SetStatus(203);
