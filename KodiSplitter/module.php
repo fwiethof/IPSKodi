@@ -164,6 +164,15 @@ class KodiSplitter extends IPSModule
                     }
                     else
                     {
+                        IPS_SetProperty($ParentID, 'Open', false);
+
+                        if (IPS_HasChanges($ParentID))
+                        {
+                            IPS_LogMessage('Kodi', '30');
+
+                            @IPS_ApplyChanges($ParentID);
+                        }
+
                         IPS_LogMessage('Kodi', '23');
                         $this->SendPowerEvent(false);
                         $WatchdogTime = $this->ReadPropertyInteger('Interval');
@@ -292,7 +301,7 @@ class KodiSplitter extends IPSModule
               {
               $result = @IPS_ApplyChanges($ParentID);
               if ($result) */
-            IPS_ApplyChanges($this->InstanceID);
+            @IPS_ApplyChanges($this->InstanceID);
 //            }
         }
     }
