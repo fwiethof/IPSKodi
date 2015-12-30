@@ -78,7 +78,7 @@ class KodiSplitter extends IPSModule
             }
             if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
             {
-                IPS_LogMessage('Kodi', '9');
+                IPS_LogMessage('Kodi', '8a');
 
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
 //                $ChangeParentSetting = true;
@@ -148,11 +148,11 @@ class KodiSplitter extends IPSModule
 
 //                    if ($NewState == IS_ACTIVE)
 //                    {
-                    IPS_LogMessage('Kodi', '22');
                     $KodiData = new Kodi_RPC_Data('JSONRPC', 'Ping');
                     $ret = $this->Send($KodiData);
                     if ($ret == "pong")
                     {
+                        IPS_LogMessage('Kodi', '22');
 
                         $this->SendPowerEvent(true);
                         $WatchdogTimer = 0;
@@ -242,7 +242,7 @@ class KodiSplitter extends IPSModule
             }
             else
             {
-                IPS_LogMessage('Kodi', '33');
+                IPS_LogMessage('Kodi', '34');
 
                 $this->SetTimerInterval("Watchdog", 0);
             }

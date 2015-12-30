@@ -127,13 +127,32 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "currentaudiostream":
-                            $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
-                            $this->SetValueInteger('audiochannels', (int) $value->channels);
-                            $this->SetValueInteger('audioindex', (int) $value->index);
-                            //$this->SetValueString('codec', (string)$value->codec);
-                            $this->SetValueString('audiolanguage', (string) $value->language);
-                            $this->SetValueString('audiocodec', (string) $value->name);
+                            if (is_null($value))
+                            {
+                                $this->SetValueInteger('audiobitrate', 0);
+                                $this->SetValueInteger('audiochannels', 0);
+                                $this->SetValueInteger('audioindex', 0);
+                                $this->SetValueString('audiolanguage', "");
+                                $this->SetValueString('audiocodec', "");
+                            }
+                            else
+                            {
+                                $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
+                                $this->SetValueInteger('audiochannels', (int) $value->channels);
+                                $this->SetValueInteger('audioindex', (int) $value->index);
+                                $this->SetValueString('audiolanguage', (string) $value->language);
+                                $this->SetValueString('audiocodec', (string) $value->name);
+                            }
                             break;
+
+                        /*    {"audiostreams":[],"canchangespeed":true,"canmove":false,"canrepeat":true,"canrotate":false,"canseek":false,"canshuffle":true,"canzoom":false,
+                          "currentaudiostream":null,"currentsubtitle":null,
+                          "live":false,"partymode":false,"percentage":0,"playlistid":1,"position":-1,
+                          "repeat":"off","shuffled":false,"speed":1,
+                          "subtitleenabled":false,"subtitles":[],
+                         */
+
+
                         /*                        case "subtitleenabled":
                           break;
                           case "currentsubtitle":
