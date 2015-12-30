@@ -105,7 +105,6 @@ class KodiDevicePlayer extends KodiBase
     protected function Decode($Method, $KodiPayload)
     {
         $this->Init();
-        IPS_LogMessage($Method, print_r($KodiPayload, true));
         if (property_exists($KodiPayload, 'player')
                 and ( $KodiPayload->player->playerid <> $this->PlayerId))
             return false;
@@ -115,7 +114,6 @@ class KodiDevicePlayer extends KodiBase
             case 'OnPropertyChanged':
                 foreach ($KodiPayload as $param => $value)
                 {
-                    IPS_LogMessage($param, print_r($value, true));
                     switch ($param)
                     {
                         case "percentage":
@@ -136,15 +134,18 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueString('audiolanguage', (string) $value->language);
                             $this->SetValueString('audiocodec', (string) $value->name);
                             break;
-                        case "subtitleenabled":
-                            break;
-                        case "currentsubtitle":
-                            break;
-                        case "repeat": //off
-                            break;
-                        case "shuffeld":
-                            break;
-                        case "speed":
+                        /*                        case "subtitleenabled":
+                          break;
+                          case "currentsubtitle":
+                          break;
+                          case "repeat": //off
+                          break;
+                          case "shuffeld":
+                          break;
+                          case "speed":
+                          break; */
+                        default:
+                            IPS_LogMessage($param, print_r($value, true));
                             break;
                     }
                 }
@@ -171,6 +172,9 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueString('time', $this->ConvertTime($KodiPayload->player->time));
                 break;
             case 'OnSpeedChanged':
+                break;
+            default:
+                IPS_LogMessage($Method, print_r($KodiPayload, true));
                 break;
         }
     }

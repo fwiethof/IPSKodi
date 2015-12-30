@@ -273,6 +273,8 @@ class KodiSplitter extends IPSModule
             trigger_error('Connection to Kodi lost.', E_USER_NOTICE);
             $this->SendPowerEvent(false);
             $this->SetStatus(203);
+            $this->SetTimerInterval("KeepAlive", 0);
+            $this->Watchdog();
             return false;
         }
         return true;
