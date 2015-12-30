@@ -49,7 +49,7 @@ class KodiDevicePlayer extends KodiBase
                 //Array(4, "Next", "", -1)
         ));
         $this->RegisterProfileInteger("Intensity.Kodi", "Intensity", "", " %", 0, 100, 1);
-        $this->RegisterProfileInteger("AudioTracks.".$this->InstanceID.".Kodi", "", "", "", 1, 1, 1);
+        $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
 
         $this->RegisterVariableInteger("Status", "Status", "Status.Kodi", 3);
         $this->EnableAction("Status");
@@ -60,15 +60,15 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableString("totaltime", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
-        $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks.".$this->InstanceID.".Kodi", 30);
+        $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks." . $this->InstanceID . ".Kodi", 30);
         $this->RegisterVariableString("audiolanguage", "Sprache", "", 31);
         $this->RegisterVariableInteger("audiochannels", "Audiokanäle", "", 32);
         $this->RegisterVariableString("audiocodec", "Audio Codec", "", 23);
         $this->RegisterVariableInteger("audiobitrate", "Audio Bitrate", "", 34);
 
         $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
-        
-        
+
+
         $this->EnableAction("percentage");
 
 //        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
@@ -133,8 +133,8 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger('audiochannels', (int) $value->channels);
                             $this->SetValueInteger('audioindex', (int) $value->index);
                             //$this->SetValueString('codec', (string)$value->codec);
-                            $this->SetValueString('audiolanguage', (string)$value->language);
-                            $this->SetValueString('audiocodec', (string)$value->name);
+                            $this->SetValueString('audiolanguage', (string) $value->language);
+                            $this->SetValueString('audiocodec', (string) $value->name);
                             break;
                         case "subtitleenabled":
                             break;
@@ -146,6 +146,8 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "speed":
                             break;
+                    }
+                }
                 break;
             case 'OnStop':
                 $this->SetTimerInterval('PlayerStatus', 0);
@@ -154,7 +156,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueString('time', '');
                 $this->SetValueInteger('percentage', 0);
                 IPS_RunScriptText('<? KODIPLAYER_GetItem(' . $this->InstanceID . ');');
-                
+
                 break;
             case 'OnPlay':
                 $this->SetValueInteger('Status', 2);
