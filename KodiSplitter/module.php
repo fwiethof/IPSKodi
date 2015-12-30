@@ -277,7 +277,9 @@ class KodiSplitter extends IPSModule
             trigger_error('Connection to Kodi lost.', E_USER_NOTICE);
             $this->SendPowerEvent(false);
             $this->SetStatus(203);
+            /*
             $this->SetTimerInterval("KeepAlive", 0);
+
             if (!$this->Watchdog())
             {
                 if ($this->ReadPropertyBoolean('Watchdog'))
@@ -289,8 +291,8 @@ class KodiSplitter extends IPSModule
                         $this->SetTimerInterval("Watchdog", 0);
                 }
                 return false;
-            }
-            return true;
+            }*/
+            return $this->ApplyChanges();
         }
         $this->SetStatus(IS_ACTIVE);
 
@@ -625,6 +627,9 @@ class KodiSplitter extends IPSModule
 
     protected function SetStatus($InstanceStatus)
     {
+        IPS_LogMessage('NewState', $InstanceStatus);
+        IPS_LogMessage('NewState', IPS_GetInstance($this->InstanceID)['InstanceStatus']);
+
         if ($InstanceStatus <> IPS_GetInstance($this->InstanceID)['InstanceStatus'])
             parent::SetStatus($InstanceStatus);
     }

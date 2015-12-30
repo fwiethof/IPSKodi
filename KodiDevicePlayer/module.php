@@ -48,11 +48,30 @@ class KodiDevicePlayer extends KodiBase
             Array(3, "Pause", "", -1)
                 //Array(4, "Next", "", -1)
         ));
+        $this->RegisterProfileIntegerEx("Speed.Kodi", "Intensity", "", "", Array(
+            //Array(0, "Prev", "", -1),
+            Array(-32, "32 <<", "", -1),
+            Array(-16, "16 <<", "", -1),
+            Array(-8, "8 <<", "", -1),
+            Array(-4, "4 <<", "", -1),
+            Array(-2, "2 <<", "", -1),
+            Array(-1, "1 <<", "", -1),
+            Array(0, "Pause", "", 0x0000FF),
+            Array(1, "Play", "", 0x00FF00),
+            Array(2, "2 >>", "", -1),
+            Array(4, "4 >>", "", -1),
+            Array(8, "8 >>", "", -1),
+            Array(16, "16 >>", "", -1),
+            Array(32, "32 >>", "", -1)
+        ));
         $this->RegisterProfileInteger("Intensity.Kodi", "Intensity", "", " %", 0, 100, 1);
         $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
 
         $this->RegisterVariableInteger("Status", "Status", "Status.Kodi", 3);
         $this->EnableAction("Status");
+        $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
+        $this->RegisterVariableBoolean("repeat", "Wiederholen", "~Switch", 11);
+        $this->RegisterVariableBoolean("shuffeld", "Zufall", "~Switch", 12);
 
         $this->RegisterVariableString("label", "Titel", "", 20);
         $this->RegisterVariableString("type", "Typ", "", 21);
@@ -67,9 +86,11 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableInteger("audiobitrate", "Audio Bitrate", "", 34);
 
         $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
+        $this->RegisterVariableBoolean("subtitleenabled", "Untertitel aktiv", "~Switch", 40);
+        $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 41);
 
 
-        $this->EnableAction("percentage");
+
 
 //        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
 //            Array(0, "Ausführen", "", -1)
@@ -145,24 +166,75 @@ class KodiDevicePlayer extends KodiBase
                             }
                             break;
 
-                        /*    {"audiostreams":[],"canchangespeed":true,"canmove":false,"canrepeat":true,"canrotate":false,"canseek":false,"canshuffle":true,"canzoom":false,
-                          "currentaudiostream":null,"currentsubtitle":null,
-                          "live":false,"partymode":false,"percentage":0,"playlistid":1,"position":-1,
-                          "repeat":"off","shuffled":false,"speed":1,
+                        /*    {"canrotate":false,"canzoom":false,
+                          "currentsubtitle":null,
+                          "live":false,"partymode":false,"playlistid":1,
+                          "position":-1,
                           "subtitleenabled":false,"subtitles":[],
                          */
+                        case "subtitleenabled":
+                            $this->SetValueBoolean('subtitleenabled', $value);
+                            break;
+                        case "subtitles":
+                            $this->SetValueInteger($param, count($value));
+                            break;
+                        case "currentsubtitle":
+                            if (is_null($value))
+                            {
+                                /*                                $this->SetValueInteger('audiobitrate', 0);
+                                  $this->SetValueInteger('audiochannels', 0);
+                                  $this->SetValueInteger('audioindex', 0);
+                                  $this->SetValueString('audiolanguage', "");
+                                  $this->SetValueString('audiocodec', ""); */
+//                                $this->DisableAction('subtitleenabled');
+                            }
+                            else
+                            {
+                                /*                                $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
+                                  $this->SetValueInteger('audiochannels', (int) $value->channels);
+                                  $this->SetValueInteger('audioindex', (int) $value->index);
+                                  $this->SetValueString('audiolanguage', (string) $value->language);
+                                  $this->SetValueString('audiocodec', (string) $value->name); */
+                                //                              $this->EnableAction('subtitleenabled');
+                            }
+                            break;
+                        case "canseek":
+                            if ($value)
+                                $this->EnableAction('percentage');
+                            else
+                                $this->DisableAction('percentage');
+                            break;
+                        case "canshuffle":
+                            if ($value)
+                                $this->EnableAction('shuffeld');
+                            else
+                                $this->DisableAction('shuffeld');
+                            break;
+                        case "canrepeat":
+                            if ($value)
+                                $this->EnableAction('repeat');
+                            else
+                                $this->DisableAction('repeat');
+                            break;
+                        case "canchangespeed":
+                            if ($value)
+                                $this->EnableAction('speed');
+                            else
+                                $this->DisableAction('speed');
+                            break;
+                        case "repeat": //off
+                            if ($value == "off")
+                                $this->SetValueBoolean('repeat', false);
+                            else
+                                $this->SetValueBoolean('repeat', true);
 
-
-                        /*                        case "subtitleenabled":
-                          break;
-                          case "currentsubtitle":
-                          break;
-                          case "repeat": //off
-                          break;
-                          case "shuffeld":
-                          break;
-                          case "speed":
-                          break; */
+                            break;
+                        case "shuffeld":
+                            $this->SetValueBoolean('shuffeld', $value);
+                            break;
+                        case "speed":
+                            $this->SetValueInteger('speed', (int) $value);
+                            break;
                         default:
                             IPS_LogMessage($param, print_r($value, true));
                             break;
@@ -255,7 +327,7 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->Send($KodiData);
         $this->SetValueString('label', $ret->item->label);
         $this->SetValueString('type', $ret->item->type);
-        var_dump($ret);
+//        var_dump($ret);
     }
 
     public function Play()

@@ -268,7 +268,8 @@ class KodiBase extends IPSModule
                 {
                     throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
                 }
-            } catch (Exception $ex)
+            }
+            catch (Exception $ex)
             {
                 trigger_error($ex->getMessage(), $ex->getCode());
                 return false;
@@ -312,10 +313,12 @@ class KodiBase extends IPSModule
                 throw $ret;
             }
             return $ret;
-        } catch (KodiRPCException $ex)
+        }
+        catch (KodiRPCException $ex)
         {
             trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        } catch (Exception $ex)
+        }
+        catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
         }
@@ -419,7 +422,8 @@ class KodiBase extends IPSModule
         if (!IPS_VariableProfileExists($Name))
         {
             IPS_CreateVariableProfile($Name, 1);
-        } else
+        }
+        else
         {
             $profile = IPS_GetVariableProfile($Name);
             if ($profile['ProfileType'] != 1)
@@ -437,7 +441,8 @@ class KodiBase extends IPSModule
         {
             $MinValue = 0;
             $MaxValue = 0;
-        } else
+        }
+        else
         {
             $MinValue = $Associations[0][0];
             $MaxValue = $Associations[sizeof($Associations) - 1][0];
@@ -476,7 +481,8 @@ class KodiBase extends IPSModule
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
                 IPS_SetEventActive($id, true);
-            } else
+            }
+            else
             {
                 IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
                 IPS_SetEventActive($id, false);
@@ -528,7 +534,8 @@ class KodiBase extends IPSModule
             if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
             {
                 return true;
-            } else
+            }
+            else
             {
                 IPS_Sleep(mt_rand(1, 5));
             }
@@ -631,13 +638,13 @@ class Kodi_RPC_Data extends stdClass
         if (property_exists($this->Error, 'data'))
             if (property_exists($this->Error->data, 'stack'))
                 if (property_exists($this->Error->data->stack, 'message'))
-                    return new KodiRPCException($this->Error->data->stack->message, $this->Error->code);
+                    return new KodiRPCException((string) $this->Error->data->stack->message, (int) $this->Error->code);
                 else
-                    return new KodiRPCException($this->Error->data->stack, $this->Error->code);
+                    return new KodiRPCException((string) $this->Error->data->stack, (int) $this->Error->code);
             else
-                return new KodiRPCException($this->Error->data, $this->Error->code);
+                return new KodiRPCException((string) $this->Error->data, (int) $this->Error->code);
         else
-            return new KodiRPCException($this->Error->message, $this->Error->code);
+            return new KodiRPCException((string) $this->Error->message, (int) $this->Error->code);
     }
 
     public function GetDataFromJSONKodiObject($Data)

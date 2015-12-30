@@ -56,7 +56,7 @@ class KodiDeviceSystem extends KodiBase
         $this->EnableAction("shutdown");
         $this->RegisterVariableInteger("ejectOpticalDrive", "Laufwerk öffnen", "Action.Kodi", 5);
         $this->EnableAction("ejectOpticalDrive");
-        $this->RegisterVariableBoolean("LowBatteryEvent", "Betterie leer Event", "", 6);
+        $this->RegisterVariableBoolean("LowBatteryEvent", "Batterie leer Event", "", 6);
         
 //Never delete this line!
         parent::ApplyChanges();
