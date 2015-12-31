@@ -156,7 +156,7 @@ class KodiDevicePlayer extends KodiBase
         $this->EnableAction("Status");
         $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
         $this->RegisterVariableBoolean("repeat", "Wiederholen", "~Switch", 11);
-        $this->RegisterVariableBoolean("shuffeld", "Zufall", "~Switch", 12);
+        $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
 
         $this->RegisterVariableString("label", "Titel", "", 15);
         $this->RegisterVariableString("type", "Typ", "", 16);
@@ -317,8 +317,8 @@ class KodiDevicePlayer extends KodiBase
                                 $this->SetValueBoolean('repeat', true);
 
                             break;
-                        case "shuffeld":
-                            $this->SetValueBoolean('shuffeld', $value);
+                        case "shuffled":
+                            $this->SetValueBoolean('shuffled', $value);
                             break;
                         case "speed":
                             $this->SetValueInteger('speed', (int) $value);
@@ -336,13 +336,13 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueString('time', '');
                 $this->SetValueInteger('percentage', 0);
                 IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"ALL");');
-                IPS_RunScriptText('<? KODIPLAYER_GetItem(' . $this->InstanceID . ');');
+                IPS_RunScriptText('<? KODIPLAYER_GetItemInternal(' . $this->InstanceID . ');');
 
                 break;
             case 'OnPlay':
                 $this->SetValueInteger('Status', 2);
                 IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"ALL");');
-                IPS_RunScriptText('<? KODIPLAYER_GetItem(' . $this->InstanceID . ');');
+                IPS_RunScriptText('<? KODIPLAYER_GetItemInternal(' . $this->InstanceID . ');');
                 $this->SetTimerInterval('PlayerStatus', 2);
                 break;
             case 'OnPause':
