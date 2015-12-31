@@ -294,9 +294,9 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "canshuffle":
                             if ($value)
-                                $this->EnableAction('shuffeld');
+                                $this->EnableAction('shuffled');
                             else
-                                $this->DisableAction('shuffeld');
+                                $this->DisableAction('shuffled');
                             break;
                         case "canrepeat":
                             if ($value)
