@@ -224,6 +224,8 @@ class KodiBase extends IPSModule
     {
         if ($Ident == 'ALL')
             return $this->RequestProperties(array("properties" => static::$Properties));
+        if ($Ident == 'PARTIAL')
+            return $this->RequestProperties(array("properties" => static::$PartialProperties));
         if (!in_array($Ident, static::$Properties))
         {
             trigger_error('Property not found.');

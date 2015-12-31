@@ -31,6 +31,18 @@ class KodiDevicePlayer extends KodiBase
         "subtitles",
         "live"
     );
+    static $PartialProperties = array(
+        "type",
+        "partymode",
+        "speed",
+        "time",
+        "percentage",
+        "repeat",
+        "shuffled",
+        "currentaudiostream",
+        "subtitleenabled",
+        "currentsubtitle"
+    );
     static $ItemList = array(
         "title",
         "artist",
@@ -181,19 +193,7 @@ class KodiDevicePlayer extends KodiBase
 //        $this->EnableAction("volume");
         //Never delete this line!
         parent::ApplyChanges();
-        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],'
-                . 'array(
-                    "type",
-                    "partymode",
-                    "speed",
-                    "time",
-                    "percentage",
-                    "repeat",
-                    "shuffled",
-                    "currentaudiostream",
-                    "subtitleenabled",
-                    "currentsubtitle"
-                  ));');
+        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],"PARTIAL");');
     }
 
 ################## PRIVATE     
