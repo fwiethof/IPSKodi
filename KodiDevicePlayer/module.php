@@ -237,15 +237,7 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "currentaudiostream":
-                            if (is_null($value))
-                            {
-                                $this->SetValueInteger('audiobitrate', 0);
-                                $this->SetValueInteger('audiochannels', 0);
-                                $this->SetValueInteger('audioindex', 0);
-                                $this->SetValueString('audiolanguage', "");
-                                $this->SetValueString('audiocodec', "");
-                            }
-                            else
+                            if (is_object($value))
                             {
                                 $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
                                 $this->SetValueInteger('audiochannels', (int) $value->channels);
@@ -253,8 +245,15 @@ class KodiDevicePlayer extends KodiBase
                                 $this->SetValueString('audiolanguage', (string) $value->language);
                                 $this->SetValueString('audiocodec', (string) $value->name);
                             }
+                            else
+                            {
+                                $this->SetValueInteger('audiobitrate', 0);
+                                $this->SetValueInteger('audiochannels', 0);
+                                $this->SetValueInteger('audioindex', 0);
+                                $this->SetValueString('audiolanguage', "");
+                                $this->SetValueString('audiocodec', "");
+                            }
                             break;
-
                         /*    {"canrotate":false,"canzoom":false,
                           "currentsubtitle":null,
                           "live":false,"partymode":false,"playlistid":1,
@@ -268,7 +267,7 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "currentsubtitle":
-                            if (is_null($value))
+                            if (is_object($value))
                             {
                                 /*                                $this->SetValueInteger('audiobitrate', 0);
                                   $this->SetValueInteger('audiochannels', 0);
@@ -391,14 +390,14 @@ class KodiDevicePlayer extends KodiBase
             if (!($image === false))
             {
                 $image = imagescale($image, $Size);
-                if (imagepng($image, IPS_GetKernelDir().$filename) === true)
+                if (imagepng($image, IPS_GetKernelDir() . $filename) === true)
                 {
                     IPS_SendMediaEvent($CoverID);
                     return;
                 }
             }
         }
-        $CoverRAW = file_get_contents(__DIR__ . "nocover.png");
+        $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "nocover.png");
 
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
         return;
@@ -464,7 +463,7 @@ class KodiDevicePlayer extends KodiBase
         $CoverURL = "";
         if ($ret->item->thumbnail <> "")
         {
-            $CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
+            $CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, -1));
         }
         $this->SetCover($CoverURL);
 
