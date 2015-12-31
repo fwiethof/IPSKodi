@@ -391,14 +391,16 @@ class KodiDevicePlayer extends KodiBase
             if (!($image === false))
             {
                 $image = imagescale($image, $Size);
-                if (imagepng($image, $filename) === true)
+                if (imagepng($image, IPS_GetKernelDir().$filename) === true)
                 {
                     IPS_SendMediaEvent($CoverID);
                     return;
                 }
             }
         }
-        IPS_SetMediaContent($CoverID, "iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAIAAAD2HxkiAAAgAElEQVR4nNy9eZPjOJIn+nMHQFKKKzPr6qqenmPfzjzbtff9v8nY2nvzbLaP6urqOvKKCEkkAff9w0EIIiVFRGZkVfe4pSkZPEAQgN8H6N///d/xHEBEdqCq5bfA7KSqhhD0KBBEJKWUUlJVImJmIhKRo60tf+2gnKkBACmOnk8p1efzMUFZpTReXUWS+r2qClECZIwQleoNCaqqqe4/TYOmSNvECmWyMSSyDqKPY2m5tFb3f/YrIstPBlD3hKY5ISLrP1RTSjHGlBKJCgGscvhddjyOY5ni+kPUsWBqVxQAAwBijPbG8js9wkfHv564g1k4sajKfM3Oi0iMkZkvLi6ur6+bphmGYbvdppREpCwt+1NV+763peWcCyE456wRPBH0cME/eL4eTP/Ulz0SiOjU6+2qfWd9T+4W5bXIzHnZTXCmwce8/VQLdn65wqwzCiUiVAti1s5+xZR1Q9gvSzsmappmhlGGF91qBVURSSKSUkxJRBLUOacEAhHA1gYAIMZob53/QgmkqlAQCKp23gGiqiIppfJqUozj6ED21c4555wN8mZ3L1PnbJmWWagxExORYg7WM1WtR9A5t0e/0qLqmdE+OQuPvlMnqm0D1fe9nfTei4itKHuwfF3TNHbAzPag9dOOl3Cqh6fw9tT9B0j4yM9+EMq3ldmqF2sZ+nJm1ul9NwhlHGskXL6i/Hm0/WXL+ZGqS/X5MkM1GSaA4ARlUWdUQyb6eTJVNK95ASnZowLVzPMUBBEokQKqENFkvYZGFVaAiLwLzjl7gEBEUhN+KCsAhKYp31h/rCHnnI0Yk4cis4GMDQS40UPyQrSrKqKq7WqFia+WRwAMw1CaLTcYCy6dsAG1P9kIiKpOnJ8BIZKz67L+ojPrZ3ZQ/1m6F2M0Bui9Z2YjCjYmBd9ExJBwKWedQsJTcOqjHoPMJznhhyHnqUGpMadeH7N3EZFxnoJ4p3oye8Wy/Zl4");
+        $CoverRAW = file_get_contents(__DIR__ . "nocover.png");
+
+        IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
         return;
     }
 
@@ -537,7 +539,7 @@ class KodiDevicePlayer extends KodiBase
         if (is_null($ret))
             return null;
         return $ret;
-        
+
 //        var_dump($ret);
     }
 
