@@ -118,6 +118,12 @@ class KodiDevicePlayer extends KodiBase
         "endtime");
     private $PlayerId = null;
 
+    static $Playertype= array(
+        "song" => 0,
+        "episode" => 1,
+        "movie" => 1,
+        "pictures" => 2
+    );
     public function Create()
     {
         parent::Create();
@@ -218,6 +224,10 @@ class KodiDevicePlayer extends KodiBase
         if (property_exists($KodiPayload, 'player')
                 and ( $KodiPayload->player->playerid <> $this->PlayerId))
             return false;
+        if (property_exists($KodiPayload, 'item')
+                and ( self::$Playertype[(string)$KodiPayload->item->type] <> $this->PlayerId))
+            return false;
+        
         switch ($Method)
         {
             case 'GetProperties':
@@ -463,7 +473,7 @@ class KodiDevicePlayer extends KodiBase
         $CoverURL = "";
         if ($ret->item->thumbnail <> "")
         {
-            $CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, -1));
+            $CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
         }
         $this->SetCover($CoverURL);
 
