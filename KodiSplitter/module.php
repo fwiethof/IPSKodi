@@ -278,20 +278,20 @@ class KodiSplitter extends IPSModule
             $this->SendPowerEvent(false);
             $this->SetStatus(203);
             /*
-            $this->SetTimerInterval("KeepAlive", 0);
+              $this->SetTimerInterval("KeepAlive", 0);
 
-            if (!$this->Watchdog())
-            {
-                if ($this->ReadPropertyBoolean('Watchdog'))
-                {
-                    $WatchdogTimer = $this->ReadPropertyInteger('Interval');
-                    if ($WatchdogTimer >= 5)
-                        $this->SetTimerInterval("Watchdog", $WatchdogTimer);
-                    else
-                        $this->SetTimerInterval("Watchdog", 0);
-                }
-                return false;
-            }*/
+              if (!$this->Watchdog())
+              {
+              if ($this->ReadPropertyBoolean('Watchdog'))
+              {
+              $WatchdogTimer = $this->ReadPropertyInteger('Interval');
+              if ($WatchdogTimer >= 5)
+              $this->SetTimerInterval("Watchdog", $WatchdogTimer);
+              else
+              $this->SetTimerInterval("Watchdog", 0);
+              }
+              return false;
+              } */
             return $this->ApplyChanges();
         }
         $this->SetStatus(IS_ACTIVE);
@@ -305,6 +305,7 @@ class KodiSplitter extends IPSModule
           return false;
           if ($this->ReadPropertyString('Host') == '')
           return false; */
+        $this->SetTimerInterval("Watchdog", 0);
         $ParentID = $this->GetParent();
         if ($ParentID > 0)
         {
@@ -312,7 +313,9 @@ class KodiSplitter extends IPSModule
             {
                 $this->SendPowerEvent(false);
                 $this->SetStatus(203);
-                return false;
+                $WatchdogTimer = $this->ReadPropertyInteger('Interval');
+                $this->SetTimerInterval("Watchdog", $WatchdogTimer);
+                return;
             }
             $Parent = IPS_GetInstance($ParentID);
             if ($Parent['InstanceStatus'] <> IS_ACTIVE)
@@ -388,8 +391,8 @@ class KodiSplitter extends IPSModule
         $Data = $head . utf8_decode($data->Buffer);
 
         // Stream in einzelne Pakete schneiden
-        $Data = str_replace('}{', '}---{', $Data, $Count);
-        $JSONLine = explode('---', $Data);
+        $Data = str_replace('}{', '}' . chr(0x04) . '{', $Data, $Count);
+        $JSONLine = explode(chr(0x04), $Data);
 
         if (is_null(json_decode($JSONLine[$Count])))
         {

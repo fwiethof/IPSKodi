@@ -31,6 +31,79 @@ class KodiDevicePlayer extends KodiBase
         "subtitles",
         "live"
     );
+    static $ItemList = array(
+        "title",
+        "artist",
+        "albumartist",
+        "genre",
+        "year",
+        "rating",
+        "album",
+        "track",
+        "duration",
+        "comment",
+        "lyrics",
+        "musicbrainztrackid",
+        "musicbrainzartistid",
+        "musicbrainzalbumid",
+        "musicbrainzalbumartistid",
+        "playcount",
+        "fanart",
+        "director",
+        "trailer",
+        "tagline",
+        "plot",
+        "plotoutline",
+        "originaltitle",
+        "lastplayed",
+        "writer",
+        "studio",
+        "mpaa",
+        "cast",
+        "country",
+        "imdbnumber",
+        "premiered",
+        "productioncode",
+        "runtime",
+        "set",
+        "showlink",
+        "streamdetails",
+        "top250",
+        "votes",
+        "firstaired",
+        "season",
+        "episode",
+        "showtitle",
+        "thumbnail",
+        "file",
+        "resume",
+        "artistid",
+        "albumid",
+        "tvshowid",
+        "setid",
+        "watchedepisodes",
+        "disc",
+        "tag",
+        "art",
+        "genreid",
+        "displayartist",
+        "albumartistid",
+        "description",
+        "theme",
+        "mood",
+        "style",
+        "albumlabel",
+        "sorttitle",
+        "episodeguide",
+        "uniqueid",
+        "dateadded",
+        "channel",
+        "channeltype",
+        "hidden",
+        "locked",
+        "channelnumber",
+        "starttime",
+        "endtime");
     private $PlayerId = null;
 
     public function Create()
@@ -73,8 +146,11 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableBoolean("repeat", "Wiederholen", "~Switch", 11);
         $this->RegisterVariableBoolean("shuffeld", "Zufall", "~Switch", 12);
 
-        $this->RegisterVariableString("label", "Titel", "", 20);
-        $this->RegisterVariableString("type", "Typ", "", 21);
+        $this->RegisterVariableString("label", "Titel", "", 15);
+        $this->RegisterVariableString("type", "Typ", "", 16);
+        $this->RegisterVariableString("genre", "Genre", "", 17);
+        $this->RegisterVariableString("artist", "Artist", "", 18);
+        $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
 
         $this->RegisterVariableString("totaltime", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
@@ -105,7 +181,19 @@ class KodiDevicePlayer extends KodiBase
 //        $this->EnableAction("volume");
         //Never delete this line!
         parent::ApplyChanges();
-        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],"ALL");');
+        $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],'
+                . 'array(
+                    "type",
+                    "partymode",
+                    "speed",
+                    "time",
+                    "percentage",
+                    "repeat",
+                    "shuffled",
+                    "currentaudiostream",
+                    "subtitleenabled",
+                    "currentsubtitle"
+                  ));');
     }
 
 ################## PRIVATE     
@@ -247,27 +335,70 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueString('totaltime', '');
                 $this->SetValueString('time', '');
                 $this->SetValueInteger('percentage', 0);
+                IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"ALL");');
                 IPS_RunScriptText('<? KODIPLAYER_GetItem(' . $this->InstanceID . ');');
 
                 break;
             case 'OnPlay':
                 $this->SetValueInteger('Status', 2);
-                $this->SetTimerInterval('PlayerStatus', 2);
+                IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"ALL");');
                 IPS_RunScriptText('<? KODIPLAYER_GetItem(' . $this->InstanceID . ');');
+                $this->SetTimerInterval('PlayerStatus', 2);
                 break;
             case 'OnPause':
                 $this->SetTimerInterval('PlayerStatus', 0);
                 $this->SetValueInteger('Status', 3);
+                IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"ALL");');
                 break;
             case 'OnSeek':
                 $this->SetValueString('time', $this->ConvertTime($KodiPayload->player->time));
                 break;
             case 'OnSpeedChanged':
+                IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"speed");');
                 break;
             default:
                 IPS_LogMessage($Method, print_r($KodiPayload, true));
                 break;
         }
+    }
+
+    private function SetCover($file)
+    {
+//        $Ext = pathinfo($file, PATHINFO_EXTENSION);
+        $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
+        $filename = "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png";
+        $Size = $this->ReadPropertyString("CoverSize");
+        if ($CoverID === false)
+        {
+            $CoverID = IPS_CreateMedia(1);
+            IPS_SetParent($CoverID, $this->InstanceID);
+            IPS_SetIdent($CoverID, 'CoverIMG');
+            IPS_SetName($CoverID, 'Cover');
+            IPS_SetPosition($CoverID, 27);
+            IPS_SetMediaCached($CoverID, true);
+            IPS_SetMediaFile($CoverID, $filename, False);
+        }
+
+        if ($file == "")
+            $CoverRAW = FALSE;
+        else
+            $CoverRAW = @Sys_GetURLContent($file);
+
+        if (!($CoverRAW === false))
+        {
+            $image = imagecreatefromstring($CoverRAW);
+            if (!($image === false))
+            {
+                $image = imagescale($image, $Size);
+                if (imagepng($image, $filename) === true)
+                {
+                    IPS_SendMediaEvent($CoverID);
+                    return;
+                }
+            }
+        }
+        IPS_SetMediaContent($CoverID, "/9j/4AAQSkZJRgABAQAAAQABAAD/7QAsUGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAABAcAm4ABm5vbmFtZRwCDwAA//4AO0NSRUFUT1I6IGdkLWpwZWcgdjEuMCAodXNpbmcgSUpHIEpQRUcgdjYyKSwgcXVhbGl0eSA9IDcwCv/bAEMACgcHCAcGCggICAsKCgsOGBAODQ0OHRUWERgjHyUkIh8iISYrNy8mKTQpISIwQTE0OTs+Pj4lLkRJQzxINz0+O//bAEMBCgsLDg0OHBAQHDsoIig7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O//AABEIASwBLAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APRcUu2lApwFADNtIRTyKQigCMimk+tSGmEUARMBnNMIqU1G3SgR");
+        return;
     }
 
 ################## ActionHandler
@@ -320,13 +451,92 @@ class KodiDevicePlayer extends KodiBase
         return parent::RawSend($Namespace, $Method, $Params);
     }
 
+    public function GetItemInternal()
+    {
+        $ret = $this->GetItem();
+        if (is_null($ret))
+            return null;
+        $this->SetValueString('label', $ret->item->label);
+        $this->SetValueString('type', $ret->item->type);
+        $CoverURL = "";
+        if ($ret->item->thumbnail <> "")
+        {
+            $CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
+        }
+        $this->SetCover($CoverURL);
+
+        if (count($ret->item->artist) > 0)
+        {
+            $this->SetValueString('artist', implode(', ', $ret->item->artist));
+        }
+        else
+        {
+            $this->SetValueString('artist', "");
+        }
+        if (count($ret->item->genre) > 0)
+        {
+            $this->SetValueString('genre', implode(', ', $ret->item->artist));
+        }
+        else
+        {
+            $this->SetValueString('genre', "");
+        }
+        $this->SetValueString('plot', $ret->item->plot);
+
+        /*
+          album
+          ["art"]=>
+          object(stdClass)#8 (2) {
+          ["fanart"]=>
+          string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
+          ["poster"]=>
+          string(198) "image://https%3a%2f%2fgfx.videobuster.de%2farchive%2fresized%2fw700%2f2008%2f02%2fimage%2fjpeg%2ff136aea8fcf90e95f8ad0a7b01be895d.jpg%3ftitle%3deragon%26k%3dDVD%2bonline%2bleihen%2bdownload%2bcover/"
+          }
+          ["artist"]=>
+          array(0) {
+          }
+
+          }
+          episode
+          ["fanart"]=>
+          string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
+          ["file"]=>
+          string(80) "smb://WHS/Videos/Filme/Eragon.AC3.BDRip/Eragon.2006.German.AC3.BDRip.XviD-SG.avi"
+          ["genre"]=>
+          array(1) {
+          [0]=>
+          string(7) "Fantasy"
+          }
+          plot
+          ["video"]=>
+          array(1) {
+          [0]=>
+          object(stdClass)#15 (6) {
+          ["aspect"]=>
+          float(2.3684198856354)
+          ["codec"]=>
+          string(4) "xvid"
+          ["duration"]=>
+          int(5986)
+          ["height"]=>
+          int(304)
+          ["stereomode"]=>
+          string(0) ""
+          ["width"]=>
+          int(720)
+          }
+          thumbnail */
+    }
+
     public function GetItem()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
         $ret = $this->Send($KodiData);
-        $this->SetValueString('label', $ret->item->label);
-        $this->SetValueString('type', $ret->item->type);
+        if (is_null($ret))
+            return null;
+        return $ret;
+
 //        var_dump($ret);
     }
 
