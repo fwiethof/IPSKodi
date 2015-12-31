@@ -18,6 +18,11 @@
                             "value": 2
                         }
                     ]
+                },
+                {
+                    "name": "CoverSize",
+                    "type": "NumberSpinner",
+                    "caption": "Höhe Cover"
                 }
             ],
     "actions":

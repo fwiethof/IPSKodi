@@ -122,6 +122,7 @@ class KodiDevicePlayer extends KodiBase
     {
         parent::Create();
         $this->RegisterPropertyInteger('PlayerID', 0);
+        $this->RegisterPropertyInteger('CoverSize', 300);
     }
 
     public function ApplyChanges()
