@@ -302,7 +302,7 @@ class KodiBase extends IPSModule
                 $this->unlock('RequestSendData');
                 throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
             }
-            $ReplayKodiData = $this->WaitForResponse($KodiData->Id);
+            $ReplayKodiData = $this->WaitForResponse((int)$KodiData->Id);
             if ($ReplayKodiData === false)
             {
                 $this->unlock('RequestSendData');
@@ -389,7 +389,7 @@ class KodiBase extends IPSModule
                     $JSON = json_decode($ret);
                     $Kodi_Data = new Kodi_RPC_Data();
                     $Kodi_Data->GetDataFromJSONKodiObject($JSON);
-                    if ($Id == $Kodi_Data->Id)
+                    if ($Id === (int)$Kodi_Data->Id)
                         return $Kodi_Data;
                     else
                     {

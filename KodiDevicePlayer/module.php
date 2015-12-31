@@ -247,6 +247,8 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "currentaudiostream":
+                                                        IPS_LogMessage($param, print_r($value, true));
+
                             if (is_object($value))
                             {
                                 $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
@@ -493,7 +495,11 @@ class KodiDevicePlayer extends KodiBase
         {
             $this->SetValueString('genre', "");
         }
-        $this->SetValueString('plot', $ret->item->plot);
+        if (property_exists($ret->item, 'plot'))
+                $this->SetValueString('plot', $ret->item->plot);
+        else
+                $this->SetValueString('plot', "");
+            
 
         /*
           album
