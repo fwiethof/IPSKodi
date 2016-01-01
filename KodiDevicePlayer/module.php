@@ -429,6 +429,7 @@ class KodiDevicePlayer extends KodiBase
 
         if (!($CoverRAW === false))
         {
+            $CoverRAW = false;
             $image = imagecreatefromstring($CoverRAW);
             if (!($image === false))
             {
@@ -439,12 +440,15 @@ class KodiDevicePlayer extends KodiBase
                     $factor = $height / $Size;
                     $image = imagescale($image, $width / $factor, $height / $factor);
                 }
-                imagepng($image, IPS_GetKernelDir() . $filename);
-                IPS_SendMediaEvent($CoverID);
-                return;
+                ob_start();
+                imagepng($image);
+                $CoverRAW = ob_get_contents(); // read from buffer                
+                ob_end_clean(); // delete buffer                
             }
         }
-        $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "nocover.png");
+        
+        if ($CoverRAW === false)
+            $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "nocover.png");
 
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
         return;
