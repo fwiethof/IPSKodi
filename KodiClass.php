@@ -613,7 +613,8 @@ class Kodi_RPC_Data extends stdClass
         if (is_object($Params))
             $this->Params = (object) $Params;
         if (is_null($Id))
-            $this->Id = round(fmod(microtime(true) * 1000, 10000));
+        $this->Id =round(explode(" ", microtime())[0]*10000);
+//        $this->Id = round(fmod(microtime(true) * 1000, 10000));
         else
         {
             if ($Id > 0)
@@ -630,8 +631,8 @@ class Kodi_RPC_Data extends stdClass
 //        IPS_LogMessage('ParamCall2', print_r($this->Params, true));
         if (is_object($arguments[0]))
             $this->Params = $arguments[0];
-
-        $this->Id = round(fmod(microtime(true) * 1000, 10000));
+        $this->Id =round(explode(" ", microtime())[0]*10000);
+//        $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 
     public function GetResult()
