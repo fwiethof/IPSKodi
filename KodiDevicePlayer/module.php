@@ -134,11 +134,11 @@ class KodiDevicePlayer extends KodiBase
     public function ApplyChanges()
     {
         $this->RegisterProfileIntegerEx("Status.Kodi", "Information", "", "", Array(
-            //Array(0, "Prev", "", -1),
+            Array(0, "Prev", "", -1),
             Array(1, "Stop", "", -1),
             Array(2, "Play", "", -1),
-            Array(3, "Pause", "", -1)
-                //Array(4, "Next", "", -1)
+            Array(3, "Pause", "", -1),
+            Array(4, "Next", "", -1)
         ));
         $this->RegisterProfileIntegerEx("Repeat.Kodi", "", "", "", Array(
             //Array(0, "Prev", "", -1),
@@ -314,7 +314,7 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "repeat": //off
-                            $this->SetValueInteger($param, array_search((string) $value, array("off", "on", "all")));
+                            $this->SetValueInteger($param, array_search((string) $value, array("off", "one", "all")));
                             break;
                         //boolean
                         case "shuffled":
@@ -461,10 +461,9 @@ class KodiDevicePlayer extends KodiBase
             case "Status":
                 switch ($Value)
                 {
-                    /*                    case 0: //Prev
-                      //$this->PreviousButton();
-                      $result = $this->PreviousTrack();
-                      break; */
+                    case 0: //Prev
+                        $result = $this->Previous();
+                        break;
                     case 1: //Stop
                         $result = $this->Stop();
                         break;
@@ -474,10 +473,9 @@ class KodiDevicePlayer extends KodiBase
                     case 3: //Pause
                         $result = $this->Pause();
                         break;
-                    /*                    case 4: //Next
-                      //$this->NextButton();
-                      $result = $this->NextTrack();
-                      break; */
+                    case 4: //Next
+                        $result = $this->Next();
+                        break;
                 }
                 break;
             case "shuffled":
@@ -614,6 +612,11 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueInteger("Status", 2);
             return true;
         }
+        else
+        {
+            trigger_error('Error on send play.', E_USER_NOTICE);
+        }
+
         return false;
     }
 
@@ -629,6 +632,11 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueInteger("Status", 3);
             return true;
         }
+        else
+        {
+            trigger_error('Error on send pause.', E_USER_NOTICE);
+        }
+
         return false;
     }
 
@@ -644,9 +652,52 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueInteger("Status", 1);
             return true;
         }
+        else
+        {
+            trigger_error('Error on send stop.', E_USER_NOTICE);
+        }
         return false;
     }
 
+    public function Next()
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => "next"));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+            return true;
+        trigger_error('Error on send next.', E_USER_NOTICE);
+        return false;
+    }
+
+    public function Previous()
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => "previous"));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+            return true;
+        trigger_error('Error on send previous.', E_USER_NOTICE);
+        return false;
+    }
+    
+    public function GoToTrack(integer $Value)
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+            return true;
+        trigger_error('Error on goto track.', E_USER_NOTICE);
+        return false;
+    }
+    
     public function SetShuffle(boolean $Value)
     {
         $this->Init();
@@ -659,13 +710,18 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueBoolean("shuffled", $Value);
             return true;
         }
+        else
+        {
+            trigger_error('Error on set shuffle.', E_USER_NOTICE);
+        }
+
         return false;
     }
 
     public function SetRepeat(integer $Value)
     {
         $this->Init();
-        $repeat = array("off", "on", "all");
+        $repeat = array("off", "one", "all");
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetRepeat', array("playerid" => $this->PlayerId, "repeat" => $repeat[$Value]));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -675,6 +731,11 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueInteger("repeat", $Value);
             return true;
         }
+        else
+        {
+            trigger_error('Error on set repeat.', E_USER_NOTICE);
+        }
+
         return false;
     }
 
@@ -690,6 +751,11 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueBoolean("partymode", $Value);
             return true;
         }
+        else
+        {
+            trigger_error('Error on set partymode.', E_USER_NOTICE);
+        }
+
         return false;
     }
 
@@ -706,10 +772,14 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        if ($ret === "OK")
+        if ((int) $ret->speed == $Value)
         {
             $this->SetValueInteger("speed", $Value);
             return true;
+        }
+        else
+        {
+            trigger_error('Error on set speed.', E_USER_NOTICE);
         }
         return false;
     }
