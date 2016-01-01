@@ -5,7 +5,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 class KodiDevicePlayer extends KodiBase
 {
 
-    static $Namespace = array('Player',' Playlist');
+    static $Namespace = array('Player', ' Playlist');
     static $Properties = array(
         "type",
         "partymode",
@@ -140,6 +140,12 @@ class KodiDevicePlayer extends KodiBase
             Array(3, "Pause", "", -1)
                 //Array(4, "Next", "", -1)
         ));
+        $this->RegisterProfileIntegerEx("Repeat.Kodi", "", "", "", Array(
+            //Array(0, "Prev", "", -1),
+            Array(0, "Aus", "", -1),
+            Array(1, "Titel", "", -1),
+            Array(2, "Playlist", "", -1)
+        ));
         $this->RegisterProfileIntegerEx("Speed.Kodi", "Intensity", "", "", Array(
             //Array(0, "Prev", "", -1),
             Array(-32, "32 <<", "", -1),
@@ -161,9 +167,9 @@ class KodiDevicePlayer extends KodiBase
 
         $this->RegisterVariableInteger("Status", "Status", "Status.Kodi", 3);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("position", "Playlist Position", "", 9);        
+        $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
         $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
-        $this->RegisterVariableBoolean("repeat", "Wiederholen", "~Switch", 11);
+        $this->RegisterVariableInteger("repeat", "Wiederholen", "Repeat.Kodi", 11);
         $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
         $this->RegisterVariableBoolean("partymode", "Partymodus", "~Switch", 13);
 
@@ -224,7 +230,7 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        $this->Decode('GetProperties', $ret);        
+        $this->Decode('GetProperties', $ret);
     }
 
     protected function Decode($Method, $KodiPayload)
@@ -293,9 +299,9 @@ class KodiDevicePlayer extends KodiBase
                                 $this->SetValueString('audiocodec', "");
 
                             break;
-                            //string
+                        //string
                         case "type":
-                            $this->SetValueString($param, (string)$value);
+                            $this->SetValueString($param, (string) $value);
                             break;
                         //time
                         case "totaltime":
@@ -308,17 +314,13 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "repeat": //off
-                            if ((bool)$value == "off")
-                                $this->SetValueBoolean($param, false);
-                            else
-                                $this->SetValueBoolean($param, true);
-
+                            $this->SetValueInteger($param, array_search((string) $value, array("off", "on", "all")));
                             break;
-                            //boolean
+                        //boolean
                         case "shuffled":
                         case "partymode":
                         case "subtitleenabled":
-                            $this->SetValueBoolean($param, (bool)$value);
+                            $this->SetValueBoolean($param, (bool) $value);
                             break;
                         //integer
                         case "speed":
@@ -326,36 +328,36 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, (int) $value);
                             break;
                         case "position":
-                            $this->SetValueInteger($param, (int) $value+1);
+                            $this->SetValueInteger($param, (int) $value + 1);
                             break;
-                            
+
                         /*    {"canrotate":false,"canzoom":false,
                           "currentsubtitle":null,
                           "live":false,"playlistid":1,
                           "subtitles":[],
                          */
-                        
+
                         //Action en/disable
                         case "canseek":
-                            if ((bool)$value)
+                            if ((bool) $value)
                                 $this->EnableAction('percentage');
                             else
                                 $this->DisableAction('percentage');
                             break;
                         case "canshuffle":
-                            if ((bool)$value)
+                            if ((bool) $value)
                                 $this->EnableAction('shuffled');
                             else
                                 $this->DisableAction('shuffled');
                             break;
                         case "canrepeat":
-                            if ((bool)$value)
+                            if ((bool) $value)
                                 $this->EnableAction('repeat');
                             else
                                 $this->DisableAction('repeat');
                             break;
                         case "canchangespeed":
-                            if ((bool)$value)
+                            if ((bool) $value)
                                 $this->EnableAction('speed');
                             else
                                 $this->DisableAction('speed');
@@ -422,7 +424,7 @@ class KodiDevicePlayer extends KodiBase
         {
             $ParentID = $this->GetParent();
             if ($ParentID !== false)
-                $CoverRAW = KODIRPC_GetImage($ParentID,$file);
+                $CoverRAW = KODIRPC_GetImage($ParentID, $file);
         }
 
         if (!($CoverRAW === false))
@@ -482,8 +484,8 @@ class KodiDevicePlayer extends KodiBase
                 return $this->SetShuffle($Value);
             case "repeat":
                 return $this->SetRepeat($Value);
-//            case "quit":
-//                return $this->Quit();
+            case "speed":
+                return $this->SetSpeed($Value);
 //            default:
 //                return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
@@ -644,11 +646,11 @@ class KodiDevicePlayer extends KodiBase
         }
         return false;
     }
-    
+
     public function SetShuffle(boolean $Value)
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetShuffle', array("playerid" => $this->PlayerId,"shuffle"=>$Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetShuffle', array("playerid" => $this->PlayerId, "shuffle" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -659,25 +661,27 @@ class KodiDevicePlayer extends KodiBase
         }
         return false;
     }
-    public function SetRepeat(boolean $Value)
+
+    public function SetRepeat(integer $Value)
     {
         $this->Init();
-        $repeat = ($Value) ? "on" : "off";
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetRepeat', array("playerid" => $this->PlayerId,"repeat"=>$repeat));
+        $repeat = array("off", "on", "all");
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetRepeat', array("playerid" => $this->PlayerId, "repeat" => $repeat[$Value]));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         if ($ret === "OK")
         {
-            $this->SetValueBoolean("repeat", $Value);
+            $this->SetValueInteger("repeat", $Value);
             return true;
         }
         return false;
     }
+
     public function SetPartymode(boolean $Value)
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetPartymode', array("playerid" => $this->PlayerId,"partymode"=>$Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetPartymode', array("playerid" => $this->PlayerId, "partymode" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -687,17 +691,18 @@ class KodiDevicePlayer extends KodiBase
             return true;
         }
         return false;
-    }    
+    }
+
     public function SetSpeed(integer $Value)
     {
         $this->Init();
-        
-        if (!in_array($Value,array(-32,-16,-8,-4,-2,0,1,2,4,8,16,32)))
+
+        if (!in_array($Value, array(-32, -16, -8, -4, -2, 0, 1, 2, 4, 8, 16, 32)))
         {
-            trigger_error('Invalid Value for speed.',E_USER_NOTICE);
+            trigger_error('Invalid Value for speed.', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetSpeed', array("playerid" => $this->PlayerId,"speed"=>$Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetSpeed', array("playerid" => $this->PlayerId, "speed" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -707,7 +712,8 @@ class KodiDevicePlayer extends KodiBase
             return true;
         }
         return false;
-    }        
+    }
+
 //    public function Volume(integer $Value)
 //    {
 //        if (!is_int($Value))
