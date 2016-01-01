@@ -5,7 +5,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 class KodiDevicePlayer extends KodiBase
 {
 
-    static $Namespace = 'Player';
+    static $Namespace = array('Player',' Playlist');
     static $Properties = array(
         "type",
         "partymode",
@@ -217,7 +217,12 @@ class KodiDevicePlayer extends KodiBase
     {
         $this->Init();
         $Params = array_merge($Params, array("playerid" => $this->PlayerId));
-        parent::RequestProperties($Params);
+        //parent::RequestProperties($Params);
+        $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Params);
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        $this->Decode('GetProperties', $ret);        
     }
 
     protected function Decode($Method, $KodiPayload)
@@ -238,8 +243,11 @@ class KodiDevicePlayer extends KodiBase
                 {
                     switch ($param)
                     {
+                        case "type":
+                            $this->SetValueString($param, (string)$value);
+                            break;
                         case "percentage":
-                            $this->SetValueInteger('percentage', (int) $value);
+                            $this->SetValueInteger($param, (int) $value);
                             break;
                         case "totaltime":
                         case "time":
@@ -282,7 +290,7 @@ class KodiDevicePlayer extends KodiBase
                           "subtitleenabled":false,"subtitles":[],
                          */
                         case "subtitleenabled":
-                            $this->SetValueBoolean('subtitleenabled', $value);
+                            $this->SetValueBoolean($param, $value);
                             break;
                         case "subtitles":
                             $this->SetValueInteger($param, count($value));
@@ -333,16 +341,16 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "repeat": //off
                             if ($value == "off")
-                                $this->SetValueBoolean('repeat', false);
+                                $this->SetValueBoolean($param, false);
                             else
-                                $this->SetValueBoolean('repeat', true);
+                                $this->SetValueBoolean($param, true);
 
                             break;
                         case "shuffled":
-                            $this->SetValueBoolean('shuffled', $value);
+                            $this->SetValueBoolean($param, $value);
                             break;
                         case "speed":
-                            $this->SetValueInteger('speed', (int) $value);
+                            $this->SetValueInteger($param, (int) $value);
                             break;
                         default:
                             IPS_LogMessage($param, print_r($value, true));
@@ -574,7 +582,7 @@ class KodiDevicePlayer extends KodiBase
     public function GetItem()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GetItem', array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return null;
@@ -587,7 +595,7 @@ class KodiDevicePlayer extends KodiBase
     {
         $this->Init();
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -602,7 +610,7 @@ class KodiDevicePlayer extends KodiBase
     public function Pause()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -617,7 +625,7 @@ class KodiDevicePlayer extends KodiBase
     public function Stop()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Stop', array("playerid" => $this->PlayerId));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Stop', array("playerid" => $this->PlayerId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -636,8 +644,8 @@ class KodiDevicePlayer extends KodiBase
 //            trigger_error('Value must be integer', E_USER_NOTICE);
 //            return false;
 //        }
-////        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+////        $KodiData = new Kodi_RPC_Data(self::$Namespace[0, 'SetVolume', array("volume" => $Value));
+//        $KodiData = new Kodi_RPC_Data(self::$Namespace[0);
 //        $KodiData->SetVolume(array("volume" => $Value));
 //        $ret = $this->Send($KodiData);
 //        if (is_null($ret))
@@ -648,7 +656,7 @@ class KodiDevicePlayer extends KodiBase
 //
 //    public function Quit()
 //    {
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Quit');
+//        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Quit');
 //        $ret = $this->Send($KodiData);
 //        if (is_null($ret))
 //            return false;

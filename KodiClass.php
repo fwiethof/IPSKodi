@@ -253,10 +253,23 @@ class KodiBase extends IPSModule
         }
         $KodiData = new Kodi_RPC_Data();
         $KodiData->GetDataFromJSONKodiObject($Data);
-        if ($KodiData->Namespace <> static::$Namespace)
-            return false;
-        //Variable nachführen
-        $this->Decode($KodiData->Method, $KodiData->GetEvent());
+        if (is_array(static::$Namespace))
+        {
+            if (in_array($KodiData->Namespace, static::$Namespace))
+            {
+                $this->Decode($KodiData->Method, $KodiData->GetEvent());
+                return true;
+            }
+        }
+        else
+        {
+            if ($KodiData->Namespace == static::$Namespace)
+            {
+                $this->Decode($KodiData->Method, $KodiData->GetEvent());
+                return true;
+            }
+        }
+        return false;
     }
 
     protected function Send(Kodi_RPC_Data $KodiData, boolean $needResponse = null)
