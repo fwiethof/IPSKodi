@@ -429,7 +429,6 @@ class KodiDevicePlayer extends KodiBase
 
         if (!($CoverRAW === false))
         {
-            $CoverRAW = false;
             $image = imagecreatefromstring($CoverRAW);
             if (!($image === false))
             {
