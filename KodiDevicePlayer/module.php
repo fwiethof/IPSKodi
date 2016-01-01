@@ -117,13 +117,13 @@ class KodiDevicePlayer extends KodiBase
         "starttime",
         "endtime");
     private $PlayerId = null;
-
-    static $Playertype= array(
+    static $Playertype = array(
         "song" => 0,
         "episode" => 1,
         "movie" => 1,
         "pictures" => 2
     );
+
     public function Create()
     {
         parent::Create();
@@ -225,9 +225,9 @@ class KodiDevicePlayer extends KodiBase
                 and ( $KodiPayload->player->playerid <> $this->PlayerId))
             return false;
         if (property_exists($KodiPayload, 'item')
-                and ( self::$Playertype[(string)$KodiPayload->item->type] <> $this->PlayerId))
+                and ( self::$Playertype[(string) $KodiPayload->item->type] <> $this->PlayerId))
             return false;
-        
+
         switch ($Method)
         {
             case 'GetProperties':
@@ -247,24 +247,31 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "currentaudiostream":
-                                                        IPS_LogMessage($param, print_r($value, true));
-
-                            if (is_object($value))
-                            {
+                            if (property_exists($param, 'audiobitrate'))
                                 $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
-                                $this->SetValueInteger('audiochannels', (int) $value->channels);
-                                $this->SetValueInteger('audioindex', (int) $value->index);
-                                $this->SetValueString('audiolanguage', (string) $value->language);
-                                $this->SetValueString('audiocodec', (string) $value->name);
-                            }
                             else
-                            {
                                 $this->SetValueInteger('audiobitrate', 0);
+
+                            if (property_exists($param, 'audiochannels'))
+                                $this->SetValueInteger('audiochannels', (int) $value->channels);
+                            else
                                 $this->SetValueInteger('audiochannels', 0);
+
+                            if (property_exists($param, 'audioindex'))
+                                $this->SetValueInteger('audioindex', (int) $value->index);
+                            else
                                 $this->SetValueInteger('audioindex', 0);
+
+                            if (property_exists($param, 'audiolanguage'))
+                                $this->SetValueString('audiolanguage', (string) $value->language);
+                            else
                                 $this->SetValueString('audiolanguage', "");
+
+                            if (property_exists($param, 'audiocodec'))
+                                $this->SetValueString('audiocodec', (string) $value->name);
+                            else
                                 $this->SetValueString('audiocodec', "");
-                            }
+
                             break;
                         /*    {"canrotate":false,"canzoom":false,
                           "currentsubtitle":null,
@@ -496,10 +503,10 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueString('genre', "");
         }
         if (property_exists($ret->item, 'plot'))
-                $this->SetValueString('plot', $ret->item->plot);
+            $this->SetValueString('plot', $ret->item->plot);
         else
-                $this->SetValueString('plot', "");
-            
+            $this->SetValueString('plot', "");
+
 
         /*
           album
