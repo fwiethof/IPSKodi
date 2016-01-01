@@ -505,32 +505,52 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->GetItem();
         if (is_null($ret))
             return null;
+        
         $this->SetValueString('label', $ret->item->label);
         $this->SetValueString('type', $ret->item->type);
-        $this->SetCover($ret->item->thumbnail);
-
+        
+        if (property_exists($ret->item, 'thumbnail'))
+            $this->SetCover($ret->item->thumbnail);
+        else
+            $this->SetCover("");
 
         if (property_exists($ret->item, 'displayartist'))
             $this->SetValueString('artist', $ret->item->displayartist);
         else
         {
-            if (count($ret->item->artist) > 0)
+            if (property_exists($ret->item, 'artist'))
             {
-                $this->SetValueString('artist', implode(', ', $ret->item->artist));
+                if (is_array($ret->item->artist))
+                {
+                    $this->SetValueString('artist', implode(', ', $ret->item->artist));
+                }
+                else
+                {
+                    $this->SetValueString('artist', $ret->item->artist);
+                }
             }
             else
             {
                 $this->SetValueString('artist', "");
             }
         }
-        if (count($ret->item->genre) > 0)
+        
+        if (property_exists($ret->item, 'genre'))
         {
-            $this->SetValueString('genre', implode(', ', $ret->item->genre));
+            if (is_array($ret->item->genre))
+            {
+                $this->SetValueString('genre', implode(', ', $ret->item->genre));
+            }
+            else
+            {
+                $this->SetValueString('genre', $ret->item->genre);
+            }
         }
         else
         {
             $this->SetValueString('genre', "");
         }
+
         if (property_exists($ret->item, 'plot'))
             $this->SetValueString('plot', $ret->item->plot);
         else
@@ -540,8 +560,6 @@ class KodiDevicePlayer extends KodiBase
             $this->SetValueString('album', $ret->item->album);
         else
             $this->SetValueString('album', "");
-
-
 
         /*
           ["art"]=>
@@ -684,7 +702,7 @@ class KodiDevicePlayer extends KodiBase
         trigger_error('Error on send previous.', E_USER_NOTICE);
         return false;
     }
-    
+
     public function GoToTrack(integer $Value)
     {
         $this->Init();
@@ -697,7 +715,7 @@ class KodiDevicePlayer extends KodiBase
         trigger_error('Error on goto track.', E_USER_NOTICE);
         return false;
     }
-    
+
     public function SetShuffle(boolean $Value)
     {
         $this->Init();
