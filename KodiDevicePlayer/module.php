@@ -164,10 +164,11 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
         $this->RegisterVariableBoolean("repeat", "Wiederholen", "~Switch", 11);
         $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
+        $this->RegisterVariableBoolean("partymode", "Partymodus", "~Switch", 13);
 
-        $this->RegisterVariableString("label", "Titel", "", 13);
-        $this->RegisterVariableString("album", "Album", "", 14);
-        $this->RegisterVariableString("artist", "Artist", "", 15);
+        $this->RegisterVariableString("label", "Titel", "", 14);
+        $this->RegisterVariableString("album", "Album", "", 15);
+        $this->RegisterVariableString("artist", "Artist", "", 16);
 
         $this->RegisterVariableString("genre", "Genre", "", 17);
         $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
@@ -243,18 +244,26 @@ class KodiDevicePlayer extends KodiBase
                 {
                     switch ($param)
                     {
-                        case "type":
-                            $this->SetValueString($param, (string)$value);
-                            break;
-                        case "percentage":
-                            $this->SetValueInteger($param, (int) $value);
-                            break;
-                        case "totaltime":
-                        case "time":
-                            $this->SetValueString($param, $this->ConvertTime($value));
-                            break;
-                        case "audiostreams":
-                            $this->SetValueInteger($param, count($value));
+                        // Object
+                        case "currentsubtitle":
+                            if (is_object($value))
+                            {
+                                /*                                $this->SetValueInteger('audiobitrate', 0);
+                                  $this->SetValueInteger('audiochannels', 0);
+                                  $this->SetValueInteger('audioindex', 0);
+                                  $this->SetValueString('audiolanguage', "");
+                                  $this->SetValueString('audiocodec', ""); */
+//                                $this->DisableAction('subtitleenabled');
+                            }
+                            else
+                            {
+                                /*                                $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
+                                  $this->SetValueInteger('audiochannels', (int) $value->channels);
+                                  $this->SetValueInteger('audioindex', (int) $value->index);
+                                  $this->SetValueString('audiolanguage', (string) $value->language);
+                                  $this->SetValueString('audiocodec', (string) $value->name); */
+                                //                              $this->EnableAction('subtitleenabled');
+                            }
                             break;
                         case "currentaudiostream":
                             if (property_exists($param, 'audiobitrate'))
@@ -283,74 +292,72 @@ class KodiDevicePlayer extends KodiBase
                                 $this->SetValueString('audiocodec', "");
 
                             break;
-                        /*    {"canrotate":false,"canzoom":false,
-                          "currentsubtitle":null,
-                          "live":false,"partymode":false,"playlistid":1,
-                          "position":-1,
-                          "subtitleenabled":false,"subtitles":[],
-                         */
-                        case "subtitleenabled":
-                            $this->SetValueBoolean($param, $value);
+                            //string
+                        case "type":
+                            $this->SetValueString($param, (string)$value);
                             break;
+                        //time
+                        case "totaltime":
+                        case "time":
+                            $this->SetValueString($param, $this->ConvertTime($value));
+                            break;
+                        // Anzahl
+                        case "audiostreams":
                         case "subtitles":
                             $this->SetValueInteger($param, count($value));
                             break;
-                        case "currentsubtitle":
-                            if (is_object($value))
-                            {
-                                /*                                $this->SetValueInteger('audiobitrate', 0);
-                                  $this->SetValueInteger('audiochannels', 0);
-                                  $this->SetValueInteger('audioindex', 0);
-                                  $this->SetValueString('audiolanguage', "");
-                                  $this->SetValueString('audiocodec', ""); */
-//                                $this->DisableAction('subtitleenabled');
-                            }
-                            else
-                            {
-                                /*                                $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
-                                  $this->SetValueInteger('audiochannels', (int) $value->channels);
-                                  $this->SetValueInteger('audioindex', (int) $value->index);
-                                  $this->SetValueString('audiolanguage', (string) $value->language);
-                                  $this->SetValueString('audiocodec', (string) $value->name); */
-                                //                              $this->EnableAction('subtitleenabled');
-                            }
-                            break;
-                        case "canseek":
-                            if ($value)
-                                $this->EnableAction('percentage');
-                            else
-                                $this->DisableAction('percentage');
-                            break;
-                        case "canshuffle":
-                            if ($value)
-                                $this->EnableAction('shuffled');
-                            else
-                                $this->DisableAction('shuffled');
-                            break;
-                        case "canrepeat":
-                            if ($value)
-                                $this->EnableAction('repeat');
-                            else
-                                $this->DisableAction('repeat');
-                            break;
-                        case "canchangespeed":
-                            if ($value)
-                                $this->EnableAction('speed');
-                            else
-                                $this->DisableAction('speed');
-                            break;
                         case "repeat": //off
-                            if ($value == "off")
+                            if ((bool)$value == "off")
                                 $this->SetValueBoolean($param, false);
                             else
                                 $this->SetValueBoolean($param, true);
 
                             break;
+                            //boolean
                         case "shuffled":
-                            $this->SetValueBoolean($param, $value);
+                        case "partymode":
+                        case "subtitleenabled":
+                            $this->SetValueBoolean($param, (bool)$value);
                             break;
+                        //integer
                         case "speed":
+                        case "percentage":
                             $this->SetValueInteger($param, (int) $value);
+                            break;
+                        case "position":
+                            $this->SetValueInteger($param, (int) $value+1);
+                            break;
+                            
+                        /*    {"canrotate":false,"canzoom":false,
+                          "currentsubtitle":null,
+                          "live":false,"playlistid":1,
+                          "subtitles":[],
+                         */
+                        
+                        //Action en/disable
+                        case "canseek":
+                            if ((bool)$value)
+                                $this->EnableAction('percentage');
+                            else
+                                $this->DisableAction('percentage');
+                            break;
+                        case "canshuffle":
+                            if ((bool)$value)
+                                $this->EnableAction('shuffled');
+                            else
+                                $this->DisableAction('shuffled');
+                            break;
+                        case "canrepeat":
+                            if ((bool)$value)
+                                $this->EnableAction('repeat');
+                            else
+                                $this->DisableAction('repeat');
+                            break;
+                        case "canchangespeed":
+                            if ((bool)$value)
+                                $this->EnableAction('speed');
+                            else
+                                $this->DisableAction('speed');
                             break;
                         default:
                             IPS_LogMessage($param, print_r($value, true));
@@ -470,10 +477,10 @@ class KodiDevicePlayer extends KodiBase
                       break; */
                 }
                 break;
-//            case "mute":
-//                return $this->Mute($Value);
-//            case "volume":
-//                return $this->Volume($Value);
+            case "shuffled":
+                return $this->SetShuffle($Value);
+            case "repeat":
+                return $this->SetRepeat($Value);
 //            case "quit":
 //                return $this->Quit();
 //            default:
@@ -636,7 +643,70 @@ class KodiDevicePlayer extends KodiBase
         }
         return false;
     }
-
+    
+    public function SetShuffle(boolean $Value)
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetShuffle', array("playerid" => $this->PlayerId,"shuffle"=>$Value));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+        {
+            $this->SetValueBoolean("shuffled", $Value);
+            return true;
+        }
+        return false;
+    }
+    public function SetRepeat(boolean $Value)
+    {
+        $this->Init();
+        $repeat = ($Value) ? "on" : "off";
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetRepeat', array("playerid" => $this->PlayerId,"repeat"=>$repeat));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+        {
+            $this->SetValueBoolean("repeat", $Value);
+            return true;
+        }
+        return false;
+    }
+    public function SetPartymode(boolean $Value)
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetPartymode', array("playerid" => $this->PlayerId,"partymode"=>$Value));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+        {
+            $this->SetValueBoolean("partymode", $Value);
+            return true;
+        }
+        return false;
+    }    
+    public function SetSpeed(integer $Value)
+    {
+        $this->Init();
+        
+        if (!in_array($Value,array(-32,-16,-8,-4,-2,0,1,2,4,8,16,32)))
+        {
+            trigger_error('Invalid Value for speed.',E_USER_NOTICE);
+            return false;
+        }
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetSpeed', array("playerid" => $this->PlayerId,"speed"=>$Value));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret === "OK")
+        {
+            $this->SetValueInteger("speed", $Value);
+            return true;
+        }
+        return false;
+    }        
 //    public function Volume(integer $Value)
 //    {
 //        if (!is_int($Value))
