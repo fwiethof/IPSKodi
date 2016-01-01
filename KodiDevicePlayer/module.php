@@ -439,11 +439,9 @@ class KodiDevicePlayer extends KodiBase
                     $factor = $height / $Size;
                     $image = imagescale($image, $width / $factor, $height / $factor);
                 }
-                if (imagepng($image, IPS_GetKernelDir() . $filename) === true)
-                {
-                    IPS_SendMediaEvent($CoverID);
-                    return;
-                }
+                imagepng($image, IPS_GetKernelDir() . $filename);
+                IPS_SendMediaEvent($CoverID);
+                return;
             }
         }
         $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "nocover.png");
@@ -505,10 +503,10 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->GetItem();
         if (is_null($ret))
             return null;
-        
+
         $this->SetValueString('label', $ret->item->label);
         $this->SetValueString('type', $ret->item->type);
-        
+
         if (property_exists($ret->item, 'thumbnail'))
             $this->SetCover($ret->item->thumbnail);
         else
@@ -534,7 +532,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueString('artist', "");
             }
         }
-        
+
         if (property_exists($ret->item, 'genre'))
         {
             if (is_array($ret->item->genre))
