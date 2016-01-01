@@ -165,11 +165,13 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableBoolean("repeat", "Wiederholen", "~Switch", 11);
         $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
 
-        $this->RegisterVariableString("label", "Titel", "", 15);
-        $this->RegisterVariableString("type", "Typ", "", 16);
+        $this->RegisterVariableString("label", "Titel", "", 13);
+        $this->RegisterVariableString("album", "Album", "", 14);
+        $this->RegisterVariableString("artist", "Artist", "", 15);
+
         $this->RegisterVariableString("genre", "Genre", "", 17);
-        $this->RegisterVariableString("artist", "Artist", "", 18);
         $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
+        $this->RegisterVariableString("type", "Typ", "", 20);
 
         $this->RegisterVariableString("totaltime", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
@@ -408,7 +410,13 @@ class KodiDevicePlayer extends KodiBase
             $image = imagecreatefromstring($CoverRAW);
             if (!($image === false))
             {
-                $image = imagescale($image, $Size);
+                $width = imagesx($image);
+                $height = imagesy($image);
+                if ($height > $Size)
+                {
+                    $factor = $height / $Size;
+                    $image = imagescale($image, $width / $factor, $height / $factor);
+                }
                 if (imagepng($image, IPS_GetKernelDir() . $filename) === true)
                 {
                     IPS_SendMediaEvent($CoverID);
@@ -482,21 +490,35 @@ class KodiDevicePlayer extends KodiBase
         $CoverURL = "";
         if ($ret->item->thumbnail <> "")
         {
-            $CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
+            $ParentID = $this->GetParent();
+            if ($ParentID !== false)
+            {
+                $Host = IPS_GetProperty($ParentID,'Host');
+                $Port = IPS_GetProperty($ParentID,'WebPort');
+                $CoverURL="http://".$Host.":".$Port."/image/".urlencode((string)$ret->item->thumbnail);
+                        
+                //$CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
+            }
         }
         $this->SetCover($CoverURL);
 
-        if (count($ret->item->artist) > 0)
-        {
-            $this->SetValueString('artist', implode(', ', $ret->item->artist));
-        }
+
+        if (property_exists($ret->item, 'displayartist'))
+            $this->SetValueString('artist', $ret->item->displayartist);
         else
         {
-            $this->SetValueString('artist', "");
+            if (count($ret->item->artist) > 0)
+            {
+                $this->SetValueString('artist', implode(', ', $ret->item->artist));
+            }
+            else
+            {
+                $this->SetValueString('artist', "");
+            }
         }
         if (count($ret->item->genre) > 0)
         {
-            $this->SetValueString('genre', implode(', ', $ret->item->artist));
+            $this->SetValueString('genre', implode(', ', $ret->item->genre));
         }
         else
         {
@@ -507,9 +529,14 @@ class KodiDevicePlayer extends KodiBase
         else
             $this->SetValueString('plot', "");
 
+        if (property_exists($ret->item, 'album'))
+            $this->SetValueString('album', $ret->item->album);
+        else
+            $this->SetValueString('album', "");
+
+
 
         /*
-          album
           ["art"]=>
           object(stdClass)#8 (2) {
           ["fanart"]=>
