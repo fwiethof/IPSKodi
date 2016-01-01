@@ -494,7 +494,7 @@ class KodiDevicePlayer extends KodiBase
             if ($ParentID !== false)
             {
                 $Host = IPS_GetProperty($ParentID,'Host');
-                $Port = IPS_GetProperty($ParentID,'WebPort');
+                $Port = IPS_GetProperty($ParentID,'Webport');
                 $CoverURL="http://".$Host.":".$Port."/image/".urlencode((string)$ret->item->thumbnail);
                         
                 //$CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
