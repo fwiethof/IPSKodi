@@ -403,7 +403,11 @@ class KodiDevicePlayer extends KodiBase
         if ($file == "")
             $CoverRAW = FALSE;
         else
-            $CoverRAW = @Sys_GetURLContent($file);
+        {
+            $ParentID = $this->GetParent();
+            if ($ParentID !== false)
+                $CoverRAW = KODIRPC_GetImage($ParentID,$file);
+        }
 
         if (!($CoverRAW === false))
         {
@@ -487,20 +491,7 @@ class KodiDevicePlayer extends KodiBase
             return null;
         $this->SetValueString('label', $ret->item->label);
         $this->SetValueString('type', $ret->item->type);
-        $CoverURL = "";
-        if ($ret->item->thumbnail <> "")
-        {
-            $ParentID = $this->GetParent();
-            if ($ParentID !== false)
-            {
-                $Host = IPS_GetProperty($ParentID,'Host');
-                $Port = IPS_GetProperty($ParentID,'Webport');
-                $CoverURL="http://".$Host.":".$Port."/image/".urlencode((string)$ret->item->thumbnail);
-                        
-                //$CoverURL = rawurldecode(substr($ret->item->thumbnail, 8, 1));
-            }
-        }
-        $this->SetCover($CoverURL);
+        $this->SetCover($ret->item->thumbnail);
 
 
         if (property_exists($ret->item, 'displayartist'))

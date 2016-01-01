@@ -264,6 +264,23 @@ class KodiSplitter extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
 
+    public function GetImage(string $path)
+    {
+        $Host = $this->ReadPropertyString('Host');
+        $Port = $this->ReadPropertyInteger('Webport');
+        $CoverURL = "http://" . $Host . ":" . $Port . "/image/" . urlencode($path);
+        $ch = curl_init();
+        $timeout = 1; // 0 wenn kein Timeout
+        curl_setopt($ch, CURLOPT_URL, $CoverURL);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        $CoverRAW = curl_exec($ch);
+        curl_close($ch);
+        if ($CoverRAW === false)
+            trigger_error ('Error on load image from Kodi.',E_USER_NOTICE);
+        return $CoverRAW;
+    }
+
     public function KeepAlive()
     {
         /*    if (!$this->ReadPropertyBoolean('Open'))
