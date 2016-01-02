@@ -177,6 +177,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->UnregisterVariable("subtitleenabled");
                 $this->UnregisterVariable("subtitles");
 
+                $this->UnregisterProfile("AudioTracks." . $this->InstanceID . ".Kodi");
 
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
                     Array(0, "Prev", "", -1),
@@ -185,7 +186,6 @@ class KodiDevicePlayer extends KodiBase
                     Array(3, "Pause", "", -1),
                     Array(4, "Next", "", -1)
                 ));
-                $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
 
                 $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
                 $this->RegisterVariableInteger("repeat", "Wiederholen", "Repeat.Kodi", 11);
@@ -213,7 +213,8 @@ class KodiDevicePlayer extends KodiBase
                     Array(2, "Play", "", -1),
                     Array(3, "Pause", "", -1)
                 ));
-                $this->UnregisterProfile("AudioTracks." . $this->InstanceID . ".Kodi");
+                $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
+
 
                 $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
                 $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks." . $this->InstanceID . ".Kodi", 30);
@@ -278,6 +279,7 @@ class KodiDevicePlayer extends KodiBase
         $this->Init();
         $Params = array_merge($Params, array("playerid" => $this->PlayerId));
         //parent::RequestProperties($Params);
+        // aktiven Player abfragen .....
         $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Params);
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -304,6 +306,8 @@ class KodiDevicePlayer extends KodiBase
                     {
                         // Object
                         case "currentsubtitle":
+                            if ($this->PlayerId <> self::Video)
+                                break;
                             if (is_object($value))
                             {
                                 /*                                $this->SetValueInteger('audiobitrate', 0);
@@ -324,6 +328,8 @@ class KodiDevicePlayer extends KodiBase
                             }
                             break;
                         case "currentaudiostream":
+                            if ($this->PlayerId <> self::Video)
+                                break;
                             if (property_exists($value, 'bitrate'))
                                 $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
                             else
@@ -365,17 +371,21 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "repeat": //off
-                            if ($this->PlayerId <> self::Video)
+                            if ($this->PlayerId == self::Video)
+                                break;
                             $this->SetValueInteger($param, array_search((string) $value, array("off", "one", "all")));
                             break;
                         //boolean
                         case "shuffled":
                         case "partymode":
-                            if ($this->PlayerId <> self::Video)
-                                $this->SetValueBoolean($param, (bool) $value);
+                            if ($this->PlayerId == self::Video)
+                                break;
+                            $this->SetValueBoolean($param, (bool) $value);
                             break;
 
                         case "subtitleenabled":
+                            if ($this->PlayerId <> self::Video)
+                                break;
                             $this->SetValueBoolean($param, (bool) $value);
                             break;
                         //integer
@@ -384,6 +394,9 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, (int) $value);
                             break;
                         case "position":
+                            if ($this->PlayerId == self::Video)
+                                break;
+
                             $this->SetValueInteger($param, (int) $value + 1);
                             break;
 
@@ -401,12 +414,16 @@ class KodiDevicePlayer extends KodiBase
                                 $this->DisableAction('percentage');
                             break;
                         case "canshuffle":
+                            if ($this->PlayerId == self::Video)
+                                break;
                             if ((bool) $value)
                                 $this->EnableAction('shuffled');
                             else
                                 $this->DisableAction('shuffled');
                             break;
                         case "canrepeat":
+                            if ($this->PlayerId == self::Video)
+                                break;
                             if ((bool) $value)
                                 $this->EnableAction('repeat');
                             else
