@@ -365,6 +365,7 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "repeat": //off
+                            if ($this->PlayerId <> self::Video)
                             $this->SetValueInteger($param, array_search((string) $value, array("off", "one", "all")));
                             break;
                         //boolean
