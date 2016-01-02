@@ -176,8 +176,8 @@ class KodiDevicePlayer extends KodiBase
                 $this->UnregisterVariable("audiostreams");
                 $this->UnregisterVariable("subtitleenabled");
                 $this->UnregisterVariable("subtitles");
-                
-                
+
+
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
                     Array(0, "Prev", "", -1),
                     Array(1, "Stop", "", -1),
@@ -186,7 +186,7 @@ class KodiDevicePlayer extends KodiBase
                     Array(4, "Next", "", -1)
                 ));
                 $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
-                
+
                 $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
                 $this->RegisterVariableInteger("repeat", "Wiederholen", "Repeat.Kodi", 11);
                 $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
@@ -214,7 +214,7 @@ class KodiDevicePlayer extends KodiBase
                     Array(3, "Pause", "", -1)
                 ));
                 $this->UnregisterProfile("AudioTracks." . $this->InstanceID . ".Kodi");
-                
+
                 $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
                 $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks." . $this->InstanceID . ".Kodi", 30);
                 $this->RegisterVariableString("audiolanguage", "Sprache", "", 31);
@@ -224,6 +224,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
                 $this->RegisterVariableBoolean("subtitleenabled", "Untertitel aktiv", "~Switch", 40);
                 $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 41);
+                $this->RegisterVariableString("label", "Titel", "", 14);
                 break;
             case self::Pictures:
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
@@ -369,6 +370,10 @@ class KodiDevicePlayer extends KodiBase
                         //boolean
                         case "shuffled":
                         case "partymode":
+                            if ($this->PlayerId <> self::Video)
+                                $this->SetValueBoolean($param, (bool) $value);
+                            break;
+
                         case "subtitleenabled":
                             $this->SetValueBoolean($param, (bool) $value);
                             break;
@@ -644,104 +649,110 @@ class KodiDevicePlayer extends KodiBase
           "year":0
           }
           } */
-
-        $this->SetValueString('label', $ret->item->label);
-        $this->SetValueString('type', $ret->item->type);
-
-        if (property_exists($ret->item, 'thumbnail'))
-            $this->SetCover($ret->item->thumbnail);
-        else
-            $this->SetCover("");
-
-        if (property_exists($ret->item, 'displayartist'))
-            $this->SetValueString('artist', $ret->item->displayartist);
-        else
+        switch ($this->PlayerId)
         {
-            if (property_exists($ret->item, 'artist'))
-            {
-                if (is_array($ret->item->artist))
+            case self::Audio:
+                $this->SetValueString('label', $ret->item->label);
+                $this->SetValueString('type', $ret->item->type);
+
+                if (property_exists($ret->item, 'thumbnail'))
+                    $this->SetCover($ret->item->thumbnail);
+                else
+                    $this->SetCover("");
+
+                if (property_exists($ret->item, 'displayartist'))
+                    $this->SetValueString('artist', $ret->item->displayartist);
+                else
                 {
-                    $this->SetValueString('artist', implode(', ', $ret->item->artist));
+                    if (property_exists($ret->item, 'artist'))
+                    {
+                        if (is_array($ret->item->artist))
+                        {
+                            $this->SetValueString('artist', implode(', ', $ret->item->artist));
+                        }
+                        else
+                        {
+                            $this->SetValueString('artist', $ret->item->artist);
+                        }
+                    }
+                    else
+                    {
+                        $this->SetValueString('artist', "");
+                    }
+                }
+
+                if (property_exists($ret->item, 'genre'))
+                {
+                    if (is_array($ret->item->genre))
+                    {
+                        $this->SetValueString('genre', implode(', ', $ret->item->genre));
+                    }
+                    else
+                    {
+                        $this->SetValueString('genre', $ret->item->genre);
+                    }
                 }
                 else
                 {
-                    $this->SetValueString('artist', $ret->item->artist);
+                    $this->SetValueString('genre', "");
                 }
-            }
-            else
-            {
-                $this->SetValueString('artist', "");
-            }
+                if (property_exists($ret->item, 'album'))
+                    $this->SetValueString('album', $ret->item->album);
+                else
+                    $this->SetValueString('album', "");
+
+                break;
+            case self::Video:
+                if (property_exists($ret->item, 'plot'))
+                    $this->SetValueString('plot', $ret->item->plot);
+                else
+                    $this->SetValueString('plot', "");
+                break;
+
+
+            /*
+              ["art"]=>
+              object(stdClass)#8 (2) {
+              ["fanart"]=>
+              string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
+              ["poster"]=>
+              string(198) "image://https%3a%2f%2fgfx.videobuster.de%2farchive%2fresized%2fw700%2f2008%2f02%2fimage%2fjpeg%2ff136aea8fcf90e95f8ad0a7b01be895d.jpg%3ftitle%3deragon%26k%3dDVD%2bonline%2bleihen%2bdownload%2bcover/"
+              }
+              ["artist"]=>
+              array(0) {
+              }
+
+              }
+              episode
+              ["fanart"]=>
+              string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
+              ["file"]=>
+              string(80) "smb://WHS/Videos/Filme/Eragon.AC3.BDRip/Eragon.2006.German.AC3.BDRip.XviD-SG.avi"
+              ["genre"]=>
+              array(1) {
+              [0]=>
+              string(7) "Fantasy"
+              }
+              plot
+              ["video"]=>
+              array(1) {
+              [0]=>
+              object(stdClass)#15 (6) {
+              ["aspect"]=>
+              float(2.3684198856354)
+              ["codec"]=>
+              string(4) "xvid"
+              ["duration"]=>
+              int(5986)
+              ["height"]=>
+              int(304)
+              ["stereomode"]=>
+              string(0) ""
+              ["width"]=>
+              int(720)
+              }
+              thumbnail */
         }
-
-        if (property_exists($ret->item, 'genre'))
-        {
-            if (is_array($ret->item->genre))
-            {
-                $this->SetValueString('genre', implode(', ', $ret->item->genre));
-            }
-            else
-            {
-                $this->SetValueString('genre', $ret->item->genre);
-            }
-        }
-        else
-        {
-            $this->SetValueString('genre', "");
-        }
-
-        if (property_exists($ret->item, 'plot'))
-            $this->SetValueString('plot', $ret->item->plot);
-        else
-            $this->SetValueString('plot', "");
-
-        if (property_exists($ret->item, 'album'))
-            $this->SetValueString('album', $ret->item->album);
-        else
-            $this->SetValueString('album', "");
-
-        /*
-          ["art"]=>
-          object(stdClass)#8 (2) {
-          ["fanart"]=>
-          string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
-          ["poster"]=>
-          string(198) "image://https%3a%2f%2fgfx.videobuster.de%2farchive%2fresized%2fw700%2f2008%2f02%2fimage%2fjpeg%2ff136aea8fcf90e95f8ad0a7b01be895d.jpg%3ftitle%3deragon%26k%3dDVD%2bonline%2bleihen%2bdownload%2bcover/"
-          }
-          ["artist"]=>
-          array(0) {
-          }
-
-          }
-          episode
-          ["fanart"]=>
-          string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
-          ["file"]=>
-          string(80) "smb://WHS/Videos/Filme/Eragon.AC3.BDRip/Eragon.2006.German.AC3.BDRip.XviD-SG.avi"
-          ["genre"]=>
-          array(1) {
-          [0]=>
-          string(7) "Fantasy"
-          }
-          plot
-          ["video"]=>
-          array(1) {
-          [0]=>
-          object(stdClass)#15 (6) {
-          ["aspect"]=>
-          float(2.3684198856354)
-          ["codec"]=>
-          string(4) "xvid"
-          ["duration"]=>
-          int(5986)
-          ["height"]=>
-          int(304)
-          ["stereomode"]=>
-          string(0) ""
-          ["width"]=>
-          int(720)
-          }
-          thumbnail */
     }
 
     public function GetItem()
