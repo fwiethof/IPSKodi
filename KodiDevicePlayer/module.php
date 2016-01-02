@@ -368,6 +368,8 @@ class KodiDevicePlayer extends KodiBase
                         // Anzahl
                         case "audiostreams":
                         case "subtitles":
+                            if ($this->PlayerId <> self::Video)
+                                break;
                             $this->SetValueInteger($param, count($value));
                             break;
                         case "repeat": //off
