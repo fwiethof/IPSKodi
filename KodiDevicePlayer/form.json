@@ -23,7 +23,26 @@
                     "name": "CoverSize",
                     "type": "NumberSpinner",
                     "caption": "Höhe Cover"
-                }
+                },
+{
+                    "name": "CoverTyp",
+                    "type": "Select",
+                    "caption": "Cover:",
+                    "options": [
+                        {
+                            "label": "Thumbnail",
+                            "value": "thumb"
+                        },
+                        {
+                            "label": "Poster",
+                            "value": "tvshow.poster"
+                        },
+                        {
+                            "label": "Banner",
+                            "value": "tvshow.banner"
+                        }
+                    ]
+                }                
             ],
     "actions":
             [

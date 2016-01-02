@@ -424,12 +424,10 @@ class KodiBase extends IPSModule
 
     private function HasActiveParent()
     {
-//        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
         $instance = IPS_GetInstance($this->InstanceID);
         if ($instance['ConnectionID'] > 0)
         {
             $parent = IPS_GetInstance($instance['ConnectionID']);
-
             if ($parent['InstanceStatus'] == 102)
                 return true;
         }
@@ -475,6 +473,12 @@ class KodiBase extends IPSModule
         {
             IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
         }
+    }
+
+    protected function UnregisterProfile($Name)
+    {
+        if (IPS_VariableProfileExists($Name))
+            IPS_DeleteVariableProfile($Name);
     }
 
     protected function RegisterTimer($Name, $Interval, $Script)
@@ -613,7 +617,7 @@ class Kodi_RPC_Data extends stdClass
         if (is_object($Params))
             $this->Params = (object) $Params;
         if (is_null($Id))
-        $this->Id =round(explode(" ", microtime())[0]*10000);
+            $this->Id = round(explode(" ", microtime())[0] * 10000);
 //        $this->Id = round(fmod(microtime(true) * 1000, 10000));
         else
         {
@@ -631,7 +635,7 @@ class Kodi_RPC_Data extends stdClass
 //        IPS_LogMessage('ParamCall2', print_r($this->Params, true));
         if (is_object($arguments[0]))
             $this->Params = $arguments[0];
-        $this->Id =round(explode(" ", microtime())[0]*10000);
+        $this->Id = round(explode(" ", microtime())[0] * 10000);
 //        $this->Id = round(fmod(microtime(true) * 1000, 10000));
     }
 

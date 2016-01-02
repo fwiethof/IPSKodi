@@ -5,6 +5,10 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 class KodiDevicePlayer extends KodiBase
 {
 
+    const Audio = 0;
+    const Video = 1;
+    const Pictures = 2;
+
     static $Namespace = array('Player', ' Playlist');
     static $Properties = array(
         "type",
@@ -133,13 +137,7 @@ class KodiDevicePlayer extends KodiBase
 
     public function ApplyChanges()
     {
-        $this->RegisterProfileIntegerEx("Status.Kodi", "Information", "", "", Array(
-            Array(0, "Prev", "", -1),
-            Array(1, "Stop", "", -1),
-            Array(2, "Play", "", -1),
-            Array(3, "Pause", "", -1),
-            Array(4, "Next", "", -1)
-        ));
+        $this->Init();
         $this->RegisterProfileIntegerEx("Repeat.Kodi", "", "", "", Array(
             //Array(0, "Prev", "", -1),
             Array(0, "Aus", "", -1),
@@ -162,37 +160,90 @@ class KodiDevicePlayer extends KodiBase
             Array(16, "16 >>", "", -1),
             Array(32, "32 >>", "", -1)
         ));
+
         $this->RegisterProfileInteger("Intensity.Kodi", "Intensity", "", " %", 0, 100, 1);
-        $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
-
-        $this->RegisterVariableInteger("Status", "Status", "Status.Kodi", 3);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
+
+        switch ($this->PlayerId)
+        {
+            case self::Audio:
+                $this->UnregisterVariable("plot");
+                $this->UnregisterVariable("audioindex");
+                $this->UnregisterVariable("audiolanguage");
+                $this->UnregisterVariable("audiochannels");
+                $this->UnregisterVariable("audiocodec");
+                $this->UnregisterVariable("audiobitrate");
+                $this->UnregisterVariable("audiostreams");
+                $this->UnregisterVariable("subtitleenabled");
+                $this->UnregisterVariable("subtitles");
+                
+                
+                $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
+                    Array(0, "Prev", "", -1),
+                    Array(1, "Stop", "", -1),
+                    Array(2, "Play", "", -1),
+                    Array(3, "Pause", "", -1),
+                    Array(4, "Next", "", -1)
+                ));
+                $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
+                
+                $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
+                $this->RegisterVariableInteger("repeat", "Wiederholen", "Repeat.Kodi", 11);
+                $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
+                $this->RegisterVariableBoolean("partymode", "Partymodus", "~Switch", 13);
+                $this->EnableAction("partymode");
+                $this->RegisterVariableString("label", "Titel", "", 14);
+                $this->RegisterVariableString("album", "Album", "", 15);
+                $this->RegisterVariableString("artist", "Artist", "", 16);
+                $this->RegisterVariableString("genre", "Genre", "", 17);
+
+                break;
+            case self::Video:
+                $this->UnregisterVariable("position");
+                $this->UnregisterVariable("repeat");
+                $this->UnregisterVariable("shuffled");
+                $this->UnregisterVariable("partymode");
+                $this->UnregisterVariable("label");
+                $this->UnregisterVariable("album");
+                $this->UnregisterVariable("artist");
+                $this->UnregisterVariable("genre");
+
+                $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
+                    Array(1, "Stop", "", -1),
+                    Array(2, "Play", "", -1),
+                    Array(3, "Pause", "", -1)
+                ));
+                $this->UnregisterProfile("AudioTracks." . $this->InstanceID . ".Kodi");
+                
+                $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
+                $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks." . $this->InstanceID . ".Kodi", 30);
+                $this->RegisterVariableString("audiolanguage", "Sprache", "", 31);
+                $this->RegisterVariableInteger("audiochannels", "Audiokanäle", "", 32);
+                $this->RegisterVariableString("audiocodec", "Audio Codec", "", 23);
+                $this->RegisterVariableInteger("audiobitrate", "Audio Bitrate", "", 34);
+                $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
+                $this->RegisterVariableBoolean("subtitleenabled", "Untertitel aktiv", "~Switch", 40);
+                $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 41);
+                break;
+            case self::Pictures:
+                $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
+                    Array(0, "Prev", "", -1),
+                    Array(1, "Stop", "", -1),
+                    Array(2, "Play", "", -1),
+                    Array(3, "Pause", "", -1),
+                    Array(4, "Next", "", -1)
+                ));
+                break;
+        }
+        $this->RegisterVariableInteger("Status", "Status", "Status." . $this->InstanceID . ".Kodi", 3);
         $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
-        $this->RegisterVariableInteger("repeat", "Wiederholen", "Repeat.Kodi", 11);
-        $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
-        $this->RegisterVariableBoolean("partymode", "Partymodus", "~Switch", 13);
 
-        $this->RegisterVariableString("label", "Titel", "", 14);
-        $this->RegisterVariableString("album", "Album", "", 15);
-        $this->RegisterVariableString("artist", "Artist", "", 16);
-
-        $this->RegisterVariableString("genre", "Genre", "", 17);
-        $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
         $this->RegisterVariableString("type", "Typ", "", 20);
 
         $this->RegisterVariableString("totaltime", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
-        $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks." . $this->InstanceID . ".Kodi", 30);
-        $this->RegisterVariableString("audiolanguage", "Sprache", "", 31);
-        $this->RegisterVariableInteger("audiochannels", "Audiokanäle", "", 32);
-        $this->RegisterVariableString("audiocodec", "Audio Codec", "", 23);
-        $this->RegisterVariableInteger("audiobitrate", "Audio Bitrate", "", 34);
 
-        $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
-        $this->RegisterVariableBoolean("subtitleenabled", "Untertitel aktiv", "~Switch", 40);
-        $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 41);
 
 
 
@@ -242,7 +293,6 @@ class KodiDevicePlayer extends KodiBase
         if (property_exists($KodiPayload, 'item')
                 and ( self::$Playertype[(string) $KodiPayload->item->type] <> $this->PlayerId))
             return false;
-
         switch ($Method)
         {
             case 'GetProperties':
@@ -273,27 +323,27 @@ class KodiDevicePlayer extends KodiBase
                             }
                             break;
                         case "currentaudiostream":
-                            if (property_exists($param, 'audiobitrate'))
+                            if (property_exists($value, 'bitrate'))
                                 $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
                             else
                                 $this->SetValueInteger('audiobitrate', 0);
 
-                            if (property_exists($param, 'audiochannels'))
+                            if (property_exists($value, 'channels'))
                                 $this->SetValueInteger('audiochannels', (int) $value->channels);
                             else
                                 $this->SetValueInteger('audiochannels', 0);
 
-                            if (property_exists($param, 'audioindex'))
+                            if (property_exists($value, 'index'))
                                 $this->SetValueInteger('audioindex', (int) $value->index);
                             else
                                 $this->SetValueInteger('audioindex', 0);
 
-                            if (property_exists($param, 'audiolanguage'))
+                            if (property_exists($value, 'language'))
                                 $this->SetValueString('audiolanguage', (string) $value->language);
                             else
                                 $this->SetValueString('audiolanguage', "");
 
-                            if (property_exists($param, 'audiocodec'))
+                            if (property_exists($value, 'name'))
                                 $this->SetValueString('audiocodec', (string) $value->name);
                             else
                                 $this->SetValueString('audiocodec', "");
@@ -301,7 +351,7 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         //string
                         case "type":
-                            $this->SetValueString($param, (string) $value);
+//                            $this->SetValueString($param, (string) $value);
                             break;
                         //time
                         case "totaltime":
@@ -445,7 +495,7 @@ class KodiDevicePlayer extends KodiBase
                 ob_end_clean(); // delete buffer                
             }
         }
-        
+
         if ($CoverRAW === false)
             $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "nocover.png");
 
@@ -478,13 +528,16 @@ class KodiDevicePlayer extends KodiBase
                         $result = $this->Next();
                         break;
                 }
-                break;
+                return $result;
             case "shuffled":
                 return $this->SetShuffle($Value);
             case "repeat":
                 return $this->SetRepeat($Value);
             case "speed":
                 return $this->SetSpeed($Value);
+            case "partymode":
+                return $this->SetPartymode($Value);
+
 //            default:
 //                return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
@@ -506,6 +559,91 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->GetItem();
         if (is_null($ret))
             return null;
+        /*
+          "result":{
+          "item":{
+          "album":"",
+          "art":
+          {
+          "thumb":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fepisodes%2f262407%2f5111573.jpg/",
+          "tvshow.banner":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fgraphical%2f262407-g.jpg/",
+          "tvshow.fanart":"image://http%3a%2f%2fthetvdb.com%2fbanners%2ffanart%2foriginal%2f262407-3.jpg/",
+          "tvshow.poster":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fposters%2f262407-1.jpg/"
+          },
+          "artist":[],
+          "cast":[
+          {
+          "name":"Toby Stephens",
+          "order":0,
+          "role":"Captain Flint",
+          "thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f305937.jpg/"
+          },
+          {
+          "name":"Luke Arnold",
+          "order":1,
+          "role":"John Silver",
+          "thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322860.jpg/"
+          },
+          {"name":"Hannah New","order":2,"role":"Eleanor Guthrie","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322862.jpg/"},
+          {"name":"Hakeem Kae-Kazim","order":3,"role":"Mr. Scott","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322867.jpg/"},
+          {"name":"Clara Paget","order":4,"role":"Anne Bonny","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322866.jpg/"},
+          {"name":"Toby Schmitz","order":5,"role":"Rackham","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322865.jpg/"},
+          {"name":"Tom Hopper","order":6,"role":"Billy Bones","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322864.jpg/"},
+          {"name":"Zach McGowan","order":7,"role":"Captain Vane","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322863.jpg/"},
+          {"name":"Mark Ryan","order":8,"role":"Gates","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f318941.jpg/"},
+          {"name":"Jessica Parker Kennedy","order":9,"role":"Max","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f305938.jpg/"}
+          ],
+          "country":[],
+          "dateadded":"2015-03-09 20:33:07",
+          "director":["Alik Sakharov"],
+          "episode":7,
+          "episodeguide":"",
+          "fanart":"image://http%3a%2f%2fthetvdb.com%2fbanners%2ffanart%2foriginal%2f262407-3.jpg/",
+          "file":"smb://WHS/Videos/Serien/Black Sails/Black.Sails.S02E07.720p.HDTV.x264-M33P.mkv",
+          "firstaired":"2015-03-07",
+          "genre":[],
+          "id":2244,
+          "imdbnumber":"",
+          "label":"XV.",
+          "lastplayed":"2015-03-14 22:42:24",
+          "mpaa":"TV-MA",
+          "originaltitle":"",
+          "playcount":1,
+          "plot":"Max cleans up after a massacre. News from the outside world changes everything for Flint and Silver. Eleanor risks her life for the sake of her future. Bonny faces a crossroads. Dufresne pushes Billy to act.",
+          "plotoutline":"",
+          "premiered":"2014-01-25",
+          "productioncode":"",
+          "rating":8,
+          "resume":{"position":0,"total":0},
+          "runtime":3421,
+          "season":2,
+          "set":"",
+          "setid":-1,
+          "showlink":[],
+          "showtitle":"Black Sails",
+          "sorttitle":"",
+          "streamdetails":
+          {
+          "audio":[{"channels":6,"codec":"ac3","language":""}],
+          "subtitle":[{"language":""}],
+          "video":[{"aspect":1.7777800559997559,"codec":"h264","duration":3421,"height":720,"stereomode":"","width":1280}]
+          },
+          "studio":["Starz!"],
+          "tag":[],
+          "tagline":"",
+          "thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fepisodes%2f262407%2f5111573.jpg/",
+          "title":"XV.",
+          "top250":0,
+          "track":-1,
+          "trailer":"",
+          "tvshowid":69,
+          "type":"episode",
+          "uniqueid":{"unknown":"5111573"},
+          "votes":"1",
+          "writer":[],
+          "year":0
+          }
+          } */
 
         $this->SetValueString('label', $ret->item->label);
         $this->SetValueString('type', $ret->item->type);
@@ -707,7 +845,7 @@ class KodiDevicePlayer extends KodiBase
     public function GoToTrack(integer $Value)
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value + 1));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
