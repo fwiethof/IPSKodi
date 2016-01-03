@@ -201,6 +201,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->RegisterVariableInteger("year", "Jahr", "", 19);
                 $this->RegisterVariableString("artist", "Artist", "", 20);
                 $this->RegisterVariableString("genre", "Genre", "", 21);
+                $this->RegisterVariableString("lyrics", "Lyrics", "", 30);
 
                 break;
             case self::Video:
@@ -210,8 +211,12 @@ class KodiDevicePlayer extends KodiBase
                 $this->UnregisterVariable("partymode");
                 $this->UnregisterVariable("label");
                 $this->UnregisterVariable("album");
+                $this->UnregisterVariable("track");
+                $this->UnregisterVariable("disc");
+                $this->UnregisterVariable("year");
                 $this->UnregisterVariable("artist");
                 $this->UnregisterVariable("genre");
+                $this->UnregisterVariable("lyrics");
 
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
                     Array(1, "Stop", "", -1),
@@ -720,37 +725,8 @@ class KodiDevicePlayer extends KodiBase
         switch ($this->PlayerId)
         {
             case self::Audio:
-                /*
-                 * object(stdClass)#6 (1) {
-                  ["item"]=>
-                  object(stdClass)#7 (31) {
-                  ["art"]=>
-                  object(stdClass)#8 (2) {
-                  ["artist.fanart"]=>
-                  string(139) "image://http%3a%2f%2fassets.fanart.tv%2ffanart%2fmusic%2fbe547bca-8718-4762-bf1b-34a3bdb4938f%2fartistbackground%2fakb48-4e6c2e2f10c86.jpg/"
-                  ["thumb"]=>
-                  string(109) "image://music@smb%3a%2f%2fWHS%2fMusik%2fAKB%2fAKB0048%20Complete%20Vocal%20Collection%2f1-16%20-%20Sasae.mp3/"
-                  }
-                  ["fanart"]=>
-                  string(139) "image://http%3a%2f%2fassets.fanart.tv%2ffanart%2fmusic%2fbe547bca-8718-4762-bf1b-34a3bdb4938f%2fartistbackground%2fakb48-4e6c2e2f10c86.jpg/"
-                  ["file"]=>
-                  string(70) "smb://WHS/Musik/AKB/AKB0048 Complete Vocal Collection/1-16 - Sasae.mp3"
-
-                  ["lyrics"]=>
-                  string(0) ""
-                  ["thumbnail"]=>
-                  string(109) "image://music@smb%3a%2f%2fWHS%2fMusik%2fAKB%2fAKB0048%20Complete%20Vocal%20Collection%2f1-16%20-%20Sasae.mp3/"
-                  }
-                  }
-                 */
-
                 $this->SetValueString('label', $ret->label);
                 $this->SetValueString('type', $ret->type);
-
-                if (property_exists($ret, 'thumbnail'))
-                    $this->SetCover($ret->thumbnail);
-                else
-                    $this->SetCover("");
 
                 if (property_exists($ret, 'displayartist'))
                     $this->SetValueString('artist', $ret->displayartist);
@@ -759,48 +735,34 @@ class KodiDevicePlayer extends KodiBase
                     if (property_exists($ret, 'albumartist'))
                     {
                         if (is_array($ret->artist))
-                        {
                             $this->SetValueString('artist', implode(', ', $ret->albumartist));
-                        }
                         else
-                        {
                             $this->SetValueString('artist', $ret->albumartist);
-                        }
                     }
                     else
                     {
                         if (property_exists($ret, 'artist'))
                         {
                             if (is_array($ret->artist))
-                            {
                                 $this->SetValueString('artist', implode(', ', $ret->artist));
-                            }
                             else
-                            {
                                 $this->SetValueString('artist', $ret->artist);
-                            }
                         }
                         else
-                        {
                             $this->SetValueString('artist', "");
-                        }
                     }
                 }
+                
                 if (property_exists($ret, 'genre'))
                 {
                     if (is_array($ret->genre))
-                    {
                         $this->SetValueString('genre', implode(', ', $ret->genre));
-                    }
                     else
-                    {
                         $this->SetValueString('genre', $ret->genre);
-                    }
                 }
                 else
-                {
                     $this->SetValueString('genre', "");
-                }
+                
                 if (property_exists($ret, 'album'))
                     $this->SetValueString('album', $ret->album);
                 else
@@ -826,6 +788,48 @@ class KodiDevicePlayer extends KodiBase
                 else
                     $this->SetValueString('duration', "");
 
+                if (property_exists($ret, 'lyrics'))
+                    $this->SetValueString('lyrics', $ret->lyrics);
+                else
+                    $this->SetValueString('lyrics', "");
+
+                switch ($this->ReadPropertyString('CoverTyp'))
+                {
+                    case"artist":
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'artist.fanart'))
+                                if ($ret->art->{'artist.fanart'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'artist.fanart'});
+                                    break;
+                                }
+                        }
+                        if (property_exists($ret, 'fanart'))
+                            if ($ret->fanart <> "")
+                            {
+                                $this->SetCover($ret->fanart);
+                                break;
+                            }
+                    case"thumb":
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'thumb'))
+                                if ($ret->art->thumb <> "")
+                                {
+                                    $this->SetCover($ret->art->thumb);
+                                    break;
+                                }
+                        }
+                        if (property_exists($ret, 'thumbnail'))
+                            if ($ret->thumbnail <> "")
+                            {
+                                $this->SetCover($ret->thumbnail);
+                                break;
+                            }
+                    default:
+                        $this->SetCover("");
+                }
 
                 break;
             case self::Video:

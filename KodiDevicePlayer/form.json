@@ -30,16 +30,20 @@
                     "caption": "Cover:",
                     "options": [
                         {
-                            "label": "Thumbnail",
+                            "label": "Thumbnail (alle)",
                             "value": "thumb"
                         },
                         {
-                            "label": "Poster",
-                            "value": "tvshow.poster"
+                            "label": "Artist vor Thumbnail (Audio)",
+                            "value": "artist"
                         },
                         {
-                            "label": "Banner",
-                            "value": "tvshow.banner"
+                            "label": "Poster vor Banner (Video)",
+                            "value": "poster"
+                        },
+                        {
+                            "label": "Banner vor Poster (Video)",
+                            "value": "banner"
                         }
                     ]
                 }
