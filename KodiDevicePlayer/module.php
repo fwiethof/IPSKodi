@@ -289,7 +289,7 @@ class KodiDevicePlayer extends KodiBase
         if (is_null($ret))
             $this->isActive = false;
         else
-            $this->isActive = ((int) $ret->playerid == $this->PlayerId);
+            $this->isActive = ((int) $ret[0]->playerid == $this->PlayerId);
 
         $this->SetValueBoolean('isactive', $this->isActive);
         return (bool) $this->isActive;
@@ -323,6 +323,9 @@ class KodiDevicePlayer extends KodiBase
             return false;
         if (property_exists($KodiPayload, 'item')
                 and ( self::$Playertype[(string) $KodiPayload->item->type] <> $this->PlayerId))
+            return false;
+        if (property_exists($KodiPayload, 'type')
+                and ( self::$Playertype[(string) $KodiPayload->type] <> $this->PlayerId))
             return false;
         switch ($Method)
         {
