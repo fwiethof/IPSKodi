@@ -121,6 +121,7 @@ class KodiDevicePlayer extends KodiBase
         "starttime",
         "endtime");
     private $PlayerId = null;
+    private $isActive = null;
     static $Playertype = array(
         "song" => 0,
         "episode" => 1,
@@ -257,11 +258,15 @@ class KodiDevicePlayer extends KodiBase
 //        $this->RegisterVariableString("version", "Version", "", 1);
 //        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
 //        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
+        $this->RegisterVariableBoolean("isactive", "isplayeractive", "", -5);
+        IPS_SetHidden($this->GetIDForIdent('isactive'), true);
+
 //        $this->EnableAction("mute");
 //        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
 //        $this->EnableAction("volume");
         //Never delete this line!
+        $this->getActivePlayer();
+//        $this->setActivePlayer();        
         parent::ApplyChanges();
         $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],"PARTIAL");');
     }
@@ -272,6 +277,22 @@ class KodiDevicePlayer extends KodiBase
     {
         if (is_null($this->PlayerId))
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
+        if (is_null($this->isActive))
+            $this->isActive = IPS_GetValueBoolean($this->GetIDForIdent('isactive'));
+    }
+
+    private function getActivePlayer()
+    {
+        $this->Init();
+        $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetActivePlayers');
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            $this->isActive = false;
+        else
+            $this->isActive = ((int) $ret->playerid == $this->PlayerId);
+
+        $this->SetValueBoolean('isactive', $this->isActive);
+        return (bool) $this->isActive;
     }
 
     protected function RequestProperties(array $Params)
@@ -279,7 +300,8 @@ class KodiDevicePlayer extends KodiBase
         $this->Init();
         $Params = array_merge($Params, array("playerid" => $this->PlayerId));
         //parent::RequestProperties($Params);
-        // aktiven Player abfragen .....
+        if (!$this->isActive)
+            return false;
         $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Params);
         $ret = $this->Send($KodiData);
         if (is_null($ret))

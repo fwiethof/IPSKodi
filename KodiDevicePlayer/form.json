@@ -24,7 +24,7 @@
                     "type": "NumberSpinner",
                     "caption": "Höhe Cover"
                 },
-{
+                {
                     "name": "CoverTyp",
                     "type": "Select",
                     "caption": "Cover:",
@@ -42,7 +42,7 @@
                             "value": "tvshow.banner"
                         }
                     ]
-                }                
+                }
             ],
     "actions":
             [
