@@ -287,7 +287,7 @@ class KodiDevicePlayer extends KodiBase
         $this->Init();
         $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetActivePlayers');
         $ret = $this->Send($KodiData);
-        if (is_null($ret))
+        if (is_null($ret) or (count($ret)==0))
             $this->isActive = false;
         else
             $this->isActive = ((int) $ret[0]->playerid == $this->PlayerId);
