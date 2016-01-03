@@ -196,8 +196,11 @@ class KodiDevicePlayer extends KodiBase
                 $this->EnableAction("partymode");
                 $this->RegisterVariableString("label", "Titel", "", 14);
                 $this->RegisterVariableString("album", "Album", "", 15);
-                $this->RegisterVariableString("artist", "Artist", "", 16);
-                $this->RegisterVariableString("genre", "Genre", "", 17);
+                $this->RegisterVariableInteger("track", "Track", "", 16);
+                $this->RegisterVariableInteger("disc", "Disc", "", 17);
+                $this->RegisterVariableInteger("year", "Jahr", "", 19);
+                $this->RegisterVariableString("artist", "Artist", "", 20);
+                $this->RegisterVariableString("genre", "Genre", "", 21);
 
                 break;
             case self::Video:
@@ -244,7 +247,7 @@ class KodiDevicePlayer extends KodiBase
 
         $this->RegisterVariableString("type", "Typ", "", 20);
 
-        $this->RegisterVariableString("totaltime", "Dauer", "", 24);
+        $this->RegisterVariableString("duration", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
 
@@ -287,7 +290,7 @@ class KodiDevicePlayer extends KodiBase
         $this->Init();
         $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetActivePlayers');
         $ret = $this->Send($KodiData);
-        if (is_null($ret) or (count($ret)==0))
+        if (is_null($ret) or ( count($ret) == 0))
             $this->isActive = false;
         else
             $this->isActive = ((int) $ret[0]->playerid == $this->PlayerId);
@@ -403,6 +406,8 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         //time
                         case "totaltime":
+                            $this->SetValueString('duration', $this->ConvertTime($value));
+                            break;
                         case "time":
                             $this->SetValueString($param, $this->ConvertTime($value));
                             break;
@@ -487,7 +492,7 @@ class KodiDevicePlayer extends KodiBase
             case 'OnStop':
                 $this->SetTimerInterval('PlayerStatus', 0);
                 $this->SetValueInteger('Status', 1);
-                $this->SetValueString('totaltime', '');
+                $this->SetValueString('duration', '');
                 $this->SetValueString('time', '');
                 $this->SetValueInteger('percentage', 0);
                 $this->setActivePlayer(false);
@@ -715,59 +720,117 @@ class KodiDevicePlayer extends KodiBase
         switch ($this->PlayerId)
         {
             case self::Audio:
-                $this->SetValueString('label', $ret->item->label);
-                $this->SetValueString('type', $ret->item->type);
+                /*
+                 * object(stdClass)#6 (1) {
+                  ["item"]=>
+                  object(stdClass)#7 (31) {
+                  ["art"]=>
+                  object(stdClass)#8 (2) {
+                  ["artist.fanart"]=>
+                  string(139) "image://http%3a%2f%2fassets.fanart.tv%2ffanart%2fmusic%2fbe547bca-8718-4762-bf1b-34a3bdb4938f%2fartistbackground%2fakb48-4e6c2e2f10c86.jpg/"
+                  ["thumb"]=>
+                  string(109) "image://music@smb%3a%2f%2fWHS%2fMusik%2fAKB%2fAKB0048%20Complete%20Vocal%20Collection%2f1-16%20-%20Sasae.mp3/"
+                  }
+                  ["fanart"]=>
+                  string(139) "image://http%3a%2f%2fassets.fanart.tv%2ffanart%2fmusic%2fbe547bca-8718-4762-bf1b-34a3bdb4938f%2fartistbackground%2fakb48-4e6c2e2f10c86.jpg/"
+                  ["file"]=>
+                  string(70) "smb://WHS/Musik/AKB/AKB0048 Complete Vocal Collection/1-16 - Sasae.mp3"
 
-                if (property_exists($ret->item, 'thumbnail'))
-                    $this->SetCover($ret->item->thumbnail);
+                  ["lyrics"]=>
+                  string(0) ""
+                  ["thumbnail"]=>
+                  string(109) "image://music@smb%3a%2f%2fWHS%2fMusik%2fAKB%2fAKB0048%20Complete%20Vocal%20Collection%2f1-16%20-%20Sasae.mp3/"
+                  }
+                  }
+                 */
+
+                $this->SetValueString('label', $ret->label);
+                $this->SetValueString('type', $ret->type);
+
+                if (property_exists($ret, 'thumbnail'))
+                    $this->SetCover($ret->thumbnail);
                 else
                     $this->SetCover("");
 
-                if (property_exists($ret->item, 'displayartist'))
-                    $this->SetValueString('artist', $ret->item->displayartist);
+                if (property_exists($ret, 'displayartist'))
+                    $this->SetValueString('artist', $ret->displayartist);
                 else
                 {
-                    if (property_exists($ret->item, 'artist'))
+                    if (property_exists($ret, 'albumartist'))
                     {
-                        if (is_array($ret->item->artist))
+                        if (is_array($ret->artist))
                         {
-                            $this->SetValueString('artist', implode(', ', $ret->item->artist));
+                            $this->SetValueString('artist', implode(', ', $ret->albumartist));
                         }
                         else
                         {
-                            $this->SetValueString('artist', $ret->item->artist);
+                            $this->SetValueString('artist', $ret->albumartist);
                         }
                     }
                     else
                     {
-                        $this->SetValueString('artist', "");
+                        if (property_exists($ret, 'artist'))
+                        {
+                            if (is_array($ret->artist))
+                            {
+                                $this->SetValueString('artist', implode(', ', $ret->artist));
+                            }
+                            else
+                            {
+                                $this->SetValueString('artist', $ret->artist);
+                            }
+                        }
+                        else
+                        {
+                            $this->SetValueString('artist', "");
+                        }
                     }
                 }
-
-                if (property_exists($ret->item, 'genre'))
+                if (property_exists($ret, 'genre'))
                 {
-                    if (is_array($ret->item->genre))
+                    if (is_array($ret->genre))
                     {
-                        $this->SetValueString('genre', implode(', ', $ret->item->genre));
+                        $this->SetValueString('genre', implode(', ', $ret->genre));
                     }
                     else
                     {
-                        $this->SetValueString('genre', $ret->item->genre);
+                        $this->SetValueString('genre', $ret->genre);
                     }
                 }
                 else
                 {
                     $this->SetValueString('genre', "");
                 }
-                if (property_exists($ret->item, 'album'))
-                    $this->SetValueString('album', $ret->item->album);
+                if (property_exists($ret, 'album'))
+                    $this->SetValueString('album', $ret->album);
                 else
                     $this->SetValueString('album', "");
 
+                if (property_exists($ret, 'year'))
+                    $this->SetValueInteger('year', $ret->year);
+                else
+                    $this->SetValueInteger('year', 0);
+
+                if (property_exists($ret, 'track'))
+                    $this->SetValueInteger('track', $ret->track);
+                else
+                    $this->SetValueInteger('track', 0);
+
+                if (property_exists($ret, 'disc'))
+                    $this->SetValueInteger('disc', $ret->disc);
+                else
+                    $this->SetValueInteger('disc', 0);
+
+                if (property_exists($ret, 'duration'))
+                    $this->SetValueString('duration', $this->ConvertTime($ret->duration));
+                else
+                    $this->SetValueString('duration', "");
+
+
                 break;
             case self::Video:
-                if (property_exists($ret->item, 'plot'))
-                    $this->SetValueString('plot', $ret->item->plot);
+                if (property_exists($ret, 'plot'))
+                    $this->SetValueString('plot', $ret->plot);
                 else
                     $this->SetValueString('plot', "");
                 break;
@@ -825,7 +888,7 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return null;
-        return $ret;
+        return $ret->item;
 
 //        var_dump($ret);
     }
