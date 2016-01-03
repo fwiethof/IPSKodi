@@ -136,7 +136,6 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterPropertyInteger('PlayerID', 0);
         $this->RegisterPropertyInteger('CoverSize', 300);
         $this->RegisterPropertyString('CoverTyp', 'thumb');
-        
     }
 
     public function ApplyChanges()
@@ -258,27 +257,16 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
 
-
-
-
-
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
         $this->RegisterVariableBoolean("isactive", "isplayeractive", "", -5);
         IPS_SetHidden($this->GetIDForIdent('isactive'), true);
 
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
-        //Never delete this line!
         $this->getActivePlayer();
 
         parent::ApplyChanges();
+
+        if ($this->isActive)
+            $this->GetItemInternal();
+
         $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],"PARTIAL");');
     }
 
@@ -754,7 +742,7 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueString('artist', "");
                     }
                 }
-                
+
                 if (property_exists($ret, 'genre'))
                 {
                     if (is_array($ret->genre))
@@ -764,7 +752,7 @@ class KodiDevicePlayer extends KodiBase
                 }
                 else
                     $this->SetValueString('genre', "");
-                
+
                 if (property_exists($ret, 'album'))
                     $this->SetValueString('album', $ret->album);
                 else
