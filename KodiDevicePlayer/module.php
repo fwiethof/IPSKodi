@@ -266,7 +266,7 @@ class KodiDevicePlayer extends KodiBase
 //        $this->EnableAction("volume");
         //Never delete this line!
         $this->getActivePlayer();
-//        $this->setActivePlayer();        
+
         parent::ApplyChanges();
         $this->RegisterTimer('PlayerStatus', 0, 'KODIPLAYER_RequestState($_IPS[\'TARGET\'],"PARTIAL");');
     }
@@ -293,6 +293,12 @@ class KodiDevicePlayer extends KodiBase
 
         $this->SetValueBoolean('isactive', $this->isActive);
         return (bool) $this->isActive;
+    }
+
+    private function setActivePlayer(boolean $isActive)
+    {
+        $this->isActive = $isActive;
+        $this->SetValueBoolean('isactive', $isactive);
     }
 
     protected function RequestProperties(array $Params)
@@ -352,31 +358,40 @@ class KodiDevicePlayer extends KodiBase
                         case "currentaudiostream":
                             if ($this->PlayerId <> self::Video)
                                 break;
-                            if (property_exists($value, 'bitrate'))
-                                $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
-                            else
+                            if (is_object($value))
+                            {
+                                if (property_exists($value, 'bitrate'))
+                                    $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
+                                else
+                                    $this->SetValueInteger('audiobitrate', 0);
+
+                                if (property_exists($value, 'channels'))
+                                    $this->SetValueInteger('audiochannels', (int) $value->channels);
+                                else
+                                    $this->SetValueInteger('audiochannels', 0);
+
+                                if (property_exists($value, 'index'))
+                                    $this->SetValueInteger('audioindex', (int) $value->index);
+                                else
+                                    $this->SetValueInteger('audioindex', 0);
+
+                                if (property_exists($value, 'language'))
+                                    $this->SetValueString('audiolanguage', (string) $value->language);
+                                else
+                                    $this->SetValueString('audiolanguage', "");
+
+                                if (property_exists($value, 'name'))
+                                    $this->SetValueString('audiocodec', (string) $value->name);
+                                else
+                                    $this->SetValueString('audiocodec', "");
+                            } else
+                            {
                                 $this->SetValueInteger('audiobitrate', 0);
-
-                            if (property_exists($value, 'channels'))
-                                $this->SetValueInteger('audiochannels', (int) $value->channels);
-                            else
                                 $this->SetValueInteger('audiochannels', 0);
-
-                            if (property_exists($value, 'index'))
-                                $this->SetValueInteger('audioindex', (int) $value->index);
-                            else
                                 $this->SetValueInteger('audioindex', 0);
-
-                            if (property_exists($value, 'language'))
-                                $this->SetValueString('audiolanguage', (string) $value->language);
-                            else
                                 $this->SetValueString('audiolanguage', "");
-
-                            if (property_exists($value, 'name'))
-                                $this->SetValueString('audiocodec', (string) $value->name);
-                            else
                                 $this->SetValueString('audiocodec', "");
-
+                            }
                             break;
                         //string
                         case "type":
