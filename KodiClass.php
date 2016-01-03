@@ -191,13 +191,31 @@ class KodiBase extends IPSModule
 
     protected function ConvertTime($Time)
     {
-        $Time->minutes = str_pad($Time->minutes, 2, "00", STR_PAD_LEFT);
-        $Time->seconds = str_pad($Time->seconds, 2, "00", STR_PAD_LEFT);
-        if ($Time->hours > 0)
+        if (is_object($Time))
         {
-            return $Time->hours . ":" . $Time->minutes . ":" . $Time->seconds;
+            $Time->minutes = str_pad($Time->minutes, 2, "00", STR_PAD_LEFT);
+            $Time->seconds = str_pad($Time->seconds, 2, "00", STR_PAD_LEFT);
+            if ($Time->hours > 0)
+            {
+                return $Time->hours . ":" . $Time->minutes . ":" . $Time->seconds;
+            }
+            return $Time->minutes . ":" . $Time->seconds;
         }
-        return $Time->minutes . ":" . $Time->seconds;
+        if (is_int($Time))
+        {
+            date_default_timezone_set('UTC');
+            $strtime = '';
+            $sec = intval(date("s", $Time));
+            if ($sec <> 0)
+                $strtime = $sec . " Sek";
+            if ($Time > 60)
+                $strtime = intval(date("i", $Time)) . " Min " . $strtime;
+            if ($Time > 3600)
+                $strtime = date("G", $Time) . " Std " . $strtime;
+            if ($Time > 3600 * 24)
+                $strtime = date("z", $Time) . " Tg " . $strtime;
+            return $strtime;
+        }
     }
 
 ################## ActionHandler
