@@ -123,11 +123,11 @@ class KodiDevicePlayer extends KodiBase
     private $PlayerId = null;
     private $isActive = null;
     static $Playertype = array(
-//        "song" => 0,
+        "song" => 0,
         "audio" => 0,
         "video" => 1,
-//        "episode" => 1,
-//        "movie" => 1,
+        "episode" => 1,
+        "movie" => 1,
         "pictures" => 2
     );
 
@@ -318,21 +318,46 @@ class KodiDevicePlayer extends KodiBase
     protected function Decode($Method, $KodiPayload)
     {
         $this->Init();
-        if (property_exists($KodiPayload, 'player')
-                and ( $KodiPayload->player->playerid <> $this->PlayerId))
-            return false;
-        if (property_exists($KodiPayload, 'item')
-                and ( self::$Playertype[(string) $KodiPayload->item->type] <> $this->PlayerId))
-            return false;
-        if (property_exists($KodiPayload, 'type')
-                and ( self::$Playertype[(string) $KodiPayload->type] <> $this->PlayerId))
-            return false;
+        if (property_exists($KodiPayload, 'player'))
+        {
+            if ($KodiPayload->player->playerid <> $this->PlayerId)
+                return false;
+        }
+        else
+        {
+            if (property_exists($KodiPayload, 'type'))
+            {
+                if (self::$Playertype[(string) $KodiPayload->type] <> $this->PlayerId)
+                    return false;
+            }
+            else
+            {
+                if (property_exists($KodiPayload, 'item'))
+                {
+                    if (self::$Playertype[(string) $KodiPayload->item->type] <> $this->PlayerId)
+                        return false;
+                }
+            }
+        }
         switch ($Method)
         {
             case 'GetProperties':
             case 'OnPropertyChanged':
                 foreach ($KodiPayload as $param => $value)
                 {
+                    /*
+                      {"audiostreams":[{"bitrate":416825,"channels":6,"codec":"ac3","index":0,"language":"ger","name":"AC3 5.1"}],
+
+                      "canchangespeed":true,"canmove":false,"canrepeat":true,"canrotate":false,
+                      "canseek":true,"canshuffle":true,"canzoom":false,
+                      "currentaudiostream":{"bitrate":416825,"channels":6,"codec":"ac3","index":0,"language":"ger","name":"AC3 5.1"},
+                      "currentsubtitle":{},
+                      "live":false,"partymode":false,
+                      "percentage":1.855262279510498,
+                      "playlistid":1,"position":-1,"repeat":"off",
+                      "shuffled":false,"speed":1,
+                      "subtitleenabled":true,"subtitles":[],"time":{"hours":0,"milliseconds":446,"minutes":2,"seconds":49},"totaltime":{"hours":2,"milliseconds":264,"minutes":32,"seconds":13},"type":"video"}
+                     */
                     switch ($param)
                     {
                         // Object
@@ -434,6 +459,7 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         //integer
                         case "speed":
+                            $this->SetValueInteger('Status', 2);
                         case "percentage":
                             $this->SetValueInteger($param, (int) $value);
                             break;
@@ -1116,12 +1142,11 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-/*        if ($this->PlayerId <> self::Audio)
-        {
-            trigger_error('Not supported', E_USER_NOTICE);
-            return false;
-        }*/
-            
+        /*        if ($this->PlayerId <> self::Audio)
+          {
+          trigger_error('Not supported', E_USER_NOTICE);
+          return false;
+          } */
     }
 
 //    public function Volume(integer $Value)
