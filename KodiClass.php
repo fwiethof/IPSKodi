@@ -203,18 +203,11 @@ class KodiBase extends IPSModule
         }
         if (is_int($Time))
         {
-            date_default_timezone_set('UTC');
-            $strtime = '';
-            $sec = intval(date("s", $Time));
-            if ($sec <> 0)
-                $strtime = $sec . " Sek";
-            if ($Time > 60)
-                $strtime = intval(date("i", $Time)) . " Min " . $strtime;
+//            date_default_timezone_set('UTC');
             if ($Time > 3600)
-                $strtime = date("G", $Time) . " Std " . $strtime;
-            if ($Time > 3600 * 24)
-                $strtime = date("z", $Time) . " Tg " . $strtime;
-            return $strtime;
+                return date("H:i:s", $Time);
+            else
+                return date("i:s", $Time);
         }
     }
 
