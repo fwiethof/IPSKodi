@@ -278,7 +278,7 @@ class KodiDevicePlayer extends KodiBase
         if (is_null($this->PlayerId))
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
         if (is_null($this->isActive))
-            $this->isActive = IPS_GetValueBoolean($this->GetIDForIdent('isactive'));
+            $this->isActive = GetValueBoolean($this->GetIDForIdent('isactive'));
     }
 
     private function getActivePlayer()
