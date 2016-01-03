@@ -124,6 +124,7 @@ class KodiDevicePlayer extends KodiBase
     private $isActive = null;
     static $Playertype = array(
         "song" => 0,
+        "audio" => 0,
         "episode" => 1,
         "movie" => 1,
         "pictures" => 2
