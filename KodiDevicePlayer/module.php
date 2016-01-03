@@ -123,10 +123,11 @@ class KodiDevicePlayer extends KodiBase
     private $PlayerId = null;
     private $isActive = null;
     static $Playertype = array(
-        "song" => 0,
+//        "song" => 0,
         "audio" => 0,
-        "episode" => 1,
-        "movie" => 1,
+        "video" => 1,
+//        "episode" => 1,
+//        "movie" => 1,
         "pictures" => 2
     );
 
@@ -605,7 +606,8 @@ class KodiDevicePlayer extends KodiBase
                 return $this->SetSpeed($Value);
             case "partymode":
                 return $this->SetPartymode($Value);
-
+            case "percentage":
+                return $this->SetPosition($Value);
 //            default:
 //                return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
@@ -890,7 +892,11 @@ class KodiDevicePlayer extends KodiBase
     public function Play()
     {
         $this->Init();
-
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -911,6 +917,11 @@ class KodiDevicePlayer extends KodiBase
     public function Pause()
     {
         $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -931,6 +942,11 @@ class KodiDevicePlayer extends KodiBase
     public function Stop()
     {
         $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Stop', array("playerid" => $this->PlayerId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -950,6 +966,11 @@ class KodiDevicePlayer extends KodiBase
     public function Next()
     {
         $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => "next"));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -963,6 +984,11 @@ class KodiDevicePlayer extends KodiBase
     public function Previous()
     {
         $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => "previous"));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -976,6 +1002,11 @@ class KodiDevicePlayer extends KodiBase
     public function GoToTrack(integer $Value)
     {
         $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value + 1));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -1050,6 +1081,11 @@ class KodiDevicePlayer extends KodiBase
     public function SetSpeed(integer $Value)
     {
         $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
 
         if (!in_array($Value, array(-32, -16, -8, -4, -2, 0, 1, 2, 4, 8, 16, 32)))
         {
@@ -1070,6 +1106,22 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Error on set speed.', E_USER_NOTICE);
         }
         return false;
+    }
+
+    public function SetPosition(integer $Value)
+    {
+        $this->Init();
+        if (!$this->isActive)
+        {
+            trigger_error('Player not active', E_USER_NOTICE);
+            return false;
+        }
+/*        if ($this->PlayerId <> self::Audio)
+        {
+            trigger_error('Not supported', E_USER_NOTICE);
+            return false;
+        }*/
+            
     }
 
 //    public function Volume(integer $Value)
