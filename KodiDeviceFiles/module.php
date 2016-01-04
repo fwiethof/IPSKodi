@@ -8,7 +8,7 @@ class KodiDeviceFiles extends KodiBase
     static $Namespace = 'Files';
     static $Properties = array(
     );
-    static $ItemList = array(
+    static $ItemListFull = array(
         "title",
         "artist",
         "albumartist",
@@ -77,6 +77,25 @@ class KodiDeviceFiles extends KodiBase
         "size",
         "lastmodified",
         "mimetype");
+    static $ItemListSmall = array(
+        "title",
+        "artist",
+        "albumartist",
+        "genre",
+        "year",
+        "album",
+        "track",
+        "duration",
+        "plot",
+        "runtime",
+        "season",
+        "episode",
+        "showtitle",
+        "thumbnail",
+        "file",
+        "disc",
+        "albumlabel",
+    );
 
     public function Create()
     {
@@ -205,12 +224,22 @@ class KodiDeviceFiles extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetFileDetails', array("file" => $File, "media" => $Media,"properties"=>  static::$ItemList));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
+
+        return json_decode(json_encode($ret), true);
+    }
+
+    public function GetDirectory(string $Directory)
+    {
         
-        return json_decode(json_encode($ret),true);
+    }
+
+    public function GetDirectoryDetails(string $Directory, string $Media)
+    {
+        
     }
 
 //
