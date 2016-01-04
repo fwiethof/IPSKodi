@@ -8,6 +8,75 @@ class KodiDeviceFiles extends KodiBase
     static $Namespace = 'Files';
     static $Properties = array(
     );
+    static $ItemList = array(
+        "title",
+        "artist",
+        "albumartist",
+        "genre",
+        "year",
+        "rating",
+        "album",
+        "track",
+        "duration",
+        "comment",
+        "lyrics",
+        "musicbrainztrackid",
+        "musicbrainzartistid",
+        "musicbrainzalbumid",
+        "musicbrainzalbumartistid",
+        "playcount",
+        "fanart",
+        "director",
+        "trailer",
+        "tagline",
+        "plot",
+        "plotoutline",
+        "originaltitle",
+        "lastplayed",
+        "writer",
+        "studio",
+        "mpaa",
+        "cast",
+        "country",
+        "imdbnumber",
+        "premiered",
+        "productioncode",
+        "runtime",
+        "set",
+        "showlink",
+        "streamdetails",
+        "top250",
+        "votes",
+        "firstaired",
+        "season",
+        "episode",
+        "showtitle",
+        "thumbnail",
+        "file",
+        "resume",
+        "artistid",
+        "albumid",
+        "tvshowid",
+        "setid",
+        "watchedepisodes",
+        "disc",
+        "tag",
+        "art",
+        "genreid",
+        "displayartist",
+        "albumartistid",
+        "description",
+        "theme",
+        "mood",
+        "style",
+        "albumlabel",
+        "sorttitle",
+        "episodeguide",
+        "uniqueid",
+        "dateadded",
+        "size",
+        "lastmodified",
+        "mimetype");
 
     public function Create()
     {
@@ -27,19 +96,19 @@ class KodiDeviceFiles extends KodiBase
 //        $this->EnableAction("mute");
 //        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
 //        $this->EnableAction("volume");
-
         //Never delete this line!
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
 
-    protected function Decode($Method,$KodiPayload)
+    protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
-        {
-            switch ($param)
-            {
+        return;
+//        foreach ($KodiPayload as $param => $value)
+//        {
+//            switch ($param)
+//            {
 //                case "mute":
 //                case "muted":
 //                    $this->SetValueBoolean("mute", $value);
@@ -53,8 +122,8 @@ class KodiDeviceFiles extends KodiBase
 //                case "version":
 //                    $this->SetValueString("version", $value->major . '.' . $value->minor);
 //                    break;
-            }
-        }
+//            }
+//        }
     }
 
 ################## ActionHandler
@@ -79,26 +148,71 @@ class KodiDeviceFiles extends KodiBase
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
-
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
+    /*    public function RawSend(string $Namespace, string $Method, $Params)
+      {
       return  parent::RawSend($Namespace, $Method, $Params);
+      } */
+
+    public function GetSources(string $Value)
+    {
+        if (!is_string($Value))
+        {
+            trigger_error('Value must be string', E_USER_NOTICE);
+            return false;
+        }
+
+        $Value = strtolower($Value);
+        if (!in_array($Value, array("video", "music", "pictures", "files", "programs")))
+        {
+            trigger_error('Value must be "video", "music", "pictures", "files" or "programs".', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetSources', array("media" => $Value));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        $Sources = array();
+        foreach ($ret->sources as $source)
+        {
+            $Sources[$source->label] = $source->file;
+        }
+
+        if (count($Sources) == 0)
+            return false;
+
+        return $Sources;
     }
-//
-//    public function Mute(boolean $Value)
-//    {
-//        if (!is_bool($Value))
-//        {
-//            trigger_error('Value must be boolean', E_USER_NOTICE);
-//            return false;
-//        }
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueBoolean("mute", $ret);
-//        return $ret['mute'] === $Value;
-//    }
+
+    public function GetFileDetails(string $File, string $Media)
+    {
+        if (!is_string($Value))
+        {
+            trigger_error('Value must be string', E_USER_NOTICE);
+            return false;
+        }
+        if (!is_string($Media))
+        {
+            trigger_error('Media must be string', E_USER_NOTICE);
+            return false;
+        }
+
+        $Media = strtolower($Media);
+        if (!in_array($Media, array("video", "music", "pictures", "files", "programs")))
+        {
+            trigger_error('Media must be "video", "music", "pictures", "files" or "programs".', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetFileDetails', array("file" => $File, "media" => $Media,"properties"=>  static::$ItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        
+        return json_decode(json_encode($ret),true);
+    }
+
 //
 //    public function Volume(integer $Value)
 //    {
@@ -128,7 +242,7 @@ class KodiDeviceFiles extends KodiBase
 
     public function RequestState(string $Ident)
     {
-      return  parent::RequestState($Ident);
+        return;  //parent::RequestState($Ident);
     }
 
     /*
@@ -168,6 +282,7 @@ class KodiDeviceFiles extends KodiBase
     {
         return parent::SendDataToParent($Data);
     }
+
 }
 
 ?>

@@ -379,6 +379,13 @@ class KodiBase extends IPSModule
         $id = $this->GetIDForIdent($Ident);
         if (GetValueInteger($id) <> $value)
         {
+            if ($Ident <> "speed")
+            {
+                if (($value == -1) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
+                    IPS_SetHidden($id, true);
+                if (($value <> -1) and ( IPS_GetObject($id)["ObjectIsHidden"]))
+                    IPS_SetHidden($id, false);
+            }
             SetValueInteger($id, $value);
             return true;
         }
@@ -390,6 +397,10 @@ class KodiBase extends IPSModule
         $id = $this->GetIDForIdent($Ident);
         if (GetValueString($id) <> $value)
         {
+                if (($value == "") and ( !IPS_GetObject($id)["ObjectIsHidden"]))
+                    IPS_SetHidden($id, true);
+                if (($value <> "") and ( IPS_GetObject($id)["ObjectIsHidden"]))
+                    IPS_SetHidden($id, false);
             SetValueString($id, $value);
             return true;
         }
@@ -399,7 +410,7 @@ class KodiBase extends IPSModule
     private function WaitForResponse($Id)
     {
         $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
-        for ($i = 0; $i < 300; $i++)
+        for ($i = 0; $i < 1000; $i++)
         {
             if (GetValueString($ReplyJSONDataID) === '')
                 IPS_Sleep(5);

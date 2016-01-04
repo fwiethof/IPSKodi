@@ -142,6 +142,9 @@ class KodiDevicePlayer extends KodiBase
     public function ApplyChanges()
     {
         $this->Init();
+        $this->RegisterVariableBoolean("isactive", "isplayeractive", "", -5);
+        IPS_SetHidden($this->GetIDForIdent('isactive'), true);
+        
         $this->RegisterProfileIntegerEx("Repeat.Kodi", "", "", "", Array(
             //Array(0, "Prev", "", -1),
             Array(0, "Aus", "", -1),
@@ -166,11 +169,13 @@ class KodiDevicePlayer extends KodiBase
         ));
 
         $this->RegisterProfileInteger("Intensity.Kodi", "Intensity", "", " %", 0, 100, 1);
-        $this->EnableAction("Status");
 
         switch ($this->PlayerId)
         {
             case self::Audio:
+                $this->UnregisterVariable("showtitle");
+                $this->UnregisterVariable("season");
+                $this->UnregisterVariable("episode");
                 $this->UnregisterVariable("plot");
                 $this->UnregisterVariable("audioindex");
                 $this->UnregisterVariable("audiolanguage");
@@ -179,6 +184,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->UnregisterVariable("audiobitrate");
                 $this->UnregisterVariable("audiostreams");
                 $this->UnregisterVariable("subtitleenabled");
+                $this->UnregisterVariable("subtitle");
                 $this->UnregisterVariable("subtitles");
 
                 $this->UnregisterProfile("AudioTracks." . $this->InstanceID . ".Kodi");
@@ -196,13 +202,10 @@ class KodiDevicePlayer extends KodiBase
                 $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
                 $this->RegisterVariableBoolean("partymode", "Partymodus", "~Switch", 13);
                 $this->EnableAction("partymode");
-                $this->RegisterVariableString("label", "Titel", "", 14);
                 $this->RegisterVariableString("album", "Album", "", 15);
                 $this->RegisterVariableInteger("track", "Track", "", 16);
                 $this->RegisterVariableInteger("disc", "Disc", "", 17);
-                $this->RegisterVariableInteger("year", "Jahr", "", 19);
                 $this->RegisterVariableString("artist", "Artist", "", 20);
-                $this->RegisterVariableString("genre", "Genre", "", 21);
                 $this->RegisterVariableString("lyrics", "Lyrics", "", 30);
 
                 break;
@@ -211,13 +214,10 @@ class KodiDevicePlayer extends KodiBase
                 $this->UnregisterVariable("repeat");
                 $this->UnregisterVariable("shuffled");
                 $this->UnregisterVariable("partymode");
-                $this->UnregisterVariable("label");
                 $this->UnregisterVariable("album");
                 $this->UnregisterVariable("track");
                 $this->UnregisterVariable("disc");
-                $this->UnregisterVariable("year");
                 $this->UnregisterVariable("artist");
-                $this->UnregisterVariable("genre");
                 $this->UnregisterVariable("lyrics");
 
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
@@ -227,6 +227,9 @@ class KodiDevicePlayer extends KodiBase
                 ));
                 $this->RegisterProfileInteger("AudioTracks." . $this->InstanceID . ".Kodi", "", "", "", 1, 1, 1);
 
+                $this->RegisterVariableString("showtitle", "Serie", "", 13);
+                $this->RegisterVariableInteger("season", "Staffel", "", 15);
+                $this->RegisterVariableInteger("episode", "Episode", "", 16);
 
                 $this->RegisterVariableString("plot", "Handlung", "~TextBox", 19);
                 $this->RegisterVariableInteger("audioindex", "Aktueller Audiotrack", "AudioTracks." . $this->InstanceID . ".Kodi", 30);
@@ -236,8 +239,8 @@ class KodiDevicePlayer extends KodiBase
                 $this->RegisterVariableInteger("audiobitrate", "Audio Bitrate", "", 34);
                 $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
                 $this->RegisterVariableBoolean("subtitleenabled", "Untertitel aktiv", "~Switch", 40);
-                $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 41);
-                $this->RegisterVariableString("label", "Titel", "", 14);
+                $this->RegisterVariableInteger("subtitle", "Aktiver Untertitel", "Subtitels." . $this->InstanceID . ".Kodi", 41);
+                $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 42);
                 break;
             case self::Pictures:
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
@@ -249,17 +252,17 @@ class KodiDevicePlayer extends KodiBase
                 ));
                 break;
         }
+                $this->RegisterVariableString("label", "Titel", "", 14);
+        $this->RegisterVariableString("genre", "Genre", "", 21);
         $this->RegisterVariableInteger("Status", "Status", "Status." . $this->InstanceID . ".Kodi", 3);
+        $this->EnableAction("Status");
         $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
-
+        $this->RegisterVariableInteger("year", "Jahr", "", 19);
         $this->RegisterVariableString("type", "Typ", "", 20);
-
         $this->RegisterVariableString("duration", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
 
-        $this->RegisterVariableBoolean("isactive", "isplayeractive", "", -5);
-        IPS_SetHidden($this->GetIDForIdent('isactive'), true);
 
         $this->getActivePlayer();
 
@@ -304,11 +307,11 @@ class KodiDevicePlayer extends KodiBase
     protected function RequestProperties(array $Params)
     {
         $this->Init();
-        $Params = array_merge($Params, array("playerid" => $this->PlayerId));
+        $Param = array_merge($Params, array("playerid" => $this->PlayerId));
         //parent::RequestProperties($Params);
         if (!$this->isActive)
             return false;
-        $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Params);
+        $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Param);
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -366,21 +369,20 @@ class KodiDevicePlayer extends KodiBase
                                 break;
                             if (is_object($value))
                             {
-                                /*                                $this->SetValueInteger('audiobitrate', 0);
-                                  $this->SetValueInteger('audiochannels', 0);
-                                  $this->SetValueInteger('audioindex', 0);
-                                  $this->SetValueString('audiolanguage', "");
-                                  $this->SetValueString('audiocodec', ""); */
-//                                $this->DisableAction('subtitleenabled');
+                                if (property_exists($value, 'index'))
+                                {
+                                    $this->SetValueInteger('subtitle', (int) $value->index);
+//                                    $this->SetValueBoolean('subtitleenabled', true);
+                                }
+                                else
+                                {
+                                    $this->SetValueInteger('subtitle', -1);
+                                    //                                  $this->SetValueBoolean('subtitleenabled', false);
+                                }
                             }
                             else
                             {
-                                /*                                $this->SetValueInteger('audiobitrate', (int) $value->bitrate);
-                                  $this->SetValueInteger('audiochannels', (int) $value->channels);
-                                  $this->SetValueInteger('audioindex', (int) $value->index);
-                                  $this->SetValueString('audiolanguage', (string) $value->language);
-                                  $this->SetValueString('audiocodec', (string) $value->name); */
-                                //                              $this->EnableAction('subtitleenabled');
+                                $this->SetValueInteger('subtitle', -1);
                             }
                             break;
                         case "currentaudiostream":
@@ -434,10 +436,16 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         // Anzahl
                         case "audiostreams":
+                            if ($this->PlayerId <> self::Video)
+                                break;
+                            $this->SetValueInteger($param, count($value));
+                            //Profil anpassen
+                            break;
                         case "subtitles":
                             if ($this->PlayerId <> self::Video)
                                 break;
                             $this->SetValueInteger($param, count($value));
+                            //Profil anpassen
                             break;
                         case "repeat": //off
                             if ($this->PlayerId == self::Video)
@@ -655,91 +663,6 @@ class KodiDevicePlayer extends KodiBase
         $ret = $this->GetItem();
         if (is_null($ret))
             return null;
-        /*
-          "result":{
-          "item":{
-          "album":"",
-          "art":
-          {
-          "thumb":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fepisodes%2f262407%2f5111573.jpg/",
-          "tvshow.banner":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fgraphical%2f262407-g.jpg/",
-          "tvshow.fanart":"image://http%3a%2f%2fthetvdb.com%2fbanners%2ffanart%2foriginal%2f262407-3.jpg/",
-          "tvshow.poster":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fposters%2f262407-1.jpg/"
-          },
-          "artist":[],
-          "cast":[
-          {
-          "name":"Toby Stephens",
-          "order":0,
-          "role":"Captain Flint",
-          "thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f305937.jpg/"
-          },
-          {
-          "name":"Luke Arnold",
-          "order":1,
-          "role":"John Silver",
-          "thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322860.jpg/"
-          },
-          {"name":"Hannah New","order":2,"role":"Eleanor Guthrie","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322862.jpg/"},
-          {"name":"Hakeem Kae-Kazim","order":3,"role":"Mr. Scott","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322867.jpg/"},
-          {"name":"Clara Paget","order":4,"role":"Anne Bonny","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322866.jpg/"},
-          {"name":"Toby Schmitz","order":5,"role":"Rackham","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322865.jpg/"},
-          {"name":"Tom Hopper","order":6,"role":"Billy Bones","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322864.jpg/"},
-          {"name":"Zach McGowan","order":7,"role":"Captain Vane","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f322863.jpg/"},
-          {"name":"Mark Ryan","order":8,"role":"Gates","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f318941.jpg/"},
-          {"name":"Jessica Parker Kennedy","order":9,"role":"Max","thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2factors%2f305938.jpg/"}
-          ],
-          "country":[],
-          "dateadded":"2015-03-09 20:33:07",
-          "director":["Alik Sakharov"],
-          "episode":7,
-          "episodeguide":"",
-          "fanart":"image://http%3a%2f%2fthetvdb.com%2fbanners%2ffanart%2foriginal%2f262407-3.jpg/",
-          "file":"smb://WHS/Videos/Serien/Black Sails/Black.Sails.S02E07.720p.HDTV.x264-M33P.mkv",
-          "firstaired":"2015-03-07",
-          "genre":[],
-          "id":2244,
-          "imdbnumber":"",
-          "label":"XV.",
-          "lastplayed":"2015-03-14 22:42:24",
-          "mpaa":"TV-MA",
-          "originaltitle":"",
-          "playcount":1,
-          "plot":"Max cleans up after a massacre. News from the outside world changes everything for Flint and Silver. Eleanor risks her life for the sake of her future. Bonny faces a crossroads. Dufresne pushes Billy to act.",
-          "plotoutline":"",
-          "premiered":"2014-01-25",
-          "productioncode":"",
-          "rating":8,
-          "resume":{"position":0,"total":0},
-          "runtime":3421,
-          "season":2,
-          "set":"",
-          "setid":-1,
-          "showlink":[],
-          "showtitle":"Black Sails",
-          "sorttitle":"",
-          "streamdetails":
-          {
-          "audio":[{"channels":6,"codec":"ac3","language":""}],
-          "subtitle":[{"language":""}],
-          "video":[{"aspect":1.7777800559997559,"codec":"h264","duration":3421,"height":720,"stereomode":"","width":1280}]
-          },
-          "studio":["Starz!"],
-          "tag":[],
-          "tagline":"",
-          "thumbnail":"image://http%3a%2f%2fthetvdb.com%2fbanners%2fepisodes%2f262407%2f5111573.jpg/",
-          "title":"XV.",
-          "top250":0,
-          "track":-1,
-          "trailer":"",
-          "tvshowid":69,
-          "type":"episode",
-          "uniqueid":{"unknown":"5111573"},
-          "votes":"1",
-          "writer":[],
-          "year":0
-          }
-          } */
         switch ($this->PlayerId)
         {
             case self::Audio:
@@ -829,7 +752,7 @@ class KodiDevicePlayer extends KodiBase
                                 $this->SetCover($ret->fanart);
                                 break;
                             }
-                    case"thumb":
+                    default:
                         if (property_exists($ret, 'art'))
                         {
                             if (property_exists($ret->art, 'thumb'))
@@ -840,66 +763,247 @@ class KodiDevicePlayer extends KodiBase
                                 }
                         }
                         if (property_exists($ret, 'thumbnail'))
+                        {
                             if ($ret->thumbnail <> "")
                             {
                                 $this->SetCover($ret->thumbnail);
                                 break;
                             }
-                    default:
-                        $this->SetCover("");
+                        }
+                        break;
                 }
 
                 break;
             case self::Video:
+                if (property_exists($ret, 'showtitle'))
+                    $this->SetValueString('showtitle', $ret->showtitle);
+                else
+                    $this->SetValueString('showtitle', "");
+                
+                $this->SetValueString('label', $ret->label);
+
+                if (property_exists($ret, 'season'))
+                    $this->SetValueInteger('season', $ret->season);
+                else
+                    $this->SetValueInteger('season', -1);
+
+                if (property_exists($ret, 'episode'))
+                    $this->SetValueInteger('episode', $ret->episode);
+                else
+                    $this->SetValueInteger('episode', -1);
+
+                if (property_exists($ret, 'genre'))
+                {
+                    if (is_array($ret->genre))
+                        $this->SetValueString('genre', implode(', ', $ret->genre));
+                    else
+                        $this->SetValueString('genre', $ret->genre);
+                }
+                else
+                    $this->SetValueString('genre', "");
+
+                if (property_exists($ret, 'runtime'))
+                    $this->SetValueString('duration', $this->ConvertTime($ret->runtime));
+                else
+                    $this->SetValueString('duration', "");
+
+                if (property_exists($ret, 'year'))
+                    $this->SetValueInteger('year', $ret->year);
+                else
+                    $this->SetValueInteger('year', 0);
+
                 if (property_exists($ret, 'plot'))
                     $this->SetValueString('plot', $ret->plot);
                 else
                     $this->SetValueString('plot', "");
+
+                switch ($this->ReadPropertyString('CoverTyp'))
+                {
+                    case"poster":
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'tvshow.poster'))
+                            {
+                                if ($ret->art->{'tvshow.poster'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'tvshow.poster'});
+                                    break;
+                                }
+                            }
+                            if (property_exists($ret->art, 'poster'))
+                            {
+                                if ($ret->art->{'poster'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'poster'});
+                                    break;
+                                }
+                            }
+                        }
+                        if (property_exists($ret, 'poster'))
+                        {
+                            if ($ret->poster <> "")
+                            {
+                                $this->SetCover($ret->poster);
+                                break;
+                            }
+                        }
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'tvshow.banner'))
+                            {
+                                if ($ret->art->{'tvshow.banner'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'tvshow.banner'});
+                                    break;
+                                }
+                            }
+                        }
+                        if (property_exists($ret, 'banner'))
+                        {
+                            if ($ret->banner <> "")
+                            {
+                                $this->SetCover($ret->banner);
+                                break;
+                            }
+                        }
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'thumb'))
+                                if ($ret->art->thumb <> "")
+                                {
+                                    $this->SetCover($ret->art->thumb);
+                                    break;
+                                }
+                        }
+                        if (property_exists($ret, 'thumbnail'))
+                        {
+                            if ($ret->thumbnail <> "")
+                            {
+                                $this->SetCover($ret->thumbnail);
+                                break;
+                            }
+                        }
+                        $this->SetCover("");
+
+                        break;
+                    case"banner":
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'tvshow.banner'))
+                            {
+                                if ($ret->art->{'tvshow.banner'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'tvshow.banner'});
+                                    break;
+                                }
+                            }
+                        }
+                        if (property_exists($ret, 'banner'))
+                        {
+                            if ($ret->banner <> "")
+                            {
+                                $this->SetCover($ret->banner);
+                                break;
+                            }
+                        }
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'tvshow.poster'))
+                            {
+                                if ($ret->art->{'tvshow.poster'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'tvshow.poster'});
+                                    break;
+                                }
+                            }
+                            if (property_exists($ret->art, 'poster'))
+                            {
+                                if ($ret->art->{'poster'} <> "")
+                                {
+                                    $this->SetCover($ret->art->{'poster'});
+                                    break;
+                                }
+                            }
+                        }
+                        if (property_exists($ret, 'poster'))
+                        {
+                            if ($ret->poster <> "")
+                            {
+                                $this->SetCover($ret->poster);
+                                break;
+                            }
+                        }
+                    default:
+                        if (property_exists($ret, 'art'))
+                        {
+                            if (property_exists($ret->art, 'thumb'))
+                                if ($ret->art->thumb <> "")
+                                {
+                                    $this->SetCover($ret->art->thumb);
+                                    break;
+                                }
+                        }
+                        if (property_exists($ret, 'thumbnail'))
+                        {
+                            if ($ret->thumbnail <> "")
+                            {
+                                $this->SetCover($ret->thumbnail);
+                                break;
+                            }
+                        }
+                        $this->SetCover("");
+
+                        break;
+                }
                 break;
 
+            /*      EPISODE
 
-            /*
-              ["art"]=>
-              object(stdClass)#8 (2) {
-              ["fanart"]=>
-              string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
-              ["poster"]=>
-              string(198) "image://https%3a%2f%2fgfx.videobuster.de%2farchive%2fresized%2fw700%2f2008%2f02%2fimage%2fjpeg%2ff136aea8fcf90e95f8ad0a7b01be895d.jpg%3ftitle%3deragon%26k%3dDVD%2bonline%2bleihen%2bdownload%2bcover/"
+              "streamdetails":
+              {
+              "audio":[{"channels":6,"codec":"ac3","language":""}],
+              "subtitle":[{"language":""}],
+              "video":[{"aspect":1.7777800559997559,"codec":"h264","duration":3421,"height":720,"stereomode":"","width":1280}]
               }
-              ["artist"]=>
-              array(0) {
-              }
-
-              }
-              episode
-              ["fanart"]=>
-              string(89) "image://http%3a%2f%2fimage.tmdb.org%2ft%2fp%2foriginal%2fpugQ0pfT7bz9MFf6EFh2P3fBjkp.jpg/"
-              ["file"]=>
-              string(80) "smb://WHS/Videos/Filme/Eragon.AC3.BDRip/Eragon.2006.German.AC3.BDRip.XviD-SG.avi"
-              ["genre"]=>
+             */
+            /*      MOVIE
+              ["streamdetails"]=>
+              object(stdClass)#13 (3) {
+              ["audio"]=>
               array(1) {
               [0]=>
-              string(7) "Fantasy"
+              object(stdClass)#14 (3) {
+              ["channels"]=>
+              int(2)
+              ["codec"]=>
+              string(3) "mp3"
+              ["language"]=>
+              string(0) ""
               }
-              plot
+              }
+              ["subtitle"]=>
+              array(0) {
+              }
               ["video"]=>
               array(1) {
               [0]=>
               object(stdClass)#15 (6) {
               ["aspect"]=>
-              float(2.3684198856354)
+              float(1.8181799650192)
               ["codec"]=>
               string(4) "xvid"
               ["duration"]=>
-              int(5986)
+              int(6462)
               ["height"]=>
-              int(304)
+              int(352)
               ["stereomode"]=>
               string(0) ""
               ["width"]=>
-              int(720)
+              int(640)
               }
-              thumbnail */
+              }
+              }
+             */
         }
     }
 
@@ -911,8 +1015,6 @@ class KodiDevicePlayer extends KodiBase
         if (is_null($ret))
             return null;
         return $ret->item;
-
-//        var_dump($ret);
     }
 
     public function Play()
