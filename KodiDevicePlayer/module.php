@@ -256,7 +256,7 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableString("genre", "Genre", "", 21);
         $this->RegisterVariableInteger("Status", "Status", "Status." . $this->InstanceID . ".Kodi", 3);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("_speed", "Geschwindigkeit", "Speed.Kodi", 10);
+        $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
         $this->RegisterVariableInteger("year", "Jahr", "", 19);
         $this->RegisterVariableString("type", "Typ", "", 20);
         $this->RegisterVariableString("duration", "Dauer", "", 24);
@@ -509,9 +509,9 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "canchangespeed":
                             if ((bool) $value)
-                                $this->EnableAction('_speed');
+                                $this->EnableAction('speed');
                             else
-                                $this->DisableAction('_speed');
+                                $this->DisableAction('speed');
                             break;
                         default:
                             IPS_LogMessage($param, print_r($value, true));
@@ -636,7 +636,7 @@ class KodiDevicePlayer extends KodiBase
                 return $this->SetShuffle($Value);
             case "repeat":
                 return $this->SetRepeat($Value);
-            case "_speed":
+            case "speed":
                 return $this->SetSpeed($Value);
             case "partymode":
                 return $this->SetPartymode($Value);
@@ -1226,7 +1226,7 @@ class KodiDevicePlayer extends KodiBase
             return false;
         if ((int) $ret->speed == $Value)
         {
-            $this->SetValueInteger("_speed", $Value);
+            $this->SetValueInteger("speed", $Value);
             return true;
         }
         else
