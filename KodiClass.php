@@ -162,8 +162,8 @@ class KodiBase extends IPSModule
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $this->RegisterVariableString("ReplyJSONData", "ReplyJSONData", "", -3);
-        IPS_SetHidden($this->GetIDForIdent('ReplyJSONData'), true);
+        $this->RegisterVariableString("_ReplyJSONData", "ReplyJSONData", "", -3);
+        IPS_SetHidden($this->GetIDForIdent('_ReplyJSONData'), true);
 
         if (IPS_GetKernelRunlevel() == KR_READY)
             if ($this->HasActiveParent())
@@ -255,7 +255,7 @@ class KodiBase extends IPSModule
 
         if (property_exists($Data, 'Id')) //Reply
         {
-            $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
+            $ReplyJSONDataID = $this->GetIDForIdent('_ReplyJSONData');
             if (!$this->lock('ReplyJSONData'))
                 throw new Exception('ReplyJSONData is locked', E_USER_NOTICE);
             SetValueString($ReplyJSONDataID, $JSONString);
@@ -307,7 +307,7 @@ class KodiBase extends IPSModule
             if (!$this->HasActiveParent())
                 throw new Exception('Intance has no active parent.', E_USER_NOTICE);
 
-            $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
+            $ReplyJSONDataID = $this->GetIDForIdent('_ReplyJSONData');
 
             if (!$this->lock('RequestSendData'))
                 throw new Exception('RequestSendData is locked', E_USER_NOTICE);
@@ -379,13 +379,14 @@ class KodiBase extends IPSModule
         $id = $this->GetIDForIdent($Ident);
         if (GetValueInteger($id) <> $value)
         {
-            if ($Ident <> "speed")
+            if ($Ident[0]<>"_")
             {
                 if (($value == -1) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
                 if (($value <> -1) and ( IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, false);
             }
+        
             SetValueInteger($id, $value);
             return true;
         }
@@ -397,10 +398,13 @@ class KodiBase extends IPSModule
         $id = $this->GetIDForIdent($Ident);
         if (GetValueString($id) <> $value)
         {
+            if ($Ident[0]<>"_")
+            {
                 if (($value == "") and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
                 if (($value <> "") and ( IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, false);
+            }
             SetValueString($id, $value);
             return true;
         }
@@ -409,7 +413,7 @@ class KodiBase extends IPSModule
 
     private function WaitForResponse($Id)
     {
-        $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
+        $ReplyJSONDataID = $this->GetIDForIdent('_ReplyJSONData');
         for ($i = 0; $i < 1000; $i++)
         {
             if (GetValueString($ReplyJSONDataID) === '')

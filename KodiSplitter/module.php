@@ -272,7 +272,7 @@ class KodiSplitter extends IPSModule
         $ch = curl_init();
         $timeout = 1; // 0 wenn kein Timeout
         curl_setopt($ch, CURLOPT_URL, $CoverURL);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         $CoverRAW = curl_exec($ch);
         curl_close($ch);

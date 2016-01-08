@@ -142,8 +142,8 @@ class KodiDevicePlayer extends KodiBase
     public function ApplyChanges()
     {
         $this->Init();
-        $this->RegisterVariableBoolean("isactive", "isplayeractive", "", -5);
-        IPS_SetHidden($this->GetIDForIdent('isactive'), true);
+        $this->RegisterVariableBoolean("_isactive", "isplayeractive", "", -5);
+        IPS_SetHidden($this->GetIDForIdent('_isactive'), true);
         
         $this->RegisterProfileIntegerEx("Repeat.Kodi", "", "", "", Array(
             //Array(0, "Prev", "", -1),
@@ -256,7 +256,7 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableString("genre", "Genre", "", 21);
         $this->RegisterVariableInteger("Status", "Status", "Status." . $this->InstanceID . ".Kodi", 3);
         $this->EnableAction("Status");
-        $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
+        $this->RegisterVariableInteger("_speed", "Geschwindigkeit", "Speed.Kodi", 10);
         $this->RegisterVariableInteger("year", "Jahr", "", 19);
         $this->RegisterVariableString("type", "Typ", "", 20);
         $this->RegisterVariableString("duration", "Dauer", "", 24);
@@ -281,7 +281,7 @@ class KodiDevicePlayer extends KodiBase
         if (is_null($this->PlayerId))
             $this->PlayerId = $this->ReadPropertyInteger('PlayerID');
         if (is_null($this->isActive))
-            $this->isActive = GetValueBoolean($this->GetIDForIdent('isactive'));
+            $this->isActive = GetValueBoolean($this->GetIDForIdent('_isactive'));
     }
 
     private function getActivePlayer()
@@ -509,9 +509,9 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         case "canchangespeed":
                             if ((bool) $value)
-                                $this->EnableAction('speed');
+                                $this->EnableAction('_speed');
                             else
-                                $this->DisableAction('speed');
+                                $this->DisableAction('_speed');
                             break;
                         default:
                             IPS_LogMessage($param, print_r($value, true));
@@ -636,7 +636,7 @@ class KodiDevicePlayer extends KodiBase
                 return $this->SetShuffle($Value);
             case "repeat":
                 return $this->SetRepeat($Value);
-            case "speed":
+            case "_speed":
                 return $this->SetSpeed($Value);
             case "partymode":
                 return $this->SetPartymode($Value);
@@ -1226,7 +1226,7 @@ class KodiDevicePlayer extends KodiBase
             return false;
         if ((int) $ret->speed == $Value)
         {
-            $this->SetValueInteger("speed", $Value);
+            $this->SetValueInteger("_speed", $Value);
             return true;
         }
         else

@@ -23,12 +23,12 @@ class KodiDeviceGUI extends KodiBase
     {
 
         $this->RegisterVariableString("currentwindow", "Aktuelles Fenster", "", 0);
-        $this->RegisterVariableInteger("currentwindowid", "Aktuelles Fenster (id)", "", 0);
-        IPS_SetHidden($this->GetIDForIdent('currentwindowid'), true);
+        $this->RegisterVariableInteger("_currentwindowid", "Aktuelles Fenster (id)", "", 0);
+        IPS_SetHidden($this->GetIDForIdent('_currentwindowid'), true);
         $this->RegisterVariableString("currentcontrol", "Aktuelles Control", "", 1);
         $this->RegisterVariableString("skin", "Aktuelles Skin", "", 2);
-        $this->RegisterVariableString("skinid", "Aktuelles Skin (id)", "", 2);
-        IPS_SetHidden($this->GetIDForIdent('skinid'), true);
+        $this->RegisterVariableString("_skinid", "Aktuelles Skin (id)", "", 2);
+        IPS_SetHidden($this->GetIDForIdent('_skinid'), true);
         $this->RegisterVariableBoolean("fullscreen", "Vollbild", "~Switch", 3);
         $this->EnableAction("fullscreen");
         $this->RegisterVariableBoolean("screensaver", "Bildschirmschoner", "~Switch", 4);

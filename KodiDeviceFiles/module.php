@@ -191,8 +191,8 @@ class KodiDeviceFiles extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        $Sources = array();
+        return json_decode(json_encode($ret->sources), true);
+/*        $Sources = array();
         foreach ($ret->sources as $source)
         {
             $Sources[$source->label] = $source->file;
@@ -201,14 +201,14 @@ class KodiDeviceFiles extends KodiBase
         if (count($Sources) == 0)
             return false;
 
-        return $Sources;
+        return $Sources;*/
     }
 
     public function GetFileDetails(string $File, string $Media)
     {
-        if (!is_string($Value))
+        if (!is_string($File))
         {
-            trigger_error('Value must be string', E_USER_NOTICE);
+            trigger_error('File must be string', E_USER_NOTICE);
             return false;
         }
         if (!is_string($Media))
@@ -229,16 +229,51 @@ class KodiDeviceFiles extends KodiBase
         if (is_null($ret))
             return false;
 
-        return json_decode(json_encode($ret), true);
+        return json_decode(json_encode($ret->filedetails), true);
     }
 
     public function GetDirectory(string $Directory)
     {
-        
+      if (!is_string($Directory))
+        {
+            trigger_error('Directory must be string', E_USER_NOTICE);
+            return false;
+        }
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetDirectory', array("directory" => $Directory));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->files), true);
+           
     }
 
     public function GetDirectoryDetails(string $Directory, string $Media)
     {
+        if (!is_string($Directory))
+        {
+            trigger_error('Directory must be string', E_USER_NOTICE);
+            return false;
+        }
+        if (!is_string($Media))
+        {
+            trigger_error('Media must be string', E_USER_NOTICE);
+            return false;
+        }
+
+        $Media = strtolower($Media);
+        if (!in_array($Media, array("video", "music", "pictures", "files", "programs")))
+        {
+            trigger_error('Media must be "video", "music", "pictures", "files" or "programs".', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetDirectory', array("directory" => $Directory, "media" => $Media, "properties" => static::$ItemListSmall));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->files), true);
         
     }
 
