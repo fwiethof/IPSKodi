@@ -294,14 +294,14 @@ class KodiDevicePlayer extends KodiBase
         else
             $this->isActive = ((int) $ret[0]->playerid == $this->PlayerId);
 
-        $this->SetValueBoolean('isactive', $this->isActive);
+        $this->SetValueBoolean('_isactive', $this->isActive);
         return (bool) $this->isActive;
     }
 
     private function setActivePlayer(boolean $isActive)
     {
         $this->isActive = $isActive;
-        $this->SetValueBoolean('isactive', $isActive);
+        $this->SetValueBoolean('_isactive', $isActive);
     }
 
     protected function RequestProperties(array $Params)
