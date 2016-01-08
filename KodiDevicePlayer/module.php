@@ -523,6 +523,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetTimerInterval('PlayerStatus', 0);
                 $this->SetValueInteger('Status', 1);
                 $this->SetValueString('duration', '');
+                $this->SetValueString('totaltime', '');                
                 $this->SetValueString('time', '');
                 $this->SetValueInteger('percentage', 0);
                 $this->setActivePlayer(false);

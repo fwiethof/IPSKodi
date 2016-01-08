@@ -379,7 +379,7 @@ class KodiBase extends IPSModule
         $id = $this->GetIDForIdent($Ident);
         if (GetValueInteger($id) <> $value)
         {
-            if (($Ident[0]<>"_") or ($Ident <> "speed"))
+            if (!(($Ident[0]=="_") or ($Ident == "speed") or ($Ident == "repeat")))
             {
                 if (($value == -1) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
