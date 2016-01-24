@@ -1,11 +1,39 @@
 <?
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
 
+/**
+ * KodiDeviceGUI Klasse für den Namespace GUI der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDeviceGUI extends KodiBase
 {
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     *  @var string
+     * @value 'Application'
+     */
     static $Namespace = 'GUI';
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
     static $Properties = array(
         "currentwindow",
         "currentcontrol",
@@ -14,11 +42,21 @@ class KodiDeviceGUI extends KodiBase
         "stereoscopicmode"
     );
 
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
     public function Create()
     {
         parent::Create();
     }
 
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
     public function ApplyChanges()
     {
 
@@ -37,6 +75,13 @@ class KodiDeviceGUI extends KodiBase
     }
 
 ################## PRIVATE     
+    /**
+     * Dekodiert die empfangenen Events und Anworten auf 'GetProperties'.
+     * 
+     * @access protected
+     * @param string $Method RPC-Funktion ohne Namespace
+     * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
+     */
 
     protected function Decode($Method, $KodiPayload)
     {
@@ -74,6 +119,13 @@ class KodiDeviceGUI extends KodiBase
     }
 
 ################## ActionHandler
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
 
     public function RequestAction($Ident, $Value)
     {
@@ -90,14 +142,13 @@ class KodiDeviceGUI extends KodiBase
 
 ################## PUBLIC
     /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
+     * IPS-Instanz-Funktion 'KODIGUI_Fullscreen'.
+     * De-/Aktiviert den Vollbildmodus.
+     *
+     * @access public
+     * @param boolean $Value True für Vollbild aktiv, False bei inaktiv.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
-        return parent::RawSend($Namespace, $Method, $Params);
-    }
 
     public function Fullscreen(boolean $Value)
     {
@@ -115,6 +166,17 @@ class KodiDeviceGUI extends KodiBase
         return $ret === $Value;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIGUI_ShowNotification'.
+     * Erzeugt eine Benachrichtigung
+     *
+     * @access public
+     * @param string $Title
+     * @param string $Message
+     * @param string $Image
+     * @param integer $Timeout
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function ShowNotification(string $Title, string $Message, string $Image, integer $Timeout)
     {
         if (!is_string($Title))
@@ -148,6 +210,14 @@ class KodiDeviceGUI extends KodiBase
         return $ret === $Title;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIGUI_ActivateWindow'.
+     * Aktiviert ein Fenster
+     *
+     * @access public
+     * @param string $Window Das zu aktivierende Fenster
+     * @return boolean true bei Erfolg, sonst false.
+     */
     public function ActivateWindow(string $Window)
     {
         if (!is_string($Window))
@@ -163,28 +233,36 @@ class KodiDeviceGUI extends KodiBase
         return $ret === $Window;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIGUI_RequestState'. Frage eine oder mehrere Properties ab.
+     *
+     * @access public
+     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function RequestState(string $Ident)
     {
         return parent::RequestState($Ident);
     }
 
- ################# Datapoints
+    ################# Datapoints
 
-    public function ReceiveData($JSONString)
-    {
-        return parent::ReceiveData($JSONString);
-    }
-/*
-    protected function Send(Kodi_RPC_Data $KodiData)
-    {
-        return parent::Send($KodiData);
-    }
+    /*    public function ReceiveData($JSONString)
+      {
+      return parent::ReceiveData($JSONString);
+      } */
+    /*
+      protected function Send(Kodi_RPC_Data $KodiData)
+      {
+      return parent::Send($KodiData);
+      }
 
-    protected function SendDataToParent($Data)
-    {
-        return parent::SendDataToParent($Data);
-    }
-*/
+      protected function SendDataToParent($Data)
+      {
+      return parent::SendDataToParent($Data);
+      }
+     */
 }
 
+/** @} */
 ?>

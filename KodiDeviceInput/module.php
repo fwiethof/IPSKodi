@@ -1,12 +1,47 @@
 <?
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
 
+/**
+ * KodiDeviceInput Klasse für den Namespace Input der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDeviceInput extends KodiBase
 {
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     * @var string
+     * @value 'Application'
+     */
     static $Namespace = 'Input';
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     * @var array 
+     */
     static $Properties = array();
+
+    /**
+     * Alle Aktionen der RPC-Methode ExecuteAction
+     * 
+     * @access private
+     * @var array 
+     */
     static $ExecuteAction = array("left",
         "right",
         "up",
@@ -211,22 +246,32 @@ class KodiDeviceInput extends KodiBase
         "noop"
     );
 
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
     public function Create()
     {
         parent::Create();
     }
 
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
     public function ApplyChanges()
     {
         // Variablen und Profile für Aktionen fehlen.
         // Events fehlen
-  /*      7.3 Input
+        /*      7.3 Input
 
-    7.3.1 Input.OnInputFinished
-    7.3.2 Input.OnInputRequested
+          7.3.1 Input.OnInputFinished
+          7.3.2 Input.OnInputRequested
 
-*/
-        
+         */
+
 //        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
 //            Array(0, "Ausführen", "", -1)
 //        ));
@@ -243,13 +288,28 @@ class KodiDeviceInput extends KodiBase
     }
 
 ################## PRIVATE     
+    /**
+     * Dekodiert die empfangenen Events und Anworten auf 'GetProperties'.
+     * 
+     * @access protected
+     * @param string $Method RPC-Funktion ohne Namespace
+     * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
+     */
 
     protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
+        //OnInputRequested
+        //OnInputFinished
+        switch ($Method)
         {
-            switch ($param)
-            {
+            case 'GetProperties':
+                break;
+        }
+
+//        foreach ($KodiPayload as $param => $value)
+//        {
+//            switch ($param)
+//            {
 //                case "mute":
 //                case "muted":
 //                    $this->SetValueBoolean("mute", $value);
@@ -263,11 +323,18 @@ class KodiDeviceInput extends KodiBase
 //                case "version":
 //                    $this->SetValueString("version", $value->major . '.' . $value->minor);
 //                    break;
-            }
-        }
+//            }
+//        }
     }
 
 ################## ActionHandler
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
 
     public function RequestAction($Ident, $Value)
     {
@@ -286,14 +353,11 @@ class KodiDeviceInput extends KodiBase
 
 ################## PUBLIC
     /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
+     * IPS-Instanz-Funktion 'KODIINPUT_Up'. Tastendruck 'Hoch' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
-        return parent::RawSend($Namespace, $Method, $Params);
-    }
 
     public function Up()
     {
@@ -304,6 +368,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Down'. Tastendruck 'Runter' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Down()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Down');
@@ -313,6 +383,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Left'. Tastendruck 'Links' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Left()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Left');
@@ -322,6 +398,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Right'. Tastendruck 'Rechts' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Right()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Right');
@@ -331,6 +413,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Back'. Tastendruck 'Zurück' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Back()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Back');
@@ -340,6 +428,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_ContextMenu'. Tastendruck 'ContextMenu' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function ContextMenu()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'ContextMenu');
@@ -349,6 +443,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Home'. Tastendruck 'Home' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Home()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Home');
@@ -358,6 +458,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Info'. Tastendruck 'Info' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Info()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Info');
@@ -367,6 +473,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_Select'. Tastendruck 'Select' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function Select()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Select');
@@ -376,6 +488,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_ShowOSD'. Tastendruck 'ShowOSD' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function ShowOSD()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'ShowOSD');
@@ -385,6 +503,12 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_ShowCodec'. Tastendruck 'ShowCodec' ausführen.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function ShowCodec()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace, 'ShowCodec');
@@ -394,6 +518,13 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_ExecuteAction'. Als Parameter übergebenen Tastendruck ausführen.
+     *
+     * @access public
+     * @param string $Action Auszuführende Aktion.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function ExecuteAction(string $Action)
     {
         if (!is_string($Action))
@@ -414,6 +545,14 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_SendText'. Als Parameter übergebenen Text senden.
+     *
+     * @access public
+     * @param string $Text Der zu sendene Text.
+     * @param boolean $Done True wenn die Eingabe beendet werden soll, sonst false.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function SendText(string $Text, boolean $Done)
     {
         if (!is_string($Text))
@@ -429,28 +568,36 @@ class KodiDeviceInput extends KodiBase
         return $ret === 'OK';
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIINPUT_RequestState'. Keine Funktion bei KODIINPUT.
+     *
+     * @access public
+     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
+     */
     public function RequestState(string $Ident)
     {
-
+        
     }
 
 ################## Datapoints
+    /*
+      public function ReceiveData($JSONString)
+      {
+      return parent::ReceiveData($JSONString);
+      }
+     */
+    /*
+      protected function Send(Kodi_RPC_Data $KodiData)
+      {
+      return parent::Send($KodiData);
+      }
 
-    public function ReceiveData($JSONString)
-    {
-        return parent::ReceiveData($JSONString);
-    }
-/*
-    protected function Send(Kodi_RPC_Data $KodiData)
-    {
-        return parent::Send($KodiData);
-    }
-
-    protected function SendDataToParent($Data)
-    {
-        return parent::SendDataToParent($Data);
-    }
-*/
+      protected function SendDataToParent($Data)
+      {
+      return parent::SendDataToParent($Data);
+      }
+     */
 }
 
+/** @} */
 ?>

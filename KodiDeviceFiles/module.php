@@ -2,12 +2,48 @@
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
 
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
+
+/**
+ * KodiDeviceFiles Klasse für den Namespace Application der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDeviceFiles extends KodiBase
 {
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     *  @var string
+     * @value 'Files'
+     */
     static $Namespace = 'Files';
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
     static $Properties = array(
     );
+
+    /**
+     * Alle Properties eines Item
+     * 
+     * @access private
+     *  @var array 
+     */
     static $ItemListFull = array(
         "title",
         "artist",
@@ -77,6 +113,13 @@ class KodiDeviceFiles extends KodiBase
         "size",
         "lastmodified",
         "mimetype");
+
+    /**
+     * Kleiner Teil der Properties eines Item
+     * 
+     * @access private
+     *  @var array 
+     */
     static $ItemListSmall = array(
         "title",
         "artist",
@@ -97,80 +140,63 @@ class KodiDeviceFiles extends KodiBase
         "albumlabel",
     );
 
-    public function Create()
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
+    /*public function Create()
     {
         parent::Create();
-    }
+    }*/
 
-    public function ApplyChanges()
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
+  /*  public function ApplyChanges()
     {
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
-        //Never delete this line!
         parent::ApplyChanges();
     }
-
+*/
 ################## PRIVATE     
 
+    /**
+     * Keine Funktion.
+     * 
+     * @access protected
+     * @param string $Method RPC-Funktion ohne Namespace
+     * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
+     */
     protected function Decode($Method, $KodiPayload)
     {
         return;
-//        foreach ($KodiPayload as $param => $value)
-//        {
-//            switch ($param)
-//            {
-//                case "mute":
-//                case "muted":
-//                    $this->SetValueBoolean("mute", $value);
-//                    break;
-//                case "volume":
-//                    $this->SetValueInteger("volume", $value);
-//                    break;
-//                case "name":
-//                    $this->SetValueString("name", $value);
-//                    break;
-//                case "version":
-//                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-//                    break;
-//            }
-//        }
     }
 
 ################## ActionHandler
 
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
     public function RequestAction($Ident, $Value)
     {
-        switch ($Ident)
-        {
-//            case "mute":
-//                return $this->Mute($Value);
-//            case "volume":
-//                return $this->Volume($Value);
-//            case "quit":
-//                return $this->Quit();
-//            default:
-//                return trigger_error('Invalid Ident.', E_USER_NOTICE);
-        }
+        
     }
 
 ################## PUBLIC
     /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
+     * IPS-Instanz-Funktion 'KODIFILES_GetSources'. Liefert alle bekannten Quellen nach Typ.
+     * 
+     * @access public
+     * @param string $Value Der Typ der zu suchenden Quellen.
+     *   enum["video"=Video, "music"=Musik, "pictures"=Bilder, "files"=Dateien, "programs"=Programme]
+     * @return array|boolean Array mit den Quellen oder false bei Fehler.
      */
-    /*    public function RawSend(string $Namespace, string $Method, $Params)
-      {
-      return  parent::RawSend($Namespace, $Method, $Params);
-      } */
 
     public function GetSources(string $Value)
     {
@@ -187,23 +213,23 @@ class KodiDeviceFiles extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetSources', array("media" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetSources', array("media" => $Value));
+        $KodiData->GetSources(array("media" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->sources), true);
-/*        $Sources = array();
-        foreach ($ret->sources as $source)
-        {
-            $Sources[$source->label] = $source->file;
-        }
-
-        if (count($Sources) == 0)
-            return false;
-
-        return $Sources;*/
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIFILES_GetFileDetails'. Liefert alle Details einer Datei.
+     * 
+     * @access public
+     * @param string $File Dateipfad und Name der gesuchten Datei.
+     * @param string $Media Der Typ der Datei gibt die zu suchenden Eigenschaften an.
+     *   enum["video"=Video, "music"=Musik, "pictures"=Bilder, "files"=Dateien, "programs"=Programme]
+     * @return array|boolean Array mit den Quellen oder false bei Fehler.
+     */
     public function GetFileDetails(string $File, string $Media)
     {
         if (!is_string($File))
@@ -224,7 +250,8 @@ class KodiDeviceFiles extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData->GetFileDetails(array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -232,22 +259,38 @@ class KodiDeviceFiles extends KodiBase
         return json_decode(json_encode($ret->filedetails), true);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIFILES_GetDirectory'. Liefert Informationen zu einem Verzeichnis.
+     * 
+     * @access public
+     * @param string $Directory Verzeichnis welches durchsucht werden soll.
+     * @return array|boolean Array mit den Quellen oder false bei Fehler.
+     */
     public function GetDirectory(string $Directory)
     {
-      if (!is_string($Directory))
+        if (!is_string($Directory))
         {
             trigger_error('Directory must be string', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetDirectory', array("directory" => $Directory));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace); // 'GetDirectory', array("directory" => $Directory));
+        $KodiData->GetDirectory(array("directory" => $Directory));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
 
         return json_decode(json_encode($ret->files), true);
-           
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIFILES_GetDirectoryDetails'. Liefert alle Details eines Verzeichnisses.
+     * 
+     * @access public
+     * @param string $Directory Verzeichnis welches durchsucht werden soll.
+     * @param string $Media Der Typ der Datei gibt die zu liefernden Eigenschaften an.
+     *   enum["video"=Video, "music"=Musik, "pictures"=Bilder, "files"=Dateien, "programs"=Programme]
+     * @return array|boolean Array mit den Quellen oder false bei Fehler.
+     */
     public function GetDirectoryDetails(string $Directory, string $Media)
     {
         if (!is_string($Directory))
@@ -268,85 +311,45 @@ class KodiDeviceFiles extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetDirectory', array("directory" => $Directory, "media" => $Media, "properties" => static::$ItemListSmall));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetDirectory', array("directory" => $Directory, "media" => $Media, "properties" => static::$ItemListSmall));
+        $KodiData->GetDirectory(array("directory" => $Directory, "media" => $Media, "properties" => static::$ItemListSmall));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
 
         return json_decode(json_encode($ret->files), true);
-        
     }
 
-//
-//    public function Volume(integer $Value)
-//    {
-//        if (!is_int($Value))
-//        {
-//            trigger_error('Value must be integer', E_USER_NOTICE);
-//            return false;
-//        }
-////        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace);
-//        $KodiData->SetVolume(array("volume" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueInteger("volume", $ret);
-//        return $ret['volume'] === $Value;
-//    }
-//
-//    public function Quit()
-//    {
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Quit');
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        return true;
-//    }
+    /**
+     * Ohne Funktion.
+     *
+     * @access public
+     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
+     * @return boolean true immer
+     */
+    /*    public function RequestState(string $Ident)
+      {
+      return true;
+      } */
 
-    public function RequestState(string $Ident)
-    {
-        return;  //parent::RequestState($Ident);
-    }
-
+################## Datapoints
     /*
-      public function Pause()
+      public function ReceiveData($JSONString)
       {
-
+      return parent::ReceiveData($JSONString);
       }
 
-      public function Sleep(integer $Value)
+      protected function Send(Kodi_RPC_Data $KodiData)
       {
-
+      return parent::Send($KodiData);
       }
 
-      public function Stop()
+      protected function SendDataToParent($Data)
       {
-
-      }
-
-      public function Shutdown()
-      {
-
+      return parent::SendDataToParent($Data);
       }
      */
-################## Datapoints
-
-    public function ReceiveData($JSONString)
-    {
-        return parent::ReceiveData($JSONString);
-    }
-
-    protected function Send(Kodi_RPC_Data $KodiData)
-    {
-        return parent::Send($KodiData);
-    }
-
-    protected function SendDataToParent($Data)
-    {
-        return parent::SendDataToParent($Data);
-    }
-
 }
 
+/** @} */
 ?>

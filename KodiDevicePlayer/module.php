@@ -1,15 +1,66 @@
 <?
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
 
+/**
+ * KodiDeviceApplication Klasse für den Namespace Player der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDevicePlayer extends KodiBase
 {
 
+    /**
+     * PlayerID für Audio
+     * 
+     * @access private
+     * @static integer
+     * @value 0
+     */
     const Audio = 0;
+
+    /**
+     * PlayerID für Video
+     * 
+     * @access private
+     * @static integer
+     * @value 1
+     */
     const Video = 1;
+
+    /**
+     * PlayerID für Bilder
+     * 
+     * @access private
+     * @static integer
+     * @value 2
+     */
     const Pictures = 2;
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     *  @var string
+     * @value 'Application'
+     */
     static $Namespace = array('Player', ' Playlist');
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
     static $Properties = array(
         "type",
         "partymode",
@@ -35,6 +86,13 @@ class KodiDevicePlayer extends KodiBase
         "subtitles",
         "live"
     );
+
+    /**
+     * Ein Teil der Properties des RPC-Namespace für Statusmeldungen
+     * 
+     * @access private
+     *  @var array 
+     */
     static $PartialProperties = array(
         "type",
         "partymode",
@@ -47,6 +105,13 @@ class KodiDevicePlayer extends KodiBase
         "subtitleenabled",
         "currentsubtitle"
     );
+
+    /**
+     * Alle Properties eines Item
+     * 
+     * @access private
+     *  @var array 
+     */
     static $ItemList = array(
         "title",
         "artist",
@@ -120,8 +185,29 @@ class KodiDevicePlayer extends KodiBase
         "channelnumber",
         "starttime",
         "endtime");
+
+    /**
+     * Eigene PlayerId
+     * 
+     * @access private
+     *  @var integer Kodi-Player-ID dieser Instanz 
+     */
     private $PlayerId = null;
+
+    /**
+     * Wenn dieser Player in Kodi gerade Active ist, true sonst false.
+     * 
+     * @access private
+     *  @var boolean true = aktiv, false = inaktiv, null wenn nicht bekannt.
+     */
     private $isActive = null;
+
+    /**
+     * Zuordnung der von Kodi gemeldeten Medientypen zu den PlayerIDs
+     * 
+     * @access private
+     *  @var array Key ist der Medientyp, Value die PlayerID
+     */
     static $Playertype = array(
         "song" => 0,
         "audio" => 0,
@@ -131,6 +217,11 @@ class KodiDevicePlayer extends KodiBase
         "pictures" => 2
     );
 
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
     public function Create()
     {
         parent::Create();
@@ -139,12 +230,17 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterPropertyString('CoverTyp', 'thumb');
     }
 
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
     public function ApplyChanges()
     {
         $this->Init();
         $this->RegisterVariableBoolean("_isactive", "isplayeractive", "", -5);
         IPS_SetHidden($this->GetIDForIdent('_isactive'), true);
-        
+
         $this->RegisterProfileIntegerEx("Repeat.Kodi", "", "", "", Array(
             //Array(0, "Prev", "", -1),
             Array(0, "Aus", "", -1),
@@ -252,7 +348,7 @@ class KodiDevicePlayer extends KodiBase
                 ));
                 break;
         }
-                $this->RegisterVariableString("label", "Titel", "", 14);
+        $this->RegisterVariableString("label", "Titel", "", 14);
         $this->RegisterVariableString("genre", "Genre", "", 21);
         $this->RegisterVariableInteger("Status", "Status", "Status." . $this->InstanceID . ".Kodi", 3);
         $this->EnableAction("Status");
@@ -276,6 +372,12 @@ class KodiDevicePlayer extends KodiBase
 
 ################## PRIVATE     
 
+    /**
+     * Setzt die Eigenschaften isActive und PlayerId der Instanz
+     * damit andere Funktionen Diese nutzen können
+     * 
+     * @access private
+     */
     private function Init()
     {
         if (is_null($this->PlayerId))
@@ -284,6 +386,11 @@ class KodiDevicePlayer extends KodiBase
             $this->isActive = GetValueBoolean($this->GetIDForIdent('_isactive'));
     }
 
+    /**
+     * Fragt Kodi an ob der Playertyp der Instanz gerade aktiv ist.
+     * 
+     * @return boolean true wenn Player aktiv ist, sonset false
+     */
     private function getActivePlayer()
     {
         $this->Init();
@@ -298,12 +405,25 @@ class KodiDevicePlayer extends KodiBase
         return (bool) $this->isActive;
     }
 
+    /**
+     * Setzt die Eigenschaft isActive sowie die dazugehörige IPS-Variable.
+     * 
+     * @access private
+     * @param boolean $isActive True wenn Player als aktive gesetzt werden soll, sonder false.
+     */
     private function setActivePlayer(boolean $isActive)
     {
         $this->isActive = $isActive;
         $this->SetValueBoolean('_isactive', $isActive);
     }
 
+    /**
+     * Werte der Eigenschaften anfragen.
+     * 
+     * @access protected
+     * @param array $Params Enthält den Index "properties", in welchen alle anzufragenden Eigenschaften als Array enthalten sind.
+     * @return boolean true bei erfolgreicher Ausführung und dekodierung, sonst false.
+     */
     protected function RequestProperties(array $Params)
     {
         $this->Init();
@@ -316,8 +436,16 @@ class KodiDevicePlayer extends KodiBase
         if (is_null($ret))
             return false;
         $this->Decode('GetProperties', $ret);
+        return true;
     }
 
+    /**
+     * Dekodiert die empfangenen Daten und führt die Statusvariablen nach.
+     * 
+     * @access protected
+     * @param string $Method RPC-Funktion ohne Namespace
+     * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
+     */
     protected function Decode($Method, $KodiPayload)
     {
         $this->Init();
@@ -523,7 +651,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetTimerInterval('PlayerStatus', 0);
                 $this->SetValueInteger('Status', 1);
                 $this->SetValueString('duration', '');
-                $this->SetValueString('totaltime', '');                
+                $this->SetValueString('totaltime', '');
                 $this->SetValueString('time', '');
                 $this->SetValueInteger('percentage', 0);
                 $this->setActivePlayer(false);
@@ -555,7 +683,13 @@ class KodiDevicePlayer extends KodiBase
         }
     }
 
-    private function SetCover($file)
+    /**
+     * Holt das über $flie übergebene Cover vom Kodi-Webinterface, skaliert und konvertiert dieses und speichert es in einem MedienObjekt ab.
+     * 
+     * @access private
+     * @param string $file
+     */
+    private function SetCover(string $file)
     {
 //        $Ext = pathinfo($file, PATHINFO_EXTENSION);
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
@@ -583,7 +717,7 @@ class KodiDevicePlayer extends KodiBase
 
         if (!($CoverRAW === false))
         {
-            $image = imagecreatefromstring($CoverRAW);
+            $image = @imagecreatefromstring($CoverRAW);
             if (!($image === false))
             {
                 $width = imagesx($image);
@@ -594,7 +728,7 @@ class KodiDevicePlayer extends KodiBase
                     $image = imagescale($image, $width / $factor, $height / $factor);
                 }
                 ob_start();
-                imagepng($image);
+                @imagepng($image);
                 $CoverRAW = ob_get_contents(); // read from buffer                
                 ob_end_clean(); // delete buffer                
             }
@@ -604,11 +738,17 @@ class KodiDevicePlayer extends KodiBase
             $CoverRAW = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "nocover.png");
 
         IPS_SetMediaContent($CoverID, base64_encode($CoverRAW));
-        return;
     }
 
 ################## ActionHandler
 
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
@@ -649,16 +789,19 @@ class KodiDevicePlayer extends KodiBase
     }
 
 ################## PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
+    /*
+      public function RawSend(string $Namespace, string $Method, $Params)
+      {
+      return parent::RawSend($Namespace, $Method, $Params);
+      }
      */
 
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
-        return parent::RawSend($Namespace, $Method, $Params);
-    }
-
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_GetItemInternal'.
+     * Holt sich die Daten des aktuellen wiedergegebenen Items, und bildet die Eigenschaften in IPS-Variablen ab.
+     * 
+     * @access public
+     */
     public function GetItemInternal()
     {
         $ret = $this->GetItem();
@@ -780,7 +923,7 @@ class KodiDevicePlayer extends KodiBase
                     $this->SetValueString('showtitle', $ret->showtitle);
                 else
                     $this->SetValueString('showtitle', "");
-                
+
                 $this->SetValueString('label', $ret->label);
 
                 if (property_exists($ret, 'season'))
@@ -1008,6 +1151,13 @@ class KodiDevicePlayer extends KodiBase
         }
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_GetItem'.
+     * Holt sich die Daten des aktuellen wiedergegebenen Items, und gibt die Array zurück.
+     * 
+     * @access public
+     * @return array|null Das Array mit den Eigenschaften des Item, im Fehlerfall null
+     */
     public function GetItem()
     {
         $this->Init();
@@ -1018,6 +1168,13 @@ class KodiDevicePlayer extends KodiBase
         return $ret->item;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_Play'.
+     * Startes die Wiedergabe des aktuellen Items.
+     * 
+     * @access public
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function Play()
     {
         $this->Init();
@@ -1043,6 +1200,13 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_Pause'.
+     * Pausiert die Wiedergabe des aktuellen Items.
+     * 
+     * @access public
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function Pause()
     {
         $this->Init();
@@ -1068,6 +1232,13 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_Stop'.
+     * Stoppt die Wiedergabe des aktuellen Items.
+     * 
+     * @access public
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function Stop()
     {
         $this->Init();
@@ -1092,6 +1263,13 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_Next'.
+     * Springt zum nächsten Item in der Wiedergabeliste.
+     * 
+     * @access public
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function Next()
     {
         $this->Init();
@@ -1110,6 +1288,13 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_Previous'.
+     * Springt zum vorherigen Item in der Wiedergabeliste.
+     * 
+     * @access public
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function Previous()
     {
         $this->Init();
@@ -1128,6 +1313,14 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_GoToTrack'.
+     * Springt auf ein bestimmtes Item in der Wiedergabeliste.
+     * 
+     * @access public
+     * @param integer $Value Index in der Wiedergabeliste.
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function GoToTrack(integer $Value)
     {
         $this->Init();
@@ -1146,6 +1339,14 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_SetShuffle'.
+     * Setzt den Zufallsmodus.
+     * 
+     * @access public
+     * @param boolean $Value True für Zufallswiedergabe aktiv, false für deaktiv.
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function SetShuffle(boolean $Value)
     {
         $this->Init();
@@ -1166,6 +1367,15 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_SetRepeat'.
+     * Setzten den Wiederholungsmodus.
+     * 
+     * @access public
+     * @param integer $Value Modus der Wiederholung.
+     *   enum[0=aus, 1=Titel, 2=Alle]
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function SetRepeat(integer $Value)
     {
         $this->Init();
@@ -1186,7 +1396,14 @@ class KodiDevicePlayer extends KodiBase
 
         return false;
     }
-
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_SetPartymode'.
+     * Setzt den Partymodus.
+     * 
+     * @access public
+     * @param boolean $Value True für Partymodus aktiv, false für deaktiv.
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function SetPartymode(boolean $Value)
     {
         $this->Init();
@@ -1206,7 +1423,15 @@ class KodiDevicePlayer extends KodiBase
 
         return false;
     }
-
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_SetSpeed'.
+     * Setzten die Abspielgeschwindigkeit.
+     * 
+     * @access public
+     * @param integer $Value Geschwindigkeit.
+     *   enum[-32, -16, -8, -4, -2, 0, 1, 2, 4, 8, 16, 32]
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function SetSpeed(integer $Value)
     {
         $this->Init();
@@ -1236,7 +1461,14 @@ class KodiDevicePlayer extends KodiBase
         }
         return false;
     }
-
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_SetPosition'.
+     * Springt auf eine absolute Position innerhalb einer Wiedergabe.
+     * 
+     * @access public
+     * @param integer $Value Position in....
+     * @return boolean True bei Erfolg, sonst false.
+     */
     public function SetPosition(integer $Value)
     {
         $this->Init();
@@ -1278,30 +1510,26 @@ class KodiDevicePlayer extends KodiBase
 //        return true;
 //    }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIPLAYER_RequestState'. Frage eine oder mehrere Properties ab.
+     *
+     * @access public
+     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
+    /*
     public function RequestState(string $Ident)
     {
         return parent::RequestState($Ident);
     }
-
-    /*
-      public function Pause()
-      {
-
-      }
-
-      public function Stop()
-      {
-
-      }
-
-     */
+*/
 ################## Datapoints
-
+/*
     public function ReceiveData($JSONString)
     {
         return parent::ReceiveData($JSONString);
     }
-
+    */
     /*
       protected function Send(Kodi_RPC_Data $KodiData)
       {
@@ -1315,4 +1543,5 @@ class KodiDevicePlayer extends KodiBase
      */
 }
 
+/** @} */
 ?>

@@ -83,10 +83,10 @@ protected function Decode($Method, $KodiPayload)
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
 
-    public function RawSend(string $Namespace, string $Method, $Params)
+/*    public function RawSend(string $Namespace, string $Method, $Params)
     {
         return parent::RawSend($Namespace, $Method, $Params);
-    }
+    }*/
 /*
     public function Mute(boolean $Value)
     {
@@ -136,10 +136,10 @@ protected function Decode($Method, $KodiPayload)
 
 ################## Datapoints
 
-    public function ReceiveData($JSONString)
+    /*public function ReceiveData($JSONString)
     {
         return parent::ReceiveData($JSONString);
-    }
+    }*/
 /*
     protected function Send(Kodi_RPC_Data $KodiData)
     {

@@ -1,6 +1,18 @@
 {
     "elements":
-            [
+            [{
+                    "name": "showName",
+                    "type": "CheckBox",
+                    "caption": "Variable für Version anlegen"
+                }, {
+                    "name": "showVersion",
+                    "type": "CheckBox",
+                    "caption": "Variable für Version anlegen"
+                }, {
+                    "name": "showExit",
+                    "type": "CheckBox",
+                    "caption": "Aktions-Variable für beenden anlegen"
+                }
             ],
     "actions":
             [

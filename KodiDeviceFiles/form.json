@@ -4,10 +4,5 @@
             ],
     "actions":
             [
-                {
-                    "type": "Button",
-                    "label": "Request State",
-                    "onClick": "KODIFILES_RequestState($id,'ALL');"
-                }
             ]
 }
