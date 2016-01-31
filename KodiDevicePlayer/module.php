@@ -697,7 +697,6 @@ class KodiDevicePlayer extends KodiBase
     {
 //        $Ext = pathinfo($file, PATHINFO_EXTENSION);
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
-        $filename = "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png";
         $Size = $this->ReadPropertyString("CoverSize");
         if ($CoverID === false)
         {
@@ -707,6 +706,7 @@ class KodiDevicePlayer extends KodiBase
             IPS_SetName($CoverID, 'Cover');
             IPS_SetPosition($CoverID, 27);
             IPS_SetMediaCached($CoverID, true);
+            $filename = "media" . DIRECTORY_SEPARATOR . "Cover_" . $this->InstanceID . ".png";
             IPS_SetMediaFile($CoverID, $filename, False);
         }
 
@@ -918,6 +918,7 @@ class KodiDevicePlayer extends KodiBase
                                 break;
                             }
                         }
+                        $this->SetCover("");
                         break;
                 }
 
