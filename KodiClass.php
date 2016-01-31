@@ -480,11 +480,11 @@ abstract class KodiBase extends IPSModule
             return false;
         if (GetValueInteger($id) <> $value)
         {
-            if (!(($Ident[0] == "_") or ( $Ident == "speed") or ( $Ident == "repeat")))
+            if (!(($Ident[0] == "_") or ( $Ident == "speed") or ( $Ident == "repeat") or (IPS_GetVariable($id)["VariableAction"] <> 0)))
             {
-                if (($value == -1) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
+                if (($value == 0) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
-                if (($value <> -1) and ( IPS_GetObject($id)["ObjectIsHidden"]))
+                if (($value <> 0) and ( IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, false);
             }
 

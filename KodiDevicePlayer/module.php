@@ -361,7 +361,7 @@ class KodiDevicePlayer extends KodiBase
 
         parent::ApplyChanges();
 
-        
+
         $this->getActivePlayer();
 
 
@@ -596,7 +596,10 @@ class KodiDevicePlayer extends KodiBase
                             break;
                         //integer
                         case "speed":
-                            $this->SetValueInteger('Status', 2);
+                            if ((int) $value == 0)
+                                $this->SetValueInteger('Status', 3);
+                            else
+                                $this->SetValueInteger('Status', 2);
                         case "percentage":
                             $this->SetValueInteger($param, (int) $value);
                             break;
@@ -1397,6 +1400,7 @@ class KodiDevicePlayer extends KodiBase
 
         return false;
     }
+
     /**
      * IPS-Instanz-Funktion 'KODIPLAYER_SetPartymode'.
      * Setzt den Partymodus.
@@ -1424,6 +1428,7 @@ class KodiDevicePlayer extends KodiBase
 
         return false;
     }
+
     /**
      * IPS-Instanz-Funktion 'KODIPLAYER_SetSpeed'.
      * Setzten die Abspielgeschwindigkeit.
@@ -1462,6 +1467,7 @@ class KodiDevicePlayer extends KodiBase
         }
         return false;
     }
+
     /**
      * IPS-Instanz-Funktion 'KODIPLAYER_SetPosition'.
      * Springt auf eine absolute Position innerhalb einer Wiedergabe.
@@ -1519,18 +1525,18 @@ class KodiDevicePlayer extends KodiBase
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
     /*
-    public function RequestState(string $Ident)
-    {
-        return parent::RequestState($Ident);
-    }
-*/
+      public function RequestState(string $Ident)
+      {
+      return parent::RequestState($Ident);
+      }
+     */
 ################## Datapoints
-/*
-    public function ReceiveData($JSONString)
-    {
-        return parent::ReceiveData($JSONString);
-    }
-    */
+    /*
+      public function ReceiveData($JSONString)
+      {
+      return parent::ReceiveData($JSONString);
+      }
+     */
     /*
       protected function Send(Kodi_RPC_Data $KodiData)
       {
