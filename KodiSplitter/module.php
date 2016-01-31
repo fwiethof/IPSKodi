@@ -648,7 +648,7 @@ class KodiSplitter extends IPSModule
      * @param string $ModuleID Die GUID des benötigten Parent.
      * @param string $Name Der Name des Parent, wenn dieser neu angelegt wird.
      */
-    protected function RequireParent(string $ModuleID, string $Name = null)
+    protected function RequireParent($ModuleID,$Name)
     {
 
         $instance = IPS_GetInstance($this->InstanceID);
@@ -657,10 +657,10 @@ class KodiSplitter extends IPSModule
 
             $parentID = IPS_CreateInstance($ModuleID);
             $instance = IPS_GetInstance($parentID);
-            if ((!is_null($Name)) && ($Name <> ''))
-                IPS_SetName($parentID, $Name);
-            else
+            if ($Name == '')
                 IPS_SetName($parentID, $instance['ModuleInfo']['ModuleName']);
+            else
+                IPS_SetName($parentID, $Name);
             IPS_ConnectInstance($this->InstanceID, $parentID);
         }
     }
