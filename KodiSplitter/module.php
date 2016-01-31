@@ -180,7 +180,7 @@ class KodiSplitter extends IPSModule
 
                         $this->SendPowerEvent(true);
                         $WatchdogTimer = 0;
-                        $this->SetTimerInterval("KeepAlive", 60);
+                        $this->SetTimerInterval("KeepAlive", 60 * 1000);
 
                         $InstanceIDs = IPS_GetInstanceList();
                         foreach ($InstanceIDs as $IID)
@@ -262,7 +262,7 @@ class KodiSplitter extends IPSModule
             {
                 //IPS_LogMessage('Kodi', '33');
 
-                $this->SetTimerInterval("Watchdog", $WatchdogTimer);
+                $this->SetTimerInterval("Watchdog", $WatchdogTimer * 1000);
             }
             else
             {
@@ -359,7 +359,7 @@ class KodiSplitter extends IPSModule
                 $this->SendPowerEvent(false);
                 $this->SetStatus(203);
                 $WatchdogTimer = $this->ReadPropertyInteger('Interval');
-                $this->SetTimerInterval("Watchdog", $WatchdogTimer);
+                $this->SetTimerInterval("Watchdog", $WatchdogTimer * 1000);
                 return;
             }
             $Parent = IPS_GetInstance($ParentID);
@@ -612,6 +612,11 @@ class KodiSplitter extends IPSModule
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
+    /**
+     * Liefert den Parent der Instanz.
+     * 
+     * @return integer|boolean InstanzID des Parent, false wenn kein Parent vorhanden.
+     */
 
     protected function GetParent()
     {
@@ -619,6 +624,11 @@ class KodiSplitter extends IPSModule
         return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
     }
 
+    /**
+     * Prüft den Parent auf vorhandensein und Status.
+     * 
+     * @return boolean True wenn Parent vorhanden und in Status 102, sonst false.
+     */
     protected function HasActiveParent()
     {
 //        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
@@ -632,7 +642,13 @@ class KodiSplitter extends IPSModule
         return false;
     }
 
-    protected function RequireParent($ModuleID, $Name = '')
+    /**
+     * Erzeugt einen neuen Parent, wenn keiner vorhanden ist.
+     * 
+     * @param string $ModuleID Die GUID des benötigten Parent.
+     * @param string $Name Der Name des Parent, wenn dieser neu angelegt wird.
+     */
+    protected function RequireParent(string $ModuleID, string $Name = '')
     {
 
         $instance = IPS_GetInstance($this->InstanceID);
@@ -649,44 +665,51 @@ class KodiSplitter extends IPSModule
         }
     }
 
-    protected function RegisterTimer($Name, $Interval, $Script)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id === false)
-            $id = 0;
-        if ($id > 0)
-        {
-            if (!IPS_EventExists($id))
-                throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_NOTICE);
+    /*
+      protected function RegisterTimer($Name, $Interval, $Script)
+      {
+      $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+      if ($id === false)
+      $id = 0;
+      if ($id > 0)
+      {
+      if (!IPS_EventExists($id))
+      throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_NOTICE);
 
-            if (IPS_GetEvent($id)['EventType'] <> 1)
-            {
-                IPS_DeleteEvent($id);
-                $id = 0;
-            }
-        }
-        if ($id == 0)
-        {
-            $id = IPS_CreateEvent(1);
-            IPS_SetParent($id, $this->InstanceID);
-            IPS_SetIdent($id, $Name);
-            if ($Interval > 0)
-            {
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-                IPS_SetEventActive($id, true);
-            }
-            else
-            {
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
-                IPS_SetEventActive($id, false);
-            }
-        }
-        IPS_SetName($id, $Name);
-        IPS_SetHidden($id, true);
-        IPS_SetEventScript($id, $Script);
-    }
+      if (IPS_GetEvent($id)['EventType'] <> 1)
+      {
+      IPS_DeleteEvent($id);
+      $id = 0;
+      }
+      }
+      if ($id == 0)
+      {
+      $id = IPS_CreateEvent(1);
+      IPS_SetParent($id, $this->InstanceID);
+      IPS_SetIdent($id, $Name);
+      if ($Interval > 0)
+      {
+      IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+      IPS_SetEventActive($id, true);
+      }
+      else
+      {
+      IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
+      IPS_SetEventActive($id, false);
+      }
+      }
+      IPS_SetName($id, $Name);
+      IPS_SetHidden($id, true);
+      IPS_SetEventScript($id, $Script);
+      }
+     */
 
-    protected function UnregisterTimer($Name)
+    /**
+     * Löscht einen Timer.
+     * 
+     * @param string $Name Ident des Timers
+     */
+    protected function UnregisterTimer(string $Name)
     {
         $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
         if ($id > 0)
@@ -696,28 +719,35 @@ class KodiSplitter extends IPSModule
         }
     }
 
-    protected function SetTimerInterval($Name, $Interval)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id === false)
-            throw new Exception('Timer not present', E_USER_WARNING);
-        if (!IPS_EventExists($id))
-            throw new Exception('Timer not present', E_USER_WARNING);
-        $Event = IPS_GetEvent($id);
-        if ($Interval < 1)
-        {
-            if ($Event['EventActive'])
-                IPS_SetEventActive($id, false);
-        }
-        else
-        {
-            if ($Event['CyclicTimeValue'] <> $Interval)
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-            if (!$Event['EventActive'])
-                IPS_SetEventActive($id, true);
-        }
-    }
+    /*
+      protected function SetTimerInterval($Name, $Interval)
+      {
+      $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+      if ($id === false)
+      throw new Exception('Timer not present', E_USER_WARNING);
+      if (!IPS_EventExists($id))
+      throw new Exception('Timer not present', E_USER_WARNING);
+      $Event = IPS_GetEvent($id);
+      if ($Interval < 1)
+      {
+      if ($Event['EventActive'])
+      IPS_SetEventActive($id, false);
+      }
+      else
+      {
+      if ($Event['CyclicTimeValue'] <> $Interval)
+      IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
+      if (!$Event['EventActive'])
+      IPS_SetEventActive($id, true);
+      }
+      } */
 
+    /**
+     * Setzt den Status dieser Instanz auf den übergebenen Status.
+     * Prüft vorher noch ob sich dieser vom aktuellen Status unterscheidet.
+     * 
+     * @param integer $InstanceStatus
+     */
     protected function SetStatus($InstanceStatus)
     {
         //IPS_LogMessage('NewState', $InstanceStatus);
@@ -729,7 +759,13 @@ class KodiSplitter extends IPSModule
 
 ################## SEMAPHOREN Helper  - private  
 
-    private function lock($ident)
+    /**
+     * Setzt einen 'Lock'.
+     *      * 
+     * @param string $ident Ident der Semaphore
+     * @return boolean True bei Erfolg, false bei Misserfolg.
+     */
+    private function lock(string $ident)
     {
         for ($i = 0; $i < 100; $i++)
         {
@@ -745,7 +781,12 @@ class KodiSplitter extends IPSModule
         return false;
     }
 
-    private function unlock($ident)
+    /**
+     * Löscht einen 'Lock'.
+     * 
+     * @param string $ident Ident der Semaphore
+     */
+    private function unlock(string $ident)
     {
         IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
     }

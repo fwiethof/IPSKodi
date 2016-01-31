@@ -359,10 +359,11 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
 
+        parent::ApplyChanges();
 
+        
         $this->getActivePlayer();
 
-        parent::ApplyChanges();
 
         if ($this->isActive)
             $this->GetItemInternal();

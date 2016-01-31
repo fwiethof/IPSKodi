@@ -405,14 +405,14 @@ abstract class KodiBase extends IPSModule
                 $this->unlock('RequestSendData');
                 throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
             }
-            $ReplayKodiData = $this->WaitForResponse((int) $KodiData->Id);
-            if ($ReplayKodiData === false)
+            $ReplyKodiData = $this->WaitForResponse((int) $KodiData->Id);
+            if ($ReplyKodiData === false)
             {
                 $this->unlock('RequestSendData');
                 throw new Exception('Send Data Timeout', E_USER_NOTICE);
             }
             $this->unlock('RequestSendData');
-            $ret = $ReplayKodiData->GetResult();
+            $ret = $ReplyKodiData->GetResult();
             if (is_a($ret, 'KodiRPCException'))
             {
                 throw $ret;
