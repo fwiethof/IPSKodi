@@ -37,7 +37,7 @@ class KodiSplitter extends IPSModule
     public function Create()
     {
         parent::Create();
-        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}", "Kodi JSONRPC TCP-Socket");
+        $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
         $this->RegisterPropertyString("Host", "");
         $this->RegisterPropertyBoolean("Open", false);
         $this->RegisterPropertyInteger("Port", 9090);
@@ -646,21 +646,15 @@ class KodiSplitter extends IPSModule
      * Erzeugt einen neuen Parent, wenn keiner vorhanden ist.
      * 
      * @param string $ModuleID Die GUID des benötigten Parent.
-     * @param string $Name Der Name des Parent, wenn dieser neu angelegt wird.
      */
-    protected function RequireParent($ModuleID,$Name)
+    protected function RequireParent($ModuleID)
     {
-
         $instance = IPS_GetInstance($this->InstanceID);
         if ($instance['ConnectionID'] == 0)
         {
-
             $parentID = IPS_CreateInstance($ModuleID);
             $instance = IPS_GetInstance($parentID);
-            if ($Name == '')
-                IPS_SetName($parentID, $instance['ModuleInfo']['ModuleName']);
-            else
-                IPS_SetName($parentID, $Name);
+            IPS_SetName($parentID, "Kodi JSONRPC TCP-Socket");
             IPS_ConnectInstance($this->InstanceID, $parentID);
         }
     }
