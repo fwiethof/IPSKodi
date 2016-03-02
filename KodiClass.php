@@ -195,17 +195,16 @@ abstract class KodiBase extends IPSModule
      * 
      * @access public
      */
-    public function ApplyChanges()
-    {
-        parent::ApplyChanges();
-        $this->RegisterVariableString("_ReplyJSONData", "ReplyJSONData", "", -3);
-        IPS_SetHidden($this->GetIDForIdent('_ReplyJSONData'), true);
-
-        if (IPS_GetKernelRunlevel() == KR_READY)
-            if ($this->HasActiveParent())
-                $this->RequestProperties(array("properties" => static::$Properties));
-    }
-
+//    public function ApplyChanges()
+//    {
+//        parent::ApplyChanges();
+//        $this->RegisterVariableString("_ReplyJSONData", "ReplyJSONData", "", -3);
+//        IPS_SetHidden($this->GetIDForIdent('_ReplyJSONData'), true);
+//
+//        if (IPS_GetKernelRunlevel() == KR_READY)
+//            if ($this->HasActiveParent())
+//                $this->RequestProperties(array("properties" => static::$Properties));
+//    }
 ################## PRIVATE     
 
     /**
@@ -324,17 +323,14 @@ abstract class KodiBase extends IPSModule
         if ($Data->DataID <> '{73249F91-710A-4D24-B1F1-A72F216C2BDC}')
             return false;
 
-        if (property_exists($Data, 'Id')) //Reply
-        {
-            $ReplyJSONDataID = $this->GetIDForIdent('_ReplyJSONData');
-            if (!$this->lock('ReplyJSONData'))
-                throw new Exception('ReplyJSONData is locked', E_USER_NOTICE);
-            SetValueString($ReplyJSONDataID, $JSONString);
-            $this->unlock('ReplyJSONData');
-            return true;
-        }
         $KodiData = new Kodi_RPC_Data();
-        $KodiData->GetDataFromJSONKodiObject($Data);
+        $KodiData->CreateFromGenericObject($Data);
+        if ($KodiData->Typ <> Kodi_RPC_Data::$EventTyp)
+            return false;
+
+        $Event = $KodiData->GetEvent();
+        if (is_null($Event))
+            return false;
         if (is_array(static::$Namespace))
         {
             if (in_array($KodiData->Namespace, static::$Namespace))
@@ -355,91 +351,17 @@ abstract class KodiBase extends IPSModule
     }
 
     /**
-     * Sendet einen RPC-Request an den Splitter und liefert die Antwort, sofern $needResonse NULL ist.
+     * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter.
      *
      * @access protected
-     * @param Kodi_RPC_Data $KodiData RPC-Anfrage an den Splitter.
-     * @param boolean $needResponse [optional] false wenn nicht auf die Antwort gewartet werden soll.
-     * @return Kodi_RPC_Data|boolean|NULL Je nach $needResponse. Wenn keine Antwort erwartet wird, true bei Erfolg. False bei Fehler. Wenn eine Antwort erwartet wird, ein Kodi_RPC_Data-Objekt bei Erfolgt, sonst false.
+     * @param Kodi_RPC_Data $KodiData Zu versendende Daten.
+     * @return Kodi_RPC_Data Objekt mit der Antwort. NULL im Fehlerfall.
      */
-    protected function Send(Kodi_RPC_Data $KodiData, boolean $needResponse = null)
+    protected function Send(Kodi_RPC_Data $KodiData)
     {
-        if (!is_null($needResponse))
-        {
-            try
-            {
-                $ret = $this->SendDataToParent($KodiData);
-                if ($ret === false)
-                {
-                    throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
-                }
-            }
-            catch (Exception $ex)
-            {
-                trigger_error($ex->getMessage(), $ex->getCode());
-                return false;
-            }
-            return true;
-        }
-        try
-        {
-            if (!$this->HasActiveParent())
-                throw new Exception('Intance has no active parent.', E_USER_NOTICE);
-
-            $ReplyJSONDataID = $this->GetIDForIdent('_ReplyJSONData');
-
-            if (!$this->lock('RequestSendData'))
-                throw new Exception('RequestSendData is locked', E_USER_NOTICE);
-
-            if (!$this->lock('ReplyJSONData'))
-            {
-                $this->unlock('ReplyJSONData');
-                throw new Exception('ReplyJSONData is locked', E_USER_NOTICE);
-            }
-            SetValueString($ReplyJSONDataID, '');
-            $this->unlock('ReplyJSONData');
-
-            $ret = $this->SendDataToParent($KodiData);
-            if ($ret === false)
-            {
-                $this->unlock('RequestSendData');
-                throw new Exception('Instance has no active Parent Instance!', E_USER_NOTICE);
-            }
-            $ReplyKodiData = $this->WaitForResponse((int) $KodiData->Id);
-            if ($ReplyKodiData === false)
-            {
-                $this->unlock('RequestSendData');
-                throw new Exception('Send Data Timeout', E_USER_NOTICE);
-            }
-            $this->unlock('RequestSendData');
-            $ret = $ReplyKodiData->GetResult();
-            if (is_a($ret, 'KodiRPCException'))
-            {
-                throw $ret;
-            }
-            return $ret;
-        }
-        catch (KodiRPCException $ex)
-        {
-            trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        }
-        catch (Exception $ex)
-        {
-            trigger_error($ex->getMessage(), $ex->getCode());
-        }
-        return NULL;
-    }
-
-    /**
-     * Konvertiert $Data zu einem JSONString und versendet diese an den Parent.
-     *
-     * @access protected
-     * @param Kodi_RPC_Data $Data Zu versendende Daten.
-     */
-    protected function SendDataToParent($Data)
-    {
-        $JSONString = $Data->ToKodiObjectJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
-        return @IPS_SendDataToParent($this->InstanceID, $JSONString);
+        $JSONData = $KodiData->ToJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
+        $result = parent::SendDataToParent($JSONData);
+        return $result;
     }
 
 ################## DUMMYS / WOARKAROUNDS - protected
@@ -480,7 +402,7 @@ abstract class KodiBase extends IPSModule
             return false;
         if (GetValueInteger($id) <> $value)
         {
-            if (!(($Ident[0] == "_") or ( $Ident == "speed") or ( $Ident == "repeat") or (IPS_GetVariable($id)["VariableAction"] <> 0)))
+            if (!(($Ident[0] == "_") or ( $Ident == "speed") or ( $Ident == "repeat") or ( IPS_GetVariable($id)["VariableAction"] <> 0)))
             {
                 if (($value == 0) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
@@ -518,74 +440,6 @@ abstract class KodiBase extends IPSModule
             }
             SetValueString($id, $value);
             return true;
-        }
-        return false;
-    }
-
-    /**
-     * Liefert die RPC-Antwort auf die übergebene Id
-     *
-     * @access private
-     * @param integer $Id Id der RPC-Antwort auf welche gewartet wird.
-     * @return Kodi_RPC_Data|boolean Bei Erfolg wird die Antwort als Kodi_RPC_Data übergeben, sonder false.
-     */
-    private function WaitForResponse($Id)
-    {
-        $ReplyJSONDataID = $this->GetIDForIdent('_ReplyJSONData');
-        for ($i = 0; $i < 1000; $i++)
-        {
-            if (GetValueString($ReplyJSONDataID) === '')
-                IPS_Sleep(5);
-            else
-            {
-                if ($this->lock('ReplyJSONData'))
-                {
-                    $ret = GetValueString($ReplyJSONDataID);
-                    SetValueString($ReplyJSONDataID, '');
-                    $this->unlock('ReplyJSONData');
-                    $JSON = json_decode($ret);
-                    $Kodi_Data = new Kodi_RPC_Data();
-                    $Kodi_Data->GetDataFromJSONKodiObject($JSON);
-                    if ($Id === (int) $Kodi_Data->Id)
-                        return $Kodi_Data;
-                    else
-                    {
-                        $i = $i - 100;
-                        if ($i < 0)
-                            $i = 0;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Liefert den aktuellen IPS-Parent.
-     * 
-     * @access protected
-     * @return integer|boolean IPS-ID des Parent. Ist kein Parent verbunden wird false übergeben.
-     */
-    protected function GetParent()
-    {
-        $instance = IPS_GetInstance($this->InstanceID);
-        return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
-    }
-
-    /**
-     * Prüft ob ein vorhandener Parent verbunden (aktiv) ist.
-     *
-     * @access private
-     * @return boolean True wenn Parent vorhanden und verbunden ist, sonst false.
-     */
-    private function HasActiveParent()
-    {
-        $instance = IPS_GetInstance($this->InstanceID);
-        if ($instance['ConnectionID'] > 0)
-        {
-            $parent = IPS_GetInstance($instance['ConnectionID']);
-            if ($parent['InstanceStatus'] == 102)
-                return true;
         }
         return false;
     }
@@ -665,51 +519,6 @@ abstract class KodiBase extends IPSModule
     }
 
     /**
-     * Erstell und konfiguriert ein Timer.
-     *
-     * @access protected
-     * @param string $Name Name des Timer.
-     * @param integer $Interval Interval in Sekunden.
-     * @param string $Script PHP-Code welcher ausgeführt werden soll.
-     */
-    protected function RegisterTimer($Name, $Interval, $Script)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id === false)
-            $id = 0;
-        if ($id > 0)
-        {
-            if (!IPS_EventExists($id))
-                throw new Exception("Ident with name " . $Name . " is used for wrong object type", E_USER_NOTICE);
-
-            if (IPS_GetEvent($id)['EventType'] <> 1)
-            {
-                IPS_DeleteEvent($id);
-                $id = 0;
-            }
-        }
-        if ($id == 0)
-        {
-            $id = IPS_CreateEvent(1);
-            IPS_SetParent($id, $this->InstanceID);
-            IPS_SetIdent($id, $Name);
-            if ($Interval > 0)
-            {
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-                IPS_SetEventActive($id, true);
-            }
-            else
-            {
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, 1);
-                IPS_SetEventActive($id, false);
-            }
-        }
-        IPS_SetName($id, $Name);
-        IPS_SetHidden($id, true);
-        IPS_SetEventScript($id, $Script);
-    }
-
-    /**
      * Löscht ein Timer.
      *
      * @access protected
@@ -723,71 +532,6 @@ abstract class KodiBase extends IPSModule
             if (IPS_EventExists($id))
                 IPS_DeleteEvent($id);
         }
-    }
-
-    /**
-     * Setzt den Interval eines Timer.
-     *
-     * @access protected
-     * @param string $Name Name des Timer.
-     * @param integer $Interval Interval in Sekunden.
-     */
-    protected function SetTimerInterval($Name, $Interval)
-    {
-        $id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
-        if ($id === false)
-            throw new Exception('Timer not present', E_USER_WARNING);
-        if (!IPS_EventExists($id))
-            throw new Exception('Timer not present', E_USER_WARNING);
-        $Event = IPS_GetEvent($id);
-        if ($Interval < 1)
-        {
-            if ($Event['EventActive'])
-                IPS_SetEventActive($id, false);
-        }
-        else
-        {
-            if ($Event['CyclicTimeValue'] <> $Interval)
-                IPS_SetEventCyclic($id, 0, 0, 0, 0, 1, $Interval);
-            if (!$Event['EventActive'])
-                IPS_SetEventActive($id, true);
-        }
-    }
-
-################## SEMAPHOREN Helper  - private  
-
-    /**
-     * Setzt einen Lock.
-     *
-     * @access private
-     * @param string $ident Name des Lock.
-     * @return boolean True wenn der Lock gesetzt wurde, false wenn dies nicht möglich war.
-     */
-    private function lock($ident)
-    {
-        for ($i = 0; $i < 100; $i ++)
-        {
-            if (IPS_SemaphoreEnter("KODI_" . (string) $this->InstanceID . (string) $ident, 1))
-            {
-                return true;
-            }
-            else
-            {
-                IPS_Sleep(mt_rand(1, 5));
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Löscht einen Lock.
-     *
-     * @access private
-     * @param string $ident Name des Lock.
-     */
-    private function unlock($ident)
-    {
-        IPS_SemaphoreLeave("KODI_" . (string) $this->InstanceID . (string) $ident);
     }
 
 }
@@ -826,9 +570,23 @@ class KodiRPCException extends Exception
  * @method null ExecuteAction(array $Params (string "action" Die auszuführende Aktion)) Sendet eine Aktion.
  * @method null SendText(array $Params (string "text" Zu sender String) (boolean "done" True zum beenden der Eingabe)) Sendet einen Eingabetext
  * @property-read integer $Id Id des RPC-Objektes
+ * @property-read integer $Typ Typ des RPC-Objektes 
+ * @property-read string $Namespace Namespace der RPC-Methode
+ * @property-read string $Method RPC-Funktion
  */
 class Kodi_RPC_Data extends stdClass
 {
+
+    static $EventTyp = 1;
+    static $ParamTyp = 2;
+    static $ResultTyp = 3;
+
+    /**
+     * Typ der Daten
+     * @access private
+     * @var enum [ Kodi_RPC_Data::EventTyp, Kodi_RPC_Data::ParamTyp, Kodi_RPC_Data::ResultTyp]
+     */
+    private $Typ;
 
     /**
      * RPC-Namespace
@@ -866,6 +624,13 @@ class Kodi_RPC_Data extends stdClass
     private $Result;
 
     /**
+     * Enthält den Typ eines Event
+     * @access private
+     * @var object
+     */
+    private $Event;
+
+    /**
      * Id des RPC-Objektes
      * @access private
      * @var integer
@@ -898,7 +663,10 @@ class Kodi_RPC_Data extends stdClass
         if (!is_null($Namespace))
             $this->Namespace = $Namespace;
         if (!is_null($Method))
+        {
             $this->Method = $Method;
+            $this->Typ = Kodi_RPC_Data::$ParamTyp;
+        }
         if (is_array($Params))
             $this->Params = (object) $Params;
         if (is_object($Params))
@@ -923,11 +691,17 @@ class Kodi_RPC_Data extends stdClass
     public function __call($name, $arguments)
     {
         $this->Method = $name;
-        if (is_array($arguments[0]))
-            $this->Params = (object) $arguments[0];
-        if (is_object($arguments[0]))
-            $this->Params = $arguments[0];
+        if (count($arguments) == 0)
+            $this->Params = new stdClass ();
+        else
+        {
+            if (is_array($arguments[0]))
+                $this->Params = (object) $arguments[0];
+            if (is_object($arguments[0]))
+                $this->Params = $arguments[0];
+        }
         $this->Id = round(explode(" ", microtime())[0] * 10000);
+        $this->Typ = Kodi_RPC_Data::$ParamTyp;
     }
 
     /**
@@ -958,7 +732,10 @@ class Kodi_RPC_Data extends stdClass
      */
     public function GetEvent()
     {
-        return $this->Params->data;
+        if (property_exists($this, 'Event'))
+            return $this->Event;
+        else
+            return NULL;
     }
 
     /**
@@ -988,18 +765,29 @@ class Kodi_RPC_Data extends stdClass
      * @access public
      * @param object $Data Muss ein Objekt sein, welche vom Kodi-Splitter erzeugt wurde.
      */
-    public function GetDataFromJSONKodiObject($Data)
+    public function CreateFromGenericObject($Data)
     {
         if (property_exists($Data, 'Error'))
             $this->Error = $Data->Error;
         if (property_exists($Data, 'Result'))
+        {
             $this->Result = $this->DecodeUTF8($Data->Result);
+            $this->Typ = Kodi_RPC_Data::$ResultTyp;
+        }
         if (property_exists($Data, 'Namespace'))
             $this->Namespace = $Data->Namespace;
         if (property_exists($Data, 'Method'))
             $this->Method = $Data->Method;
         if (property_exists($Data, 'Params'))
+        {
             $this->Params = $this->DecodeUTF8($Data->Params);
+            $this->Typ = Kodi_RPC_Data::$ParamTyp;
+        }
+        if (property_exists($Data, 'Event'))
+        {
+            $this->Event = $this->DecodeUTF8($Data->Event);
+            $this->Typ = Kodi_RPC_Data::$EventTyp;
+        }
         if (property_exists($Data, 'Id'))
             $this->Id = $Data->Id;
     }
@@ -1011,7 +799,7 @@ class Kodi_RPC_Data extends stdClass
      * @param string $GUID Die Interface-GUID welche mit in den JSON-String integriert werden soll.
      * @return string JSON-kodierter String für IPS-Dateninterface.
      */
-    public function ToKodiObjectJSONString($GUID)
+    public function ToJSONString($GUID)
     {
         $SendData = new stdClass();
         $SendData->DataID = $GUID;
@@ -1027,6 +815,8 @@ class Kodi_RPC_Data extends stdClass
             $SendData->Error = $this->Error;
         if (!is_null($this->Result))
             $SendData->Result = $this->EncodeUTF8($this->Result);
+        if (!is_null($this->Event))
+            $SendData->Event = $this->EncodeUTF8($this->Event);
         return json_encode($SendData);
     }
 
@@ -1036,7 +826,7 @@ class Kodi_RPC_Data extends stdClass
      * @access public
      * @param string $Data Ein JSON-kodierter RPC-String vom RPC-Server.
      */
-    public function GetDataFromJSONIPSObject($Data)
+    public function CreateFromJSONString($Data)
     {
         $Json = json_decode($Data);
         if (property_exists($Json, 'id'))
@@ -1052,9 +842,20 @@ class Kodi_RPC_Data extends stdClass
             $this->Method = $part[1];
         }
         if (property_exists($Json, 'params'))
-            $this->Params = $Json->params;
+        {
+            $this->Params = $this->EncodeUTF8($Json->params);
+            $this->Typ = Kodi_RPC_Data::$ParamTyp;
+        }
         if (property_exists($Json, 'result'))
-            $this->Result = $Json->result;
+        {
+            $this->Result = $this->EncodeUTF8($Json->result);
+            $this->Typ = Kodi_RPC_Data::$ParamTyp;
+        }
+        if (property_exists($Json, 'event'))
+        {
+            $this->Event = $this->EncodeUTF8($Json->event);
+            $this->Typ = Kodi_RPC_Data::$EventTyp;
+        }
     }
 
     /**
@@ -1064,7 +865,7 @@ class Kodi_RPC_Data extends stdClass
      * @param string $GUID Die Interface-GUID welche mit in den JSON-String integriert werden soll.
      * @return string JSON-kodierter String für IPS-Dateninterface.
      */
-    public function ToIPSJSONString($GUID)
+    public function ToRPCJSONString($GUID)
     {
         $RPC = new stdClass();
         $RPC->jsonrpc = "2.0";
