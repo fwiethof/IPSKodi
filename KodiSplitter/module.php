@@ -642,7 +642,10 @@ class KodiSplitter extends IPSModule
             {
                 $ret = unserialize(GetValueString($ReplyJSONDataID));
                 if (!array_key_exists(intval($Id), $ret))
+                {
+                    IPS_LogMessage('SendQueue', "notfound");
                     return false;
+                }
                 if ($ret[$Id] <> "")
                 {
                     IPS_LogMessage('SendQueue', "found");
