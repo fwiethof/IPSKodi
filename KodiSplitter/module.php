@@ -148,10 +148,13 @@ class KodiSplitter extends IPSModule
             }
         }
         // Eigene Profile
-        $this->RegisterVariableString("BufferIN", "BufferIN", "", -1);
-        IPS_SetHidden($this->GetIDForIdent('BufferIN'), true);
-        $this->RegisterVariableString("ReplyJSONData", "ReplyJSONData", "", -3);
-        IPS_SetHidden($this->GetIDForIdent('ReplyJSONData'), true);
+        $BufferINID = $this->RegisterVariableString("BufferIN", "BufferIN", "", -1);
+        IPS_SetHidden($BufferINID, true);
+        SetValueString($BufferINID, "");
+
+        $ReplyJSONDataID = $this->RegisterVariableString("ReplyJSONData", "ReplyJSONData", "", -3);
+        IPS_SetHidden($ReplyJSONDataID, true);
+        SetValueString($ReplyJSONDataID, "");
 
         $this->RegisterTimer('KeepAlive', 0, 'KODIRPC_KeepAlive($_IPS[\'TARGET\']);');
         if ($this->ReadPropertyBoolean('Watchdog'))
@@ -643,14 +646,15 @@ class KodiSplitter extends IPSModule
                 $ret = unserialize(GetValueString($ReplyJSONDataID));
                 if (!array_key_exists(intval($Id), $ret))
                 {
-                    IPS_LogMessage('SendQueue', "notfound");
+                    //                  IPS_LogMessage('SendQueue', "notfound");
                     return false;
                 }
                 if ($ret[$Id] <> "")
                 {
-                    IPS_LogMessage('SendQueue', "found");
+//                    IPS_LogMessage('SendQueue', "found");
                     return $this->SendQueuePop($Id);
                 }
+                IPS_Sleep(5);
             }
         }
         return false;
