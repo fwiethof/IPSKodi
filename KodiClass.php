@@ -359,8 +359,11 @@ abstract class KodiBase extends IPSModule
      */
     protected function Send(Kodi_RPC_Data $KodiData)
     {
+        IPS_LogMessage("Kodi-Dev-Send", print_r($KodiData,true));
+        
         $JSONData = $KodiData->ToJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
         $result = parent::SendDataToParent($JSONData);
+        IPS_LogMessage("Kodi-Dev-Result", print_r($result,true));
         return $result;
     }
 
