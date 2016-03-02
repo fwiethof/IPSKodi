@@ -852,7 +852,7 @@ class Kodi_RPC_Data extends stdClass
         if (property_exists($Json, 'result'))
         {
             $this->Result = $this->EncodeUTF8($Json->result);
-            $this->Typ = Kodi_RPC_Data::$ParamTyp;
+            $this->Typ = Kodi_RPC_Data::$ResultTyp;
         }
         if (property_exists($Json, 'event'))
         {
