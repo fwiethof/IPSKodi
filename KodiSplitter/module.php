@@ -436,7 +436,7 @@ class KodiSplitter extends IPSModule
     {
 //        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
         IPS_LogMessage("Kodi-Splitter", print_r($KodiData,true));        
-        $Data = $KodiData->ToKodiObjectJSONString('{73249F91-710A-4D24-B1F1-A72F216C2BDC}');
+        $Data = $KodiData->ToJSONString('{73249F91-710A-4D24-B1F1-A72F216C2BDC}');
         IPS_LogMessage("Kodi-Splitter", print_r($Data,true));
         $this->SendDataToChildren($Data);
         //IPS_SendDataToChildren($this->InstanceID, $Data);
