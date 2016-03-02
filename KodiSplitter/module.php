@@ -388,11 +388,14 @@ class KodiSplitter extends IPSModule
      */
     public function ForwardData($JSONString)
     {
+        IPS_LogMessage("forward", $JSONString);
         $Data = json_decode($JSONString);
         if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
             return false;
         $KodiData = new Kodi_RPC_Data();
         $KodiData->CreateFromGenericObject($Data);
+        IPS_LogMessage("forward", print_r($KodiData,true));
+        
         try
         {
 //            $this->ForwardDataToParent($KodiData);
@@ -579,6 +582,8 @@ class KodiSplitter extends IPSModule
             $this->SendQueuePush($KodiData->Id);
             $this->SendDataToParent($KodiData);
             $ReplayKodiData = $this->WaitForResponse($KodiData->Id);
+        IPS_LogMessage("ReplayKodiData", print_r($ReplayKodiData,true));
+            
             if ($ReplayKodiData === false)
                 throw new Exception('No anwser from Kodi', E_USER_NOTICE);
 
