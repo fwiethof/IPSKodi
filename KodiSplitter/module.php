@@ -539,7 +539,7 @@ class KodiSplitter extends IPSModule
         {
             $KodiData = new Kodi_RPC_Data();
             $KodiData->CreateFromJSONString($JSON);
-
+            IPS_LogMessage("receive", print_r($KodiData,true));
             if ($KodiData->Typ == Kodi_RPC_Data::$ResultTyp) // Reply
             {
                 try
