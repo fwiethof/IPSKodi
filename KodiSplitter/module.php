@@ -392,7 +392,7 @@ class KodiSplitter extends IPSModule
         if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
             return false;
         $KodiData = new Kodi_RPC_Data();
-        $KodiData->GetDataFromJSONKodiObject($Data);
+        $KodiData->CreateFromGenericObject($Data);
         try
         {
 //            $this->ForwardDataToParent($KodiData);
