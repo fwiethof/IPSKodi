@@ -4,30 +4,6 @@ $remote =  '
 <?xml version="1.0" encoding="UTF-8"?>
 
 <svg version="1.2" baseProfile="tiny" width="80mm" height="148mm" viewBox="0 0 8000 14800" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
-<script type="application/ecmascript"> <![CDATA[
-	function xhrGet(o.url)
-	{
-	var HTTP = new XMLHttpRequest();
-	HTTP.open("GET","hook/KodiRemote'.$this->InstanceID.'?button=" + o.url,true);
-	HTTP.send();
-	}
-
-    function send_click(evt) {
-	
-      var item = evt.target.parentNode;
-	  while (item.hasAttribute("id") == false)
-	  {
-		item = item.parentNode;
-	  }
-	var button = item;
-	
-	button.setAttribute("fill-opacity", "0.4");
-	setTimeout(function(){
-		button.setAttribute("fill-opacity", "1");
-		}, 100);
-	xhrGet({url:button.getAttribute("id")});
-    }
-  ]]> </script>
   <defs>
   <font id="EmbeddedFont_1" horiz-adv-x="2048">
    <font-face font-family="Arial embedded" units-per-em="2048" font-weight="bold" font-style="normal" ascent="1879" descent="476"/>
@@ -59,6 +35,30 @@ $remote =  '
   </font>
  </defs>
  <g visibility="visible" >
+<script type="application/ecmascript"> <![CDATA[
+	function xhrGet(o.url)
+	{
+	var HTTP = new XMLHttpRequest();
+	HTTP.open("GET","hook/KodiRemote'.$this->InstanceID.'?button=" + o.url,true);
+	HTTP.send();
+	}
+
+    function send_click(evt) {
+	
+      var item = evt.target.parentNode;
+	  while (item.hasAttribute("id") == false)
+	  {
+		item = item.parentNode;
+	  }
+	var button = item;
+	
+	button.setAttribute("fill-opacity", "0.4");
+	setTimeout(function(){
+		button.setAttribute("fill-opacity", "1");
+		}, 100);
+	xhrGet({url:button.getAttribute("id")});
+    }
+  ]]> </script> 
   <g id="red" onclick="send_click(evt)">
    <path fill="rgb(255,51,51)" stroke="none" d="M 1176,13430 C 1112,13430 1048,13494 1048,13558 L 1048,14072 C 1048,14136 1112,14201 1176,14201 L 2203,14201 C 2267,14201 2332,14136 2332,14072 L 2332,13558 C 2332,13494 2267,13430 2203,13430 L 1176,13430 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 1176,13430 C 1112,13430 1048,13494 1048,13558 L 1048,14072 C 1048,14136 1112,14201 1176,14201 L 2203,14201 C 2267,14201 2332,14136 2332,14072 L 2332,13558 C 2332,13494 2267,13430 2203,13430 L 1176,13430 Z"/>
