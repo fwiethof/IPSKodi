@@ -79,7 +79,7 @@ $remote =  '
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5795,13430 C 5731,13430 5667,13494 5667,13558 L 5667,14072 C 5667,14136 5731,14201 5795,14201 L 6822,14201 C 6886,14201 6951,14136 6951,14072 L 6951,13558 C 6951,13494 6886,13430 6822,13430 L 5795,13430 Z"/>
    <rect fill="none" stroke="none" x="5668" y="13430" width="1284" height="771"/>
   </g>
-  <g id="power" onclick="send_click(evt)">
+  <g id="close" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 2536,600 C 2827,600 3050,822 3050,1113 3050,1404 2827,1626 2536,1626 2245,1626 2023,1404 2023,1113 2023,822 2245,600 2536,600 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 2536,600 C 2827,600 3050,822 3050,1113 3050,1404 2827,1626 2536,1626 2245,1626 2023,1404 2023,1113 2023,822 2245,600 2536,600 Z"/>
    <rect fill="none" stroke="none" x="2024" y="600" width="1028" height="1027"/>
@@ -95,7 +95,7 @@ $remote =  '
     <text x="5246" y="1310">^</text>
    </g>
   </g>
-  <g id="PVR" onclick="send_click(evt)">
+  <g id="playpvrtv" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 3632,650 C 3546,650 3461,735 3461,821 L 3461,1506 C 3461,1592 3546,1678 3632,1678 L 4316,1678 C 4402,1678 4488,1592 4488,1506 L 4488,821 C 4488,735 4402,650 4316,650 L 3632,650 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 3632,650 C 3546,650 3461,735 3461,821 L 3461,1506 C 3461,1592 3546,1678 3632,1678 L 4316,1678 C 4402,1678 4488,1592 4488,1506 L 4488,821 C 4488,735 4402,650 4316,650 L 3632,650 Z"/>
    <rect fill="none" stroke="none" x="3461" y="651" width="1027" height="1028"/>
@@ -104,7 +104,7 @@ $remote =  '
      <tspan x="3614 3957">TV</tspan></text>
    </g>
   </g>
-  <g id="1" onclick="send_click(evt)">
+  <g id="number1" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 2194,1933 C 2108,1933 2023,2018 2023,2104 L 2023,2789 C 2023,2875 2108,2961 2194,2961 L 2879,2961 C 2965,2961 3051,2875 3051,2789 L 3051,2104 C 3051,2018 2965,1933 2879,1933 L 2194,1933 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 2194,1933 C 2108,1933 2023,2018 2023,2104 L 2023,2789 C 2023,2875 2108,2961 2194,2961 L 2879,2961 C 2965,2961 3051,2875 3051,2789 L 3051,2104 C 3051,2018 2965,1933 2879,1933 L 2194,1933 Z"/>
    <rect fill="none" stroke="none" x="2024" y="1934" width="1028" height="1028"/>
@@ -112,7 +112,7 @@ $remote =  '
     <text x="2380" y="2644">1</text>
    </g>
   </g>
-  <g id="2" onclick="send_click(evt)">
+  <g id="number2" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 3632,1933 C 3546,1933 3461,2018 3461,2104 L 3461,2789 C 3461,2875 3546,2961 3632,2961 L 4316,2961 C 4402,2961 4488,2875 4488,2789 L 4488,2104 C 4488,2018 4402,1933 4316,1933 L 3632,1933 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 3632,1933 C 3546,1933 3461,2018 3461,2104 L 3461,2789 C 3461,2875 3546,2961 3632,2961 L 4316,2961 C 4402,2961 4488,2875 4488,2789 L 4488,2104 C 4488,2018 4402,1933 4316,1933 L 3632,1933 Z"/>
    <rect fill="none" stroke="none" x="3461" y="1934" width="1027" height="1028"/>
@@ -120,7 +120,7 @@ $remote =  '
     <text x="3818" y="2644">2</text>
    </g>
   </g>
-  <g id="3" onclick="send_click(evt)">
+  <g id="number3" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 5069,1933 C 4983,1933 4898,2018 4898,2104 L 4898,2789 C 4898,2875 4983,2961 5069,2961 L 5753,2961 C 5839,2961 5925,2875 5925,2789 L 5925,2104 C 5925,2018 5839,1933 5753,1933 L 5069,1933 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5069,1933 C 4983,1933 4898,2018 4898,2104 L 4898,2789 C 4898,2875 4983,2961 5069,2961 L 5753,2961 C 5839,2961 5925,2875 5925,2789 L 5925,2104 C 5925,2018 5839,1933 5753,1933 L 5069,1933 Z"/>
    <rect fill="none" stroke="none" x="4898" y="1934" width="1027" height="1028"/>
@@ -128,7 +128,7 @@ $remote =  '
     <text x="5255" y="2644">3</text>
    </g>
   </g>
-  <g id="4" onclick="send_click(evt)">
+  <g id="number4" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 2194,3370 C 2108,3370 2023,3455 2023,3541 L 2023,4226 C 2023,4312 2108,4398 2194,4398 L 2879,4398 C 2965,4398 3051,4312 3051,4226 L 3051,3541 C 3051,3455 2965,3370 2879,3370 L 2194,3370 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 2194,3370 C 2108,3370 2023,3455 2023,3541 L 2023,4226 C 2023,4312 2108,4398 2194,4398 L 2879,4398 C 2965,4398 3051,4312 3051,4226 L 3051,3541 C 3051,3455 2965,3370 2879,3370 L 2194,3370 Z"/>
    <rect fill="none" stroke="none" x="2024" y="3371" width="1028" height="1028"/>
@@ -136,7 +136,7 @@ $remote =  '
     <text x="2380" y="4081">4</text>
    </g>
   </g>
-  <g id="5" onclick="send_click(evt)">
+  <g id="number5" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 3632,3370 C 3546,3370 3461,3455 3461,3541 L 3461,4226 C 3461,4312 3546,4398 3632,4398 L 4316,4398 C 4402,4398 4488,4312 4488,4226 L 4488,3541 C 4488,3455 4402,3370 4316,3370 L 3632,3370 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 3632,3370 C 3546,3370 3461,3455 3461,3541 L 3461,4226 C 3461,4312 3546,4398 3632,4398 L 4316,4398 C 4402,4398 4488,4312 4488,4226 L 4488,3541 C 4488,3455 4402,3370 4316,3370 L 3632,3370 Z"/>
    <rect fill="none" stroke="none" x="3461" y="3371" width="1027" height="1028"/>
@@ -144,7 +144,7 @@ $remote =  '
     <text x="3818" y="4081">5</text>
    </g>
   </g>
-  <g id="6" onclick="send_click(evt)">
+  <g id="number6" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 5069,3370 C 4983,3370 4898,3455 4898,3541 L 4898,4226 C 4898,4312 4983,4398 5069,4398 L 5753,4398 C 5839,4398 5925,4312 5925,4226 L 5925,3541 C 5925,3455 5839,3370 5753,3370 L 5069,3370 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5069,3370 C 4983,3370 4898,3455 4898,3541 L 4898,4226 C 4898,4312 4983,4398 5069,4398 L 5753,4398 C 5839,4398 5925,4312 5925,4226 L 5925,3541 C 5925,3455 5839,3370 5753,3370 L 5069,3370 Z"/>
    <rect fill="none" stroke="none" x="4898" y="3371" width="1027" height="1028"/>
@@ -152,7 +152,7 @@ $remote =  '
     <text x="5255" y="4081">6</text>
    </g>
   </g>
-  <g id="7" onclick="send_click(evt)">
+  <g id="number7" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 2194,4807 C 2108,4807 2023,4892 2023,4978 L 2023,5663 C 2023,5749 2108,5835 2194,5835 L 2879,5835 C 2965,5835 3051,5749 3051,5663 L 3051,4978 C 3051,4892 2965,4807 2879,4807 L 2194,4807 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 2194,4807 C 2108,4807 2023,4892 2023,4978 L 2023,5663 C 2023,5749 2108,5835 2194,5835 L 2879,5835 C 2965,5835 3051,5749 3051,5663 L 3051,4978 C 3051,4892 2965,4807 2879,4807 L 2194,4807 Z"/>
    <rect fill="none" stroke="none" x="2024" y="4808" width="1028" height="1028"/>
@@ -160,7 +160,7 @@ $remote =  '
     <text x="2380" y="5518">7</text>
    </g>
   </g>
-  <g id="8" onclick="send_click(evt)">
+  <g id="number8" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 3632,4807 C 3546,4807 3461,4892 3461,4978 L 3461,5663 C 3461,5749 3546,5835 3632,5835 L 4316,5835 C 4402,5835 4488,5749 4488,5663 L 4488,4978 C 4488,4892 4402,4807 4316,4807 L 3632,4807 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 3632,4807 C 3546,4807 3461,4892 3461,4978 L 3461,5663 C 3461,5749 3546,5835 3632,5835 L 4316,5835 C 4402,5835 4488,5749 4488,5663 L 4488,4978 C 4488,4892 4402,4807 4316,4807 L 3632,4807 Z"/>
    <rect fill="none" stroke="none" x="3461" y="4808" width="1027" height="1028"/>
@@ -168,7 +168,7 @@ $remote =  '
     <text x="3818" y="5518">8</text>
    </g>
   </g>
-  <g id="9" onclick="send_click(evt)">
+  <g id="number9" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 5069,4807 C 4983,4807 4898,4892 4898,4978 L 4898,5663 C 4898,5749 4983,5835 5069,5835 L 5753,5835 C 5839,5835 5925,5749 5925,5663 L 5925,4978 C 5925,4892 5839,4807 5753,4807 L 5069,4807 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5069,4807 C 4983,4807 4898,4892 4898,4978 L 4898,5663 C 4898,5749 4983,5835 5069,5835 L 5753,5835 C 5839,5835 5925,5749 5925,5663 L 5925,4978 C 5925,4892 5839,4807 5753,4807 L 5069,4807 Z"/>
    <rect fill="none" stroke="none" x="4898" y="4808" width="1027" height="1028"/>
@@ -176,7 +176,7 @@ $remote =  '
     <text x="5255" y="5518">9</text>
    </g>
   </g>
-  <g id="P+" onclick="send_click(evt)">
+  <g id="channelup" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 2194,6091 C 2108,6091 2023,6176 2023,6262 L 2023,7460 C 2023,7546 2108,7632 2194,7632 L 2879,7632 C 2965,7632 3051,7546 3051,7460 L 3051,6262 C 3051,6176 2965,6091 2879,6091 L 2194,6091 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 2194,6091 C 2108,6091 2023,6176 2023,6262 L 2023,7460 C 2023,7546 2108,7632 2194,7632 L 2879,7632 C 2965,7632 3051,7546 3051,7460 L 3051,6262 C 3051,6176 2965,6091 2879,6091 L 2194,6091 Z"/>
    <rect fill="none" stroke="none" x="2024" y="6091" width="1028" height="1541"/>
@@ -185,7 +185,7 @@ $remote =  '
      <tspan x="2183 2560">P+</tspan></text>
    </g>
   </g>
-  <g id="P-" onclick="send_click(evt)">
+  <g id="channeldown" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 2194,7631 C 2108,7631 2023,7716 2023,7802 L 2023,9000 C 2023,9086 2108,9172 2194,9172 L 2879,9172 C 2965,9172 3051,9086 3051,9000 L 3051,7802 C 3051,7716 2965,7631 2879,7631 L 2194,7631 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 2194,7631 C 2108,7631 2023,7716 2023,7802 L 2023,9000 C 2023,9086 2108,9172 2194,9172 L 2879,9172 C 2965,9172 3051,9086 3051,9000 L 3051,7802 C 3051,7716 2965,7631 2879,7631 L 2194,7631 Z"/>
    <rect fill="none" stroke="none" x="2024" y="7631" width="1028" height="1541"/>
@@ -194,7 +194,7 @@ $remote =  '
      <tspan x="2255 2632">P-</tspan></text>
    </g>
   </g>
-  <g id="V+" onclick="send_click(evt)">
+  <g id="volumeup" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 5069,6091 C 4983,6091 4898,6176 4898,6262 L 4898,7460 C 4898,7546 4983,7632 5069,7632 L 5753,7632 C 5839,7632 5925,7546 5925,7460 L 5925,6262 C 5925,6176 5839,6091 5753,6091 L 5069,6091 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5069,6091 C 4983,6091 4898,6176 4898,6262 L 4898,7460 C 4898,7546 4983,7632 5069,7632 L 5753,7632 C 5839,7632 5925,7546 5925,7460 L 5925,6262 C 5925,6176 5839,6091 5753,6091 L 5069,6091 Z"/>
    <rect fill="none" stroke="none" x="4898" y="6091" width="1027" height="1541"/>
@@ -203,7 +203,7 @@ $remote =  '
      <tspan x="5057 5434">V+</tspan></text>
    </g>
   </g>
-  <g id="V-" onclick="send_click(evt)">
+  <g id="volumedown" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 5069,7631 C 4983,7631 4898,7716 4898,7802 L 4898,9000 C 4898,9086 4983,9172 5069,9172 L 5753,9172 C 5839,9172 5925,9086 5925,9000 L 5925,7802 C 5925,7716 5839,7631 5753,7631 L 5069,7631 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5069,7631 C 4983,7631 4898,7716 4898,7802 L 4898,9000 C 4898,9086 4983,9172 5069,9172 L 5753,9172 C 5839,9172 5925,9086 5925,9000 L 5925,7802 C 5925,7716 5839,7631 5753,7631 L 5069,7631 Z"/>
    <rect fill="none" stroke="none" x="4898" y="7631" width="1027" height="1541"/>
@@ -212,7 +212,7 @@ $remote =  '
      <tspan x="5144 5491">V-</tspan></text>
    </g>
   </g>
-  <g id="0" onclick="send_click(evt)">
+  <g id="number0" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 3632,6348 C 3546,6348 3461,6433 3461,6519 L 3461,7203 C 3461,7289 3546,7375 3632,7375 L 4316,7375 C 4402,7375 4488,7289 4488,7203 L 4488,6519 C 4488,6433 4402,6348 4316,6348 L 3632,6348 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 3632,6348 C 3546,6348 3461,6433 3461,6519 L 3461,7203 C 3461,7289 3546,7375 3632,7375 L 4316,7375 C 4402,7375 4488,7289 4488,7203 L 4488,6519 C 4488,6433 4402,6348 4316,6348 L 3632,6348 Z"/>
    <rect fill="none" stroke="none" x="3461" y="6348" width="1027" height="1027"/>
@@ -285,7 +285,7 @@ $remote =  '
     <rect fill="none" stroke="none" x="2281" y="10967" width="514" height="514"/>
    </g>
   </g>
-  <g id="menu" onclick="send_click(evt)">
+  <g id="contextmenu" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 5411,11737 L 5424,11737 C 5700,11737 5924,11513 5924,11237 L 5924,11210 C 5924,10934 5700,10710 5424,10710 L 5398,10710 C 5122,10710 4898,10934 4898,11210 L 4898,11237 C 4898,11513 5122,11737 5398,11737 L 5411,11737 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5411,11737 L 5424,11737 C 5700,11737 5924,11513 5924,11237 L 5924,11210 C 5924,10934 5700,10710 5424,10710 L 5398,10710 C 5122,10710 4898,10934 4898,11210 L 4898,11237 C 4898,11513 5122,11737 5398,11737 L 5411,11737 Z"/>
    <g fill="rgb(0,0,0)" stroke="none" font-family="Arial embedded" font-size="282" font-style="normal" font-weight="900">
@@ -293,7 +293,7 @@ $remote =  '
      <tspan x="4992 5233 5424 5627">MENÜ</tspan></text>
    </g>
   </g>
-  <g id="slower" onclick="send_click(evt)">
+  <g id="rewind" onclick="send_click(evt)">
    <path fill="rgb(0,174,0)" stroke="none" d="M 1176,12455 C 1112,12455 1048,12519 1048,12583 L 1048,13097 C 1048,13161 1112,13226 1176,13226 L 2203,13226 C 2267,13226 2332,13161 2332,13097 L 2332,12583 C 2332,12519 2267,12455 2203,12455 L 1176,12455 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 1176,12455 C 1112,12455 1048,12519 1048,12583 L 1048,13097 C 1048,13161 1112,13226 1176,13226 L 2203,13226 C 2267,13226 2332,13161 2332,13097 L 2332,12583 C 2332,12519 2267,12455 2203,12455 L 1176,12455 Z"/>
    <rect fill="none" stroke="none" x="1049" y="12455" width="1284" height="771"/>
@@ -325,7 +325,7 @@ $remote =  '
     <rect fill="none" stroke="none" x="4539" y="12558" width="515" height="515"/>
    </g>
   </g>
-  <g id="faster" onclick="send_click(evt)">
+  <g id="fastforward" onclick="send_click(evt)">
    <path fill="rgb(0,174,0)" stroke="none" d="M 5795,12455 C 5731,12455 5667,12519 5667,12583 L 5667,13097 C 5667,13161 5731,13226 5795,13226 L 6822,13226 C 6886,13226 6951,13161 6951,13097 L 6951,12583 C 6951,12519 6886,12455 6822,12455 L 5795,12455 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 5795,12455 C 5731,12455 5667,12519 5667,12583 L 5667,13097 C 5667,13161 5731,13226 5795,13226 L 6822,13226 C 6886,13226 6951,13161 6951,13097 L 6951,12583 C 6951,12519 6886,12455 6822,12455 L 5795,12455 Z"/>
    <rect fill="none" stroke="none" x="5668" y="12455" width="1284" height="771"/>
