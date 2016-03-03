@@ -195,16 +195,15 @@ abstract class KodiBase extends IPSModule
      * 
      * @access public
      */
-//    public function ApplyChanges()
-//    {
-//        parent::ApplyChanges();
-//        $this->RegisterVariableString("_ReplyJSONData", "ReplyJSONData", "", -3);
-//        IPS_SetHidden($this->GetIDForIdent('_ReplyJSONData'), true);
-//
-//        if (IPS_GetKernelRunlevel() == KR_READY)
-//            if ($this->HasActiveParent())
-//                $this->RequestProperties(array("properties" => static::$Properties));
-//    }
+    public function ApplyChanges()
+    {
+        parent::ApplyChanges();
+        $this->UnregisterVariable("_ReplyJSONData");
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            if ($this->HasActiveParent())
+                $this->RequestProperties(array("properties" => static::$Properties));
+    }
+
 ################## PRIVATE     
 
     /**
@@ -359,11 +358,11 @@ abstract class KodiBase extends IPSModule
      */
     protected function Send(Kodi_RPC_Data $KodiData)
     {
-        IPS_LogMessage("Kodi-Dev-Send", print_r($KodiData,true));
-        
+        //IPS_LogMessage("Kodi-Dev-Send", print_r($KodiData, true));
+
         $JSONData = $KodiData->ToJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
         $result = unserialize($this->SendDataToParent($JSONData));
-        IPS_LogMessage("Kodi-Dev-Result", print_r($result,true));
+        //IPS_LogMessage("Kodi-Dev-Result", print_r($result, true));
         return $result;
     }
 

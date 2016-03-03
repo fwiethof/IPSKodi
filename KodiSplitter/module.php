@@ -391,13 +391,13 @@ class KodiSplitter extends IPSModule
      */
     public function ForwardData($JSONString)
     {
-        IPS_LogMessage("forward", $JSONString);
+//        IPS_LogMessage("forward", $JSONString);
         $Data = json_decode($JSONString);
         if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
             return false;
         $KodiData = new Kodi_RPC_Data();
         $KodiData->CreateFromGenericObject($Data);
-        IPS_LogMessage("forward", print_r($KodiData, true));
+//        IPS_LogMessage("forward", print_r($KodiData, true));
 
         try
         {
@@ -441,9 +441,9 @@ class KodiSplitter extends IPSModule
     private function SendDataToDevice(Kodi_RPC_Data $KodiData)
     {
 //        IPS_LogMessage('SendDataToZone',print_r($APIData,true));
-        IPS_LogMessage("Kodi-Splitter", print_r($KodiData, true));
+//        IPS_LogMessage("Kodi-Splitter", print_r($KodiData, true));
         $Data = $KodiData->ToJSONString('{73249F91-710A-4D24-B1F1-A72F216C2BDC}');
-        IPS_LogMessage("Kodi-Splitter", print_r($Data, true));
+//        IPS_LogMessage("Kodi-Splitter", print_r($Data, true));
         $this->SendDataToChildren($Data);
         //IPS_SendDataToChildren($this->InstanceID, $Data);
     }
@@ -479,7 +479,7 @@ class KodiSplitter extends IPSModule
         $Result = new Kodi_RPC_Data();
         $JSONObject = json_decode($data[$Id]);
         $Result->CreateFromGenericObject($JSONObject);
-        IPS_LogMessage('SendQueuePop', print_r($Result, true));
+        //IPS_LogMessage('SendQueuePop', print_r($Result, true));
 
         $this->SendQueueRemove($Id);
         return $Result;
@@ -544,7 +544,7 @@ class KodiSplitter extends IPSModule
         {
             $KodiData = new Kodi_RPC_Data();
             $KodiData->CreateFromJSONString($JSON);
-            IPS_LogMessage("receive", print_r($KodiData, true));
+            //IPS_LogMessage("receive", print_r($KodiData, true));
             if ($KodiData->Typ == Kodi_RPC_Data::$ResultTyp) // Reply
             {
                 try
@@ -587,7 +587,7 @@ class KodiSplitter extends IPSModule
             $this->SendQueuePush($KodiData->Id);
             $this->SendDataToParent($KodiData);
             $ReplayKodiData = $this->WaitForResponse($KodiData->Id);
-            IPS_LogMessage("ReplayKodiData", print_r($ReplayKodiData, true));
+            //IPS_LogMessage("ReplayKodiData", print_r($ReplayKodiData, true));
 
             if ($ReplayKodiData === false)
                 throw new Exception('No anwser from Kodi', E_USER_NOTICE);

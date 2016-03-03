@@ -285,6 +285,17 @@ class KodiDeviceInput extends KodiBase
 //        $this->EnableAction("volume");
 //Never delete this line!
         parent::ApplyChanges();
+        // Eigene Scripte
+        $sid = $this->RegisterScript("WebHookRemote", "WebHookRemote", '<? //Do not delete or modify.
+if (isset($_GET["button"]))
+    KODIINPUT_ExecuteAction(' . $this->InstanceID . ',$_GET["button"]);
+', -8);
+        IPS_SetHidden($sid, true);
+        if (IPS_GetKernelRunlevel() == KR_READY)
+            $this->RegisterHook('/hook/KodiRemote' . $this->InstanceID, $sid);
+        $remoteID = $this->RegisterVariableString("Remote", "Remote", "~HTMLBox", 1);
+        include 'generateRemote.php';        
+        SetValueString($remoteID, $remote);
     }
 
 ################## PRIVATE     
@@ -597,6 +608,33 @@ class KodiDeviceInput extends KodiBase
       return parent::SendDataToParent($Data);
       }
      */
+
+    private function RegisterHook($WebHook, $TargetID)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    if ($hook['TargetID'] == $TargetID)
+                        return;
+                    $hooks[$index]['TargetID'] = $TargetID;
+                    $found = true;
+                }
+            }
+            if (!$found)
+            {
+                $hooks[] = Array("Hook" => $WebHook, "TargetID" => $TargetID);
+            }
+            IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+            IPS_ApplyChanges($ids[0]);
+        }
+    }
+
 }
 
 /** @} */
