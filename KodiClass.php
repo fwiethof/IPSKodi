@@ -369,6 +369,24 @@ abstract class KodiBase extends IPSModule
 ################## DUMMYS / WOARKAROUNDS - protected
 
     /**
+     * Prüft den Parent auf vorhandensein und Status.
+     * 
+     * @return boolean True wenn Parent vorhanden und in Status 102, sonst false.
+     */
+    protected function HasActiveParent()
+    {
+//        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
+        $instance = IPS_GetInstance($this->InstanceID);
+        if ($instance['ConnectionID'] > 0)
+        {
+            $parent = IPS_GetInstance($instance['ConnectionID']);
+            if ($parent['InstanceStatus'] == 102)
+                return true;
+        }
+        return false;
+    }
+    
+    /**
      * Setzte eine IPS-Variable vom Typ boolean auf den Wert von $value
      *
      * @access protected
