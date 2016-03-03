@@ -402,7 +402,7 @@ class KodiSplitter extends IPSModule
         try
         {
 //            $this->ForwardDataToParent($KodiData);
-            return $this->Send($KodiData);
+            return serialize($this->Send($KodiData));
         }
         catch (Exception $ex)
         {
