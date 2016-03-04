@@ -406,13 +406,15 @@ class KodiSplitter extends IPSModule
         try
         {
 //            $this->ForwardDataToParent($KodiData);
-            return serialize($this->Send($KodiData));
+            $anwser = $this->Send($KodiData);
+            if (!is_null($anwser))
+            return serialize($anwser);
         }
         catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
         }
-            return NULL;
+        return NULL;
     }
 
 ################## DATAPOINTS DEVICE
