@@ -366,7 +366,8 @@ abstract class KodiBase extends IPSModule
 
         $JSONData = $KodiData->ToJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
         $result = unserialize($this->SendDataToParent($JSONData));
-        //IPS_LogMessage("Kodi-Dev-Result", print_r($result, true));
+        IPS_LogMessage("Kodi-Dev-Result", print_r($result, true));
+        var_dump($result);
         return $result;
     }
 
