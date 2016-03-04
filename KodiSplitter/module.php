@@ -398,7 +398,7 @@ class KodiSplitter extends IPSModule
 //        IPS_LogMessage("forward", $JSONString);
         $Data = json_decode($JSONString);
         if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
-            return false;
+            return NULL;
         $KodiData = new Kodi_RPC_Data();
         $KodiData->CreateFromGenericObject($Data);
 //        IPS_LogMessage("forward", print_r($KodiData, true));
@@ -411,9 +411,8 @@ class KodiSplitter extends IPSModule
         catch (Exception $ex)
         {
             trigger_error($ex->getMessage(), $ex->getCode());
-            return false;
         }
-        return true;
+            return NULL;
     }
 
 ################## DATAPOINTS DEVICE
