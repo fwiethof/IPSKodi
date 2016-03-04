@@ -209,7 +209,6 @@ function wake($ip, $mac)
                 }
                 break;
             case 'Power':
-                if ($KodiPayload)
                     $this->SetValueBoolean('Power', $KodiPayload);
                 break;
             case 'OnLowBattery':
