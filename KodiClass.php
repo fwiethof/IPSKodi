@@ -324,6 +324,8 @@ abstract class KodiBase extends IPSModule
 
         $KodiData = new Kodi_RPC_Data();
         $KodiData->CreateFromGenericObject($Data);
+        IPS_LogMessage('KODI_Event', print_r($KodiData, true));
+
         if ($KodiData->Typ <> Kodi_RPC_Data::$EventTyp)
             return false;
 
@@ -334,7 +336,9 @@ abstract class KodiBase extends IPSModule
         {
             if (in_array($KodiData->Namespace, static::$Namespace))
             {
-                $this->Decode($KodiData->Method, $KodiData->GetEvent());
+                IPS_LogMessage('KODI_Event:' . $KodiData->Method, print_r($Event, true));
+
+                $this->Decode($KodiData->Method, $Event);
                 return true;
             }
         }
@@ -342,7 +346,7 @@ abstract class KodiBase extends IPSModule
         {
             if ($KodiData->Namespace == static::$Namespace)
             {
-                $this->Decode($KodiData->Method, $KodiData->GetEvent());
+                $this->Decode($KodiData->Method, $Event);
                 return true;
             }
         }
@@ -385,7 +389,7 @@ abstract class KodiBase extends IPSModule
         }
         return false;
     }
-    
+
     /**
      * Setzte eine IPS-Variable vom Typ boolean auf den Wert von $value
      *

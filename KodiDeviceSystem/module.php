@@ -328,7 +328,7 @@ function wake($ip, $mac)
             return false;
         if ($ret === 'OK')
         {
-            $this->SetValueBoolean('Power', true);
+            $this->SetValueBoolean('Power', false);
             return true;
         }
         return false;
@@ -349,7 +349,7 @@ function wake($ip, $mac)
             return false;
         if ($ret === 'OK')
         {
-            $this->SetValueBoolean('Power', true);
+            $this->SetValueBoolean('Power', false);
             return true;
         }
         return false;
@@ -370,7 +370,7 @@ function wake($ip, $mac)
             return false;
         if ($ret === 'OK')
         {
-            $this->SetValueBoolean('Power', true);
+            $this->SetValueBoolean('Power', false);
             return true;
         }
         return false;
@@ -391,7 +391,7 @@ function wake($ip, $mac)
             return false;
         if ($ret === 'OK')
         {
-            $this->SetValueBoolean('Power', true);
+            $this->SetValueBoolean('Power', false);
             return true;
         }
         return false;
