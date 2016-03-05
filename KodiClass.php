@@ -324,7 +324,6 @@ abstract class KodiBase extends IPSModule
 
         $KodiData = new Kodi_RPC_Data();
         $KodiData->CreateFromGenericObject($Data);
-        IPS_LogMessage('KODI_Event', print_r($KodiData, true));
 
         if ($KodiData->Typ <> Kodi_RPC_Data::$EventTyp)
             return false;

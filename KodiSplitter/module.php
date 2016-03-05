@@ -560,6 +560,7 @@ class KodiSplitter extends IPSModule
             }
             else if ($KodiData->Typ == Kodi_RPC_Data::$EventTyp) // Event
             {
+                IPS_LogMessage('KODI_Event', print_r($KodiData, true));
                 $Event = $KodiData->GetEvent();
                 if (!is_null($Event))
                 {
