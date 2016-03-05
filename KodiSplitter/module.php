@@ -287,7 +287,7 @@ class KodiSplitter extends IPSModule
 
     private function SendPowerEvent($value)
     {
-        $KodiData = new Kodi_RPC_Data('System', 'Power',array('data'=> $value),0);
+        $KodiData = new Kodi_RPC_Data('System', 'Power', array('data' => $value), 0);
         IPS_LogMessage('KODI_PWR_Event', print_r($KodiData, true));
         $this->SendDataToDevice($KodiData);
     }
@@ -405,7 +405,7 @@ class KodiSplitter extends IPSModule
 //            $this->ForwardDataToParent($KodiData);
             $anwser = $this->Send($KodiData);
             if (!is_null($anwser))
-            return serialize($anwser);
+                return serialize($anwser);
         }
         catch (Exception $ex)
         {
@@ -560,7 +560,10 @@ class KodiSplitter extends IPSModule
             }
             else if ($KodiData->Typ == Kodi_RPC_Data::$EventTyp) // Event
             {
-                IPS_LogMessage('KODI_Event', print_r($KodiData, true));
+                ob_start();
+                var_dump($KodiData);
+                $dump = ob_get_clean();
+                IPS_LogMessage('KODI_Event', $dump);
                 $Event = $KodiData->GetEvent();
                 if (!is_null($Event))
                 {

@@ -335,8 +335,10 @@ abstract class KodiBase extends IPSModule
         {
             if (in_array($KodiData->Namespace, static::$Namespace))
             {
-                IPS_LogMessage('KODI_Event:' . $KodiData->Method, print_r($Event, true));
-
+                ob_start();
+                var_dump($Event);
+                $dump = ob_get_clean();
+                IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
@@ -345,7 +347,10 @@ abstract class KodiBase extends IPSModule
         {
             if ($KodiData->Namespace == static::$Namespace)
             {
-                IPS_LogMessage('KODI_Event:' . $KodiData->Method, print_r($Event, true));
+                ob_start();
+                var_dump($Event);
+                $dump = ob_get_clean();
+                IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
