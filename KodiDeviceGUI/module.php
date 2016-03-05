@@ -97,14 +97,14 @@ class KodiDeviceGUI extends KodiBase
                             break;
                         case "currentwindow":
                             $this->SetValueString("currentwindow", $value->label);
-                            $this->SetValueInteger("currentwindowid", $value->id);
+                            $this->SetValueInteger("_currentwindowid", $value->id);
                             break;
                         case "fullscreen":
                             $this->SetValueBoolean("fullscreen", $value);
                             break;
                         case "skin":
                             $this->SetValueString("skin", $value->name);
-                            $this->SetValueString("skinid", $value->id);
+                            $this->SetValueString("_skinid", $value->id);
                             break;
                     }
                 }

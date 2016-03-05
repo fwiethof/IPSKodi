@@ -366,7 +366,7 @@ abstract class KodiBase extends IPSModule
 
         $JSONData = $KodiData->ToJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
         $anwser = $this->SendDataToParent($JSONData);
-        if  ($anwser === false)
+        if ($anwser === false)
             return NULL;
         $result = unserialize($anwser);
         ob_start();
@@ -608,8 +608,8 @@ class Kodi_RPC_Data extends stdClass
 {
 
     static $EventTyp = 1;
-    static $ParamTyp = 2;
-    static $ResultTyp = 3;
+//    static $ParamTyp = 2;
+    static $ResultTyp = 2;
 
     /**
      * Typ der Daten
@@ -658,7 +658,7 @@ class Kodi_RPC_Data extends stdClass
      * @access private
      * @var object
      */
-    private $Event;
+//    private $Event;
 
     /**
      * Id des RPC-Objektes
@@ -693,20 +693,25 @@ class Kodi_RPC_Data extends stdClass
         if (!is_null($Namespace))
             $this->Namespace = $Namespace;
         if (!is_null($Method))
-        {
             $this->Method = $Method;
-            $this->Typ = Kodi_RPC_Data::$ParamTyp;
-        }
         if (is_array($Params))
             $this->Params = (object) $Params;
         if (is_object($Params))
             $this->Params = (object) $Params;
         if (is_null($Id))
+        {
             $this->Id = round(explode(" ", microtime())[0] * 10000);
+            $this->Tpy = Kodi_RPC_Data::$ResultTyp;
+        }
         else
         {
             if ($Id > 0)
+            {
                 $this->Id = $Id;
+                $this->Tpy = Kodi_RPC_Data::$ResultTyp;
+            }
+            else
+                $this->Tpy = Kodi_RPC_Data::$EventTyp;
         }
     }
 
@@ -731,7 +736,7 @@ class Kodi_RPC_Data extends stdClass
                 $this->Params = $arguments[0];
         }
         $this->Id = round(explode(" ", microtime())[0] * 10000);
-        $this->Typ = Kodi_RPC_Data::$ParamTyp;
+//        $this->Typ = Kodi_RPC_Data::$ParamTyp;
     }
 
     /**
@@ -762,8 +767,8 @@ class Kodi_RPC_Data extends stdClass
      */
     public function GetEvent()
     {
-        if (property_exists($this, 'Event'))
-            return $this->Event;
+        if (property_exists($this->Params, 'data'))
+            return $this->Params->data;
         else
             return NULL;
     }
@@ -800,24 +805,22 @@ class Kodi_RPC_Data extends stdClass
         if (property_exists($Data, 'Error'))
             $this->Error = $Data->Error;
         if (property_exists($Data, 'Result'))
-        {
             $this->Result = $this->DecodeUTF8($Data->Result);
-            $this->Typ = Kodi_RPC_Data::$ResultTyp;
-        }
+//            $this->Typ = Kodi_RPC_Data::$ResultTyp;
         if (property_exists($Data, 'Namespace'))
             $this->Namespace = $Data->Namespace;
         if (property_exists($Data, 'Method'))
             $this->Method = $Data->Method;
         if (property_exists($Data, 'Params'))
-        {
             $this->Params = $this->DecodeUTF8($Data->Params);
-            $this->Typ = Kodi_RPC_Data::$ParamTyp;
-        }
-        if (property_exists($Data, 'Event'))
-        {
-            $this->Event = $this->DecodeUTF8($Data->Event);
-            $this->Typ = Kodi_RPC_Data::$EventTyp;
-        }
+        if (property_exists($Data, 'Typ'))
+            $this->Typ = $this->Typ;
+//            $this->Typ = Kodi_RPC_Data::$ParamTyp;
+        /*        if (property_exists($Data, 'Event'))
+          {
+          $this->Event = $this->DecodeUTF8($Data->Event);
+          $this->Typ = Kodi_RPC_Data::$EventTyp;
+          } */
         if (property_exists($Data, 'Id'))
             $this->Id = $Data->Id;
     }
@@ -845,8 +848,11 @@ class Kodi_RPC_Data extends stdClass
             $SendData->Error = $this->Error;
         if (!is_null($this->Result))
             $SendData->Result = $this->EncodeUTF8($this->Result);
-        if (!is_null($this->Event))
-            $SendData->Event = $this->EncodeUTF8($this->Event);
+        if (!is_null($this->Typ))
+            $SendData->Typ = $this->Typ;
+
+        /*        if (!is_null($this->Event))
+          $SendData->Event = $this->EncodeUTF8($this->Event); */
         return json_encode($SendData);
     }
 
@@ -859,10 +865,6 @@ class Kodi_RPC_Data extends stdClass
     public function CreateFromJSONString($Data)
     {
         $Json = json_decode($Data);
-        if (property_exists($Json, 'id'))
-            $this->Id = $Json->id;
-        else
-            $this->Id = null;
         if (property_exists($Json, 'error'))
             $this->Error = $Json->error;
         if (property_exists($Json, 'method'))
@@ -872,18 +874,17 @@ class Kodi_RPC_Data extends stdClass
             $this->Method = $part[1];
         }
         if (property_exists($Json, 'params'))
-        {
             $this->Params = $this->EncodeUTF8($Json->params);
-            $this->Typ = Kodi_RPC_Data::$ParamTyp;
-        }
         if (property_exists($Json, 'result'))
         {
             $this->Result = $this->EncodeUTF8($Json->result);
             $this->Typ = Kodi_RPC_Data::$ResultTyp;
         }
-        if (property_exists($Json, 'event'))
+        if (property_exists($Json, 'id'))
+            $this->Id = $Json->id;
+        else
         {
-            $this->Event = $this->EncodeUTF8($Json->event);
+            $this->Id = null;
             $this->Typ = Kodi_RPC_Data::$EventTyp;
         }
     }
