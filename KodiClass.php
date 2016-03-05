@@ -814,7 +814,7 @@ class Kodi_RPC_Data extends stdClass
         if (property_exists($Data, 'Params'))
             $this->Params = $this->DecodeUTF8($Data->Params);
         if (property_exists($Data, 'Typ'))
-            $this->Typ = $this->Typ;
+            $this->Typ = $Data->Typ;
 //            $this->Typ = Kodi_RPC_Data::$ParamTyp;
         /*        if (property_exists($Data, 'Event'))
           {
