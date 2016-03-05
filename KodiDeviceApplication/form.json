@@ -3,7 +3,7 @@
             [{
                     "name": "showName",
                     "type": "CheckBox",
-                    "caption": "Variable für Version anlegen"
+                    "caption": "Variable für Namen anlegen"
                 }, {
                     "name": "showVersion",
                     "type": "CheckBox",
@@ -20,6 +20,24 @@
                     "type": "Button",
                     "label": "Request State",
                     "onClick": "KODIAPP_RequestState($id,'ALL');"
+                }, {
+                    "type": "Label",
+                    "label": "Mute:"
+                }, {
+                    "type": "CheckBox",
+                    "name": "Mute",
+                    "caption": "Stummschaltung",
+                    "onChange": "KODIAPP_SetMute($id, $Mute);"
+                    
+                }, {
+                    "type": "Label",
+                    "label": "Volume:"
+                }, {
+                    "name": "Slider",
+                    "type": "HorizontalSlider",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "onChange": "KODIAPP_SetVolume($id, $Slider);"
                 }
             ]
 }

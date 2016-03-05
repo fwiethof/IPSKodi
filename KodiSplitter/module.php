@@ -564,11 +564,7 @@ class KodiSplitter extends IPSModule
                 var_dump($KodiData);
                 $dump = ob_get_clean();
                 IPS_LogMessage('KODI_Event', $dump);
-                $Event = $KodiData->GetEvent();
-                if (!is_null($Event))
-                {
-                    $this->SendDataToDevice($KodiData);
-                }
+                $this->SendDataToDevice($KodiData);
                 if (self::$Namespace == $KodiData->Namespace)
                     $this->Decode($KodiData->Method, $KodiData->GetEvent());
             }

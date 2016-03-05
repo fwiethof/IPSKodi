@@ -329,8 +329,6 @@ abstract class KodiBase extends IPSModule
             return false;
 
         $Event = $KodiData->GetEvent();
-        if (is_null($Event))
-            return false;
         if (is_array(static::$Namespace))
         {
             if (in_array($KodiData->Namespace, static::$Namespace))

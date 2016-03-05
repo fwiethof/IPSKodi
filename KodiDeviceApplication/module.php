@@ -138,10 +138,10 @@ class KodiDeviceApplication extends KodiBase
         switch ($Ident)
         {
             case "mute":
-                $this->Mute($Value);
+                $this->SetMute($Value);
                 break;
             case "volume":
-                $this->Volume($Value);
+                $this->SetVolume($Value);
                 break;
             case "quit":
                 $this->Quit();
@@ -153,14 +153,14 @@ class KodiDeviceApplication extends KodiBase
 
 ################## PUBLIC
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_Mute'. De-/Aktiviert die Stummschaltung
+     * IPS-Instanz-Funktion 'KODIAPP_SetMute'. De-/Aktiviert die Stummschaltung
      *
      * @access public
      * @param boolean $Value True für Stummschaltung aktiv, False bei inaktiv.
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
 
-    public function Mute(boolean $Value)
+    public function SetMute(boolean $Value)
     {
         if (!is_bool($Value))
         {
@@ -177,13 +177,13 @@ class KodiDeviceApplication extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_Volume'. Setzen der Lautstärke
+     * IPS-Instanz-Funktion 'KODIAPP_SetVolume'. Setzen der Lautstärke
      *
      * @access public
      * @param integer $Value Neue Lautstärke
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-    public function Volume(integer $Value)
+    public function SetVolume(integer $Value)
     {
         if (!is_int($Value))
         {
