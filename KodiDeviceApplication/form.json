@@ -23,12 +23,12 @@
                 }, {
                     "type": "Label",
                     "label": "Mute:"
-                },              {
-                    "type": "Switch",
+                }, {
+                    "type": "Button",
                     "label": "ON",
                     "onClick": "KODIAPP_SetMute($id, true);"
-                },                {
-                    "type": "Switch",
+                }, {
+                    "type": "Button",
                     "label": "OFF",
                     "onClick": "KODIAPP_SetMute($id, false);"
                 }, {

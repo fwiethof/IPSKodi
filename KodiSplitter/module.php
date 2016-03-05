@@ -639,7 +639,7 @@ class KodiSplitter extends IPSModule
     private function WaitForResponse($Id)
     {
         $ReplyJSONDataID = $this->GetIDForIdent('ReplyJSONData');
-        for ($i = 0; $i < 300; $i++)
+        for ($i = 0; $i < 1000; $i++)
         {
             if (GetValueString($ReplyJSONDataID) === 'a:0:{}') // wenn wenig los, gleich warten
                 IPS_Sleep(5);
