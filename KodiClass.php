@@ -585,15 +585,23 @@ class KodiRPCException extends Exception
 /**
  * Enthält einen Kodi-RPC Datensatz.
  * 
+ * @method null SetVolume(array $Params (integer "volume" Neue Lautstärke)) Setzen der Lautstärke.
+ * @method null SetMute(array $Params (boolean "mute" Neuer Wert der Stummschaltung)) Setzen der Stummschaltung.
+ * @method null Quit(null) Beendet Kodi.
+ * @method null Clean(null) Startet das bereinigen der Datenbank.
+ * @method null Export(array $Params (array "options" (string "path" Ziel-Verzeichnis für den Export) (boolean "overwrite" Vorhandene Daten überschreiben.) (boolean "images" Bilder mit exportieren.)) Exportiert die Audio Datenbank.
+ * @method null GetAlbumDetails(array $Params (string "albumid" AlbumID) (array "properties" Zu lesende Album-Eigenschaften) Liest die Eigenschaften eines Album aus.
+ * @method null GetAlbums(null) Liest einen Teil der Eigenschaften aller Alben aus.
+ * @method null GetArtistDetails (array $Params (string "artistid" ArtistID) (array "properties" Zu lesende Künstler-Eigenschaften) Liest die Eigenschaften eines Künstler aus.
+ * @method null GetArtists(null) Liest einen Teil der Eigenschaften aller Künstler aus.
+
+ * 
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.
  * @method null Reboot(null) Führt einen Reboot auf Betriebssystemebene aus.
  * @method null EjectOpticalDrive(null) Öffnet das Optische Laufwerk.
  * 
- * @method null SetVolume(array $Params (integer "volume")) Erzeugt einen RPC-Datensatz zum setzen der Lautstärke.
- * @method null SetMute(array $Params (boolean "mute")) Erzeugt einen RPC-Datensatz der Stummschaltung.
- * @method null Quit(null) Beendet Kodi.
  * @method null GetSources(array $Params (string "media"  enum["video", "music", "pictures", "files", "programs"])) Liest die Quellen.
  * @method null GetFileDetails(array $Params (string "file" Dateiname) (string "media"  enum["video", "music", "pictures", "files", "programs"]) (array "properties" Zu lesende Eigenschaften)) Liest die Quellen.
  * @method null GetDirectory(array $Params (string "directory" Verzeichnis welches gelesen werden soll.)) Liest ein Verzeichnis aus.

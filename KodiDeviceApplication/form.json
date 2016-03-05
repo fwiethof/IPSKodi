@@ -23,12 +23,14 @@
                 }, {
                     "type": "Label",
                     "label": "Mute:"
-                }, {
-                    "type": "CheckBox",
-                    "name": "Mute",
-                    "caption": "Stummschaltung",
-                    "onChange": "KODIAPP_SetMute($id, $Mute);"
-                    
+                },              {
+                    "type": "Switch",
+                    "label": "ON",
+                    "onClick": "KODIAPP_SetMute($id, true);"
+                },                {
+                    "type": "Switch",
+                    "label": "OFF",
+                    "onClick": "KODIAPP_SetMute($id, false);"
                 }, {
                     "type": "Label",
                     "label": "Volume:"
