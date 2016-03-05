@@ -346,6 +346,7 @@ abstract class KodiBase extends IPSModule
         {
             if ($KodiData->Namespace == static::$Namespace)
             {
+                IPS_LogMessage('KODI_Event:' . $KodiData->Method, print_r($Event, true));
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
@@ -701,17 +702,17 @@ class Kodi_RPC_Data extends stdClass
         if (is_null($Id))
         {
             $this->Id = round(explode(" ", microtime())[0] * 10000);
-            $this->Tpy = Kodi_RPC_Data::$ResultTyp;
+            $this->Typ = Kodi_RPC_Data::$ResultTyp;
         }
         else
         {
             if ($Id > 0)
             {
                 $this->Id = $Id;
-                $this->Tpy = Kodi_RPC_Data::$ResultTyp;
+                $this->Typ = Kodi_RPC_Data::$ResultTyp;
             }
             else
-                $this->Tpy = Kodi_RPC_Data::$EventTyp;
+                $this->Typ = Kodi_RPC_Data::$EventTyp;
         }
     }
 
