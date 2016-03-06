@@ -1,13 +1,33 @@
 {
     "elements":
-            [
+            [{
+                    "name": "showScan",
+                    "type": "CheckBox",
+                    "caption": "Variable Datenbankscan"
+                }, {
+                    "name": "showDoScan",
+                    "type": "CheckBox",
+                    "caption": "Aktions-Variable für Starten des Scan"
+                }, {
+                    "name": "showClean",
+                    "type": "CheckBox",
+                    "caption": "Variable Datenbankbereinigung"
+                }, {
+                    "name": "showDoClean",
+                    "type": "CheckBox",
+                    "caption": "Aktions-Variable für Bereinigung"
+                }
             ],
     "actions":
             [
                 {
                     "type": "Button",
-                    "label": "Request State",
-                    "onClick": "KODIAUDIOLIB_RequestState($id,'ALL');"
+                    "label": "Scan",
+                    "onClick": "KODIAUDIOLIB_Scan($id);"
+                },{
+                    "type": "Button",
+                    "label": "Clean",
+                    "onClick": "KODIAUDIOLIB_Clean($id);"
                 }
             ]
 }

@@ -145,21 +145,21 @@ class KodiDeviceFiles extends KodiBase
      *
      * @access public
      */
-    /*public function Create()
-    {
-        parent::Create();
-    }*/
+    /* public function Create()
+      {
+      parent::Create();
+      } */
 
     /**
      * Interne Funktion des SDK.
      * 
      * @access public
      */
-  /*  public function ApplyChanges()
-    {
-        parent::ApplyChanges();
-    }
-*/
+    /*  public function ApplyChanges()
+      {
+      parent::ApplyChanges();
+      }
+     */
 ################## PRIVATE     
 
     /**

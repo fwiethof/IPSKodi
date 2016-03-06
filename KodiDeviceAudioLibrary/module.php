@@ -8,69 +8,130 @@ class KodiDeviceAudioLibrary extends KodiBase
     static $Namespace = 'AudioLibrary';
     static $Properties = array(
     );
-    static $AlbumItemList = array("title",
-        "description",
-        "artist",
-        "genre",
+    static $AlbumItemList = array(
         "theme",
-        "mood",
-        "style",
-        "type",
-        "albumlabel",
-        "rating",
-        "year",
-        "musicbrainzalbumid",
-        "musicbrainzalbumartistid",
-        "fanart",
-        "thumbnail",
-        "playcount",
-        "genreid",
-        "artistid",
-        "displayartist");
-    static $AlbumItemListSmall = array(
-        "title",
-        "artist",
-        "displayartist",
         "description",
-        "genre",
         "type",
+        "style",
+        "albumid",
+        "playcount",
         "albumlabel",
+        "mood",
+        "displayartist",
+        "artist",
+        "genreid",
+        "musicbrainzalbumartistid",
         "year",
+        "rating",
+        "artistid",
+        "title",
+        "musicbrainzalbumid",
+        "genre",
+        "fanart",
+        "thumbnail"
+    );
+    static $AlbumItemListSmall = array(
+        "albumid",
+        "playcount",
+        "albumlabel",
+        "displayartist",
+        "year",
+        "rating",
+        "title",
+        "fanart",
         "thumbnail"
     );
     static $ArtistItemList = array(
-      "instrument",
-      "style",
-      "mood",
-      "born",
-      "formed",
-      "description",
-      "genre",
-      "died",
-      "disbanded",
-      "yearsactive",
-      "musicbrainzartistid",
-      "fanart",
-      "thumbnail");
+        "born",
+        "formed",
+        "died",
+        "style",
+        "yearsactive",
+        "mood",
+        "musicbrainzartistid",
+        "disbanded",
+        "description",
+        "artist",
+        "instrument",
+        "artistid",
+        "genre",
+        "fanart",
+        "thumbnail"
+    );
+    static $GenreItemList = array(
+        "thumbnail",
+        "title",
+        "genreid"
+    );
+    static $SongItemList = array(
+        "title",
+        "artist",
+        "albumartist",
+        "genre",
+        "year",
+        "rating",
+        "album",
+        "track",
+        "duration",
+        "comment",
+        "lyrics",
+        "musicbrainztrackid",
+        "musicbrainzartistid",
+        "musicbrainzalbumid",
+        "musicbrainzalbumartistid",
+        "playcount",
+        "fanart",
+        "thumbnail",
+        "file",
+        "albumid",
+        "lastplayed",
+        "disc",
+        "genreid",
+        "artistid",
+        "displayartist",
+        "albumartistid"
+    );
 
     public function Create()
     {
         parent::Create();
+        $this->RegisterPropertyBoolean("showDoScan", true);
+        $this->RegisterPropertyBoolean("showDoClean", true);
+        $this->RegisterPropertyBoolean("showScan", true);
+        $this->RegisterPropertyBoolean("showClean", true);
     }
 
     public function ApplyChanges()
     {
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
+        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
+            Array(0, "Ausführen", "", -1)
+        ));
+
+        if ($this->ReadPropertyBoolean('showDoScan'))
+        {
+            $this->RegisterVariableInteger("doscan", "Suche nach neuen / veränderten Inhalten", "Action.Kodi", 1);
+            $this->EnableAction("doscan");
+        }
+        else
+            $this->UnregisterVariable("doscan");
+
+        if ($this->ReadPropertyBoolean('showScan'))
+            $this->RegisterVariableBoolean("scan", "Datenbanksuche läuft", "~Switch", 2);
+        else
+            $this->UnregisterVariable("scan");
+
+        if ($this->ReadPropertyBoolean('showDoClean'))
+        {
+            $this->RegisterVariableInteger("doclean", "Bereinigen der Datenbank", "Action.Kodi", 3);
+            $this->EnableAction("doclean");
+        }
+        else
+            $this->UnregisterVariable("doclean");
+
+        if ($this->ReadPropertyBoolean('showClean'))
+            $this->RegisterVariableBoolean("clean", "Bereinigung der Datenbank läuft", "~Switch", 4);
+        else
+            $this->UnregisterVariable("clean");
 
         parent::ApplyChanges();
     }
@@ -107,17 +168,15 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         switch ($Ident)
         {
-            /*
-              case "mute":
-              return $this->Mute($Value);
-              case "volume":
-              return $this->Volume($Value);
-              case "quit":
-              return $this->Quit();
-              default:
-              return trigger_error('Invalid Ident.', E_USER_NOTICE);
-             * 
-             */
+            case "doclean":
+                $this->Clean();
+                break;
+            case "doscan":
+                $this->Scan();
+                break;
+
+            default:
+                trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
     }
 
@@ -126,10 +185,6 @@ class KodiDeviceAudioLibrary extends KodiBase
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
      */
-    /*    public function RawSend(string $Namespace, string $Method, $Params)
-      {
-      return parent::RawSend($Namespace, $Method, $Params);
-      } */
 
     /**
      * IPS-Instanz-Funktion 'KODIAUDIOLIB_Clean'. Startet das bereinigen der Datenbank
@@ -196,7 +251,7 @@ class KodiDeviceAudioLibrary extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetAlbumDetails(array("albumid" => $AlbumID, "properties" => static::$AlbumItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -213,7 +268,7 @@ class KodiDeviceAudioLibrary extends KodiBase
      */
     public function GetAlbums()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetAlbums(array("properties" => static::$AlbumItemListSmall));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -237,7 +292,7 @@ class KodiDeviceAudioLibrary extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetArtistDetails(array("artistid" => $ArtistID, "properties" => static::$ArtistItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -254,7 +309,7 @@ class KodiDeviceAudioLibrary extends KodiBase
      */
     public function GetArtists()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetArtists(array("properties" => static::$ArtistItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
@@ -263,7 +318,24 @@ class KodiDeviceAudioLibrary extends KodiBase
         return json_decode(json_encode($ret->artists), true);
     }
 
-        /**
+    /**
+     * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetGenres'. Liest die Eigenschaften aller Genres aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetGenres()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetGenres(array("properties" => static::$GenreItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->genres), true);
+    }
+
+    /**
      * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetRecentlyAddedAlbums'. Liest die Eigenschaften der zuletzt hinzugefügten Alben aus.
      *
      * @access public
@@ -271,18 +343,33 @@ class KodiDeviceAudioLibrary extends KodiBase
      */
     public function GetRecentlyAddedAlbums()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
-        $KodiData->GetRecentlyAddedAlbums(array("properties" => static::$AlbumItemListSmall));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyAddedAlbums(array("properties" => static::$AlbumItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
 
         return json_decode(json_encode($ret->albums), true);
     }
-    
-// GetRecentlyAddedSongs
-    
-        /**
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetRecentlyAddedSongs'. Liest die Eigenschaften der zuletzt hinzugefügten Songs aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetRecentlyAddedSongs()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyAddedSongs(array("properties" => static::$AlbumItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->songs), true);
+    }
+
+    /**
      * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetRecentlyPlayedAlbums'. Liest die Eigenschaften der zuletzt abgespielten Alben aus.
      *
      * @access public
@@ -290,69 +377,94 @@ class KodiDeviceAudioLibrary extends KodiBase
      */
     public function GetRecentlyPlayedAlbums()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
-        $KodiData->GetRecentlyPlayedAlbums(array("properties" => static::$AlbumItemListSmall));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyPlayedAlbums(array("properties" => static::$AlbumItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
 
         return json_decode(json_encode($ret->albums), true);
-    } 
-    
-    // GetRecentlyPlayedSongs
-    
-    // GetSongDetails
-    
-    // GetSongs
-    /*
-      public function Volume(integer $Value)
-      {
-      if (!is_int($Value))
-      {
-      trigger_error('Value must be integer', E_USER_NOTICE);
-      return false;
-      }
-      //        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
-      $KodiData = new Kodi_RPC_Data(self::$Namespace);
-      $KodiData->SetVolume(array("volume" => $Value));
-      $ret = $this->Send($KodiData);
-      if (is_null($ret))
-      return false;
-      $this->SetValueInteger("volume", $ret);
-      return $ret['volume'] === $Value;
-      }
+    }
 
-      public function Quit()
-      {
-      $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Quit');
-      $ret = $this->Send($KodiData);
-      if (is_null($ret))
-      return false;
-      return true;
-      }
+    /**
+     * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetRecentlyPlayedSongs'. Liest die Eigenschaften der zuletzt abgespielten Songs aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
      */
+    public function GetRecentlyPlayedSongs()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyPlayedSongs(array("properties" => static::$SongItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->songs), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetSongDetails'. Liest die Eigenschaften eines Künstlers aus.
+     *
+     * @access public
+     * @param  integer $SongID SongID des zu lesenden Songs.
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetSongDetails(integer $SongID)
+    {
+        if (!is_int($SongID))
+        {
+            trigger_error('SongID must be integer', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetSongDetails(array("songid" => $SongID, "properties" => static::$SongItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->songdetails), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAUDIOLIB_GetSongs'. Liest die Eigenschaften aller Songs aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetSongs()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetSongs(array("properties" => static::$SongItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+
+        return json_decode(json_encode($ret->songs), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAUDIOLIB_Scan'. Startet das Scannen der Quellen für neue Einträge in der Datenbank.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
+    public function Scan()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Scan();
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return $ret === "OK";
+    }
 
     public function RequestState(string $Ident)
     {
         return parent::RequestState($Ident);
     }
 
-################## Datapoints
-
-    /* public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      } */
-    /*
-      protected function Send(Kodi_RPC_Data $KodiData)
-      {
-      return parent::Send($KodiData);
-      }
-
-      protected function SendDataToParent($Data)
-      {
-      return parent::SendDataToParent($Data);
-      } */
 }
 
 ?>

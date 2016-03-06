@@ -594,8 +594,15 @@ class KodiRPCException extends Exception
  * @method null GetAlbums(null) Liest einen Teil der Eigenschaften aller Alben aus.
  * @method null GetArtistDetails (array $Params (string "artistid" ArtistID) (array "properties" Zu lesende Künstler-Eigenschaften) Liest die Eigenschaften eines Künstler aus.
  * @method null GetArtists(null) Liest einen Teil der Eigenschaften aller Künstler aus.
-
- * 
+ * @method null GetGenres(null) Liest einen Teil der Eigenschaften aller Genres aus.
+ * @method null GetRecentlyAddedAlbums(null) Liest die Eigenschaften der zuletzt hinzugefügten Alben aus.
+ * @method null GetRecentlyAddedSongs(null) Liest die Eigenschaften der zuletzt hinzugefügten Songs aus.
+ * @method null GetRecentlyPlayedAlbums(null) Liest die Eigenschaften der zuletzt abgespielten Alben aus.
+ * @method null GetRecentlyPlayedSongs(null) Liest die Eigenschaften der zuletzt abgespielten Songs aus.
+ * @method null GetSongDetails (array $Params (string "songid" SongID) (array "properties" Zu lesende Song-Eigenschaften) Liest die Eigenschaften eines Songs aus.
+ * @method null GetSongs(null) Liest die Eigenschaften aller Songs aus.
+ * @method null Scan(null) Startet das Scannen der Quellen für neue Einträge in der Datenbank.
+ 
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.
