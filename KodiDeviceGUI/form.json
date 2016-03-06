@@ -1,10 +1,38 @@
 {
     "elements":
-            [
+            [{
+                    "name": "showCurrentWindow",
+                    "type": "CheckBox",
+                    "caption": "Variable für aktuelles Fenster anlegen"
+                }, {
+                    "name": "showCurrentControl",
+                    "type": "CheckBox",
+                    "caption": "Variable für aktuelles Control anlegen"
+                }, {
+                    "name": "showSkin",
+                    "type": "CheckBox",
+                    "caption": "Variable für aktuellen Skin anlegen"
+                }, {
+                    "name": "showFullscreen",
+                    "type": "CheckBox",
+                    "caption": "Variable für Vollbildmodus anlegen"
+                }, {
+                    "name": "showScreensaver",
+                    "type": "CheckBox",
+                    "caption": "Variable für Bildschirmschoner anlegen"
+                }
             ],
     "actions":
             [
                 {
+                    "type": "Button",
+                    "label": "Vollbild an",
+                    "onClick": "KODIGUI_SetFullscreen($id,true);"
+                },{
+                    "type": "Button",
+                    "label": "Vollbild aus",
+                    "onClick": "KODIGUI_SetFullscreen($id,false);"
+                },{
                     "type": "Button",
                     "label": "Request State",
                     "onClick": "KODIGUI_RequestState($id,'ALL');"

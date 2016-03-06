@@ -267,7 +267,7 @@ $remote =  '<?xml version="1.0" encoding="UTF-8"?>
     <rect fill="none" stroke="none" x="3692" y="10941" width="515" height="1029"/>
    </g>
   </g>
-  <g id="enter" onclick="send_click(evt)">
+  <g id="select" onclick="send_click(evt)">
    <path fill="rgb(153,204,255)" stroke="none" d="M 3974,10454 L 3987,10454 C 4263,10454 4487,10230 4487,9954 L 4487,9927 C 4487,9651 4263,9427 3987,9427 L 3961,9427 C 3685,9427 3461,9651 3461,9927 L 3461,9954 C 3461,10230 3685,10454 3961,10454 L 3974,10454 Z"/>
    <path fill="none" stroke="rgb(0,0,0)" stroke-width="35" stroke-linejoin="round" d="M 3974,10454 L 3987,10454 C 4263,10454 4487,10230 4487,9954 L 4487,9927 C 4487,9651 4263,9427 3987,9427 L 3961,9427 C 3685,9427 3461,9651 3461,9927 L 3461,9954 C 3461,10230 3685,10454 3961,10454 L 3974,10454 Z"/>
    <g fill="rgb(0,0,0)" stroke="none" font-family="Arial embedded" font-size="564" font-style="normal" font-weight="900">

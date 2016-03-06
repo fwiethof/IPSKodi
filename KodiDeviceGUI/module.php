@@ -50,6 +50,11 @@ class KodiDeviceGUI extends KodiBase
     public function Create()
     {
         parent::Create();
+        $this->RegisterPropertyBoolean("showCurrentWindow", true);
+        $this->RegisterPropertyBoolean("showCurrentControl", true);
+        $this->RegisterPropertyBoolean("showSkin", true);
+        $this->RegisterPropertyBoolean("showFullscreen", true);
+        $this->RegisterPropertyBoolean("showScreensaver", true);
     }
 
     /**
@@ -60,17 +65,48 @@ class KodiDeviceGUI extends KodiBase
     public function ApplyChanges()
     {
 
-        $this->RegisterVariableString("currentwindow", "Aktuelles Fenster", "", 0);
-        $this->RegisterVariableInteger("_currentwindowid", "Aktuelles Fenster (id)", "", 0);
-        IPS_SetHidden($this->GetIDForIdent('_currentwindowid'), true);
-        $this->RegisterVariableString("currentcontrol", "Aktuelles Control", "", 1);
-        $this->RegisterVariableString("skin", "Aktuelles Skin", "", 2);
-        $this->RegisterVariableString("_skinid", "Aktuelles Skin (id)", "", 2);
-        IPS_SetHidden($this->GetIDForIdent('_skinid'), true);
-        $this->RegisterVariableBoolean("fullscreen", "Vollbild", "~Switch", 3);
-        $this->EnableAction("fullscreen");
-        $this->RegisterVariableBoolean("screensaver", "Bildschirmschoner", "~Switch", 4);
-        //Never delete this line!
+        if ($this->ReadPropertyBoolean('showCurrentWindow'))
+        {
+            $this->RegisterVariableString("currentwindow", "Aktuelles Fenster", "", 0);
+            $this->RegisterVariableInteger("_currentwindowid", "Aktuelles Fenster (id)", "", 0);
+            IPS_SetHidden($this->GetIDForIdent('_currentwindowid'), true);
+        }
+        else
+        {
+            $this->UnregisterVariable("currentwindow");
+            $this->UnregisterVariable("_currentwindowid");
+        }
+
+        if ($this->ReadPropertyBoolean('showCurrentControl'))
+            $this->RegisterVariableString("currentcontrol", "Aktuelles Control", "", 1);
+        else
+            $this->UnregisterVariable("currentcontrol");
+
+        if ($this->ReadPropertyBoolean('showSkin'))
+        {
+            $this->RegisterVariableString("skin", "Aktuelles Skin", "", 2);
+            $this->RegisterVariableString("_skinid", "Aktuelles Skin (id)", "", 2);
+            IPS_SetHidden($this->GetIDForIdent('_skinid'), true);
+        }
+        else
+        {
+            $this->UnregisterVariable("skin");
+            $this->UnregisterVariable("_skinid");
+        }
+
+        if ($this->ReadPropertyBoolean('showFullscreen'))
+        {
+            $this->RegisterVariableBoolean("fullscreen", "Vollbild", "~Switch", 3);
+            $this->EnableAction("fullscreen");
+        }
+        else
+            $this->UnregisterVariable("fullscreen");
+
+        if ($this->ReadPropertyBoolean('showScreensaver'))
+            $this->RegisterVariableBoolean("screensaver", "Bildschirmschoner", "~Switch", 4);
+        else
+            $this->UnregisterVariable("screensaver");
+
         parent::ApplyChanges();
     }
 
@@ -132,7 +168,8 @@ class KodiDeviceGUI extends KodiBase
         switch ($Ident)
         {
             case "fullscreen":
-                $this->SetFullscreen($Value);
+                if ($this->SetFullscreen($Value) === false)
+                trigger_error('Error set fullscreen.', E_USER_NOTICE);
                 break;
             default:
                 trigger_error('Invalid Ident.', E_USER_NOTICE);
@@ -142,7 +179,7 @@ class KodiDeviceGUI extends KodiBase
 
 ################## PUBLIC
     /**
-     * IPS-Instanz-Funktion 'KODIGUI_Fullscreen'.
+     * IPS-Instanz-Funktion 'KODIGUI_SetFullscreen'.
      * De-/Aktiviert den Vollbildmodus.
      *
      * @access public
@@ -245,23 +282,6 @@ class KodiDeviceGUI extends KodiBase
         return parent::RequestState($Ident);
     }
 
-    ################# Datapoints
-
-    /*    public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      } */
-    /*
-      protected function Send(Kodi_RPC_Data $KodiData)
-      {
-      return parent::Send($KodiData);
-      }
-
-      protected function SendDataToParent($Data)
-      {
-      return parent::SendDataToParent($Data);
-      }
-     */
 }
 
 /** @} */

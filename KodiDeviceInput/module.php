@@ -254,6 +254,9 @@ class KodiDeviceInput extends KodiBase
     public function Create()
     {
         parent::Create();
+        $this->RegisterPropertyBoolean("showSVGRemote", true);
+        $this->RegisterPropertyBoolean("showNavigationButtons", true);
+        $this->RegisterPropertyBoolean("showControlButtons", true);
     }
 
     /**
@@ -263,39 +266,67 @@ class KodiDeviceInput extends KodiBase
      */
     public function ApplyChanges()
     {
-        // Variablen und Profile für Aktionen fehlen.
-        // Events fehlen
-        /*      7.3 Input
-
-          7.3.1 Input.OnInputFinished
-          7.3.2 Input.OnInputRequested
-
-         */
-
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
-//Never delete this line!
-        parent::ApplyChanges();
-        // Eigene Scripte
-        $sid = $this->RegisterScript("WebHookRemote", "WebHookRemote", '<? //Do not delete or modify.
+        if ($this->ReadPropertyBoolean('showSVGRemote'))
+        {
+            $sid = $this->RegisterScript("WebHookRemote", "WebHookRemote", '<? //Do not delete or modify.
 if (isset($_GET["button"]))
     KODIINPUT_ExecuteAction(' . $this->InstanceID . ',$_GET["button"]);
 ', -8);
-        IPS_SetHidden($sid, true);
-        if (IPS_GetKernelRunlevel() == KR_READY)
-            $this->RegisterHook('/hook/KodiRemote' . $this->InstanceID, $sid);
-        $remoteID = $this->RegisterVariableString("Remote", "Remote", "~HTMLBox", 1);
-        include 'generateRemote.php';        
-        SetValueString($remoteID, $remote);
+            IPS_SetHidden($sid, true);
+            if (IPS_GetKernelRunlevel() == KR_READY)
+                $this->RegisterHook('/hook/KodiRemote' . $this->InstanceID, $sid);
+            $remoteID = $this->RegisterVariableString("Remote", "Remote", "~HTMLBox", 1);
+            include 'generateRemote.php';
+            SetValueString($remoteID, $remote);
+        } else
+        {
+            $this->UnregisterScript("WebHookRemote");
+            if (IPS_GetKernelRunlevel() == KR_READY)
+                $this->UnregisterHook('/hook/KodiRemote' . $this->InstanceID);
+            $this->UnregisterVariable("Remote");
+        }
+
+        if ($this->ReadPropertyBoolean('showNavigationButtons'))
+        {
+            $this->RegisterProfileIntegerEx("Navigation.Kodi", "", "", "", Array(
+                Array(1, "<", "", -1),
+                Array(2, ">", "", -1),
+                Array(3, "^", "", -1),
+                Array(4, "v", "", -1),
+                Array(5, "OK", "", -1),
+                Array(6, "Zurück", "", -1),
+                Array(7, "Home", "", -1)
+            ));
+            $this->RegisterVariableInteger("navremote", "Navigation", "Navigation.Kodi", 2);
+        }
+        else
+            $this->UnregisterVariable("navremote");
+
+        if ($this->ReadPropertyBoolean('showControlButtons'))
+        {
+            $this->RegisterProfileIntegerEx("Control.Kodi", "", "", "", Array(
+                Array(1, "<<", "", -1),
+                Array(2, "Menü", "", -1),
+                Array(3, "Play", "", -1),
+                Array(4, "Pause", "", -1),
+                Array(5, "Stop", "", -1),
+                Array(6, ">>", "", -1)
+            ));
+            $this->RegisterVariableInteger("ctrlremote", "Steuerung", "Control.Kodi", 3);
+        }
+        else
+            $this->UnregisterVariable("ctrlremote");
+
+        if ($this->ReadPropertyBoolean('showControlButtons'))
+        {
+            $this->RegisterVariableBoolean("inputrequested", "Eingabe erwartet", "", 4);
+            if (IPS_GetKernelRunlevel() == KR_INIT)
+                $this->SetValueBoolean("inputrequested", false);
+        }
+        else
+            $this->UnregisterVariable("inputrequested");
+
+        parent::ApplyChanges();
     }
 
 ################## PRIVATE     
@@ -309,33 +340,15 @@ if (isset($_GET["button"]))
 
     protected function Decode($Method, $KodiPayload)
     {
-        //OnInputRequested
-        //OnInputFinished
         switch ($Method)
         {
-            case 'GetProperties':
+            case "OnInputRequested":
+                $this->SetValueBoolean("inputrequested", true);
+                break;
+            case "OnInputFinished":
+                $this->SetValueBoolean("inputrequested", true);
                 break;
         }
-
-//        foreach ($KodiPayload as $param => $value)
-//        {
-//            switch ($param)
-//            {
-//                case "mute":
-//                case "muted":
-//                    $this->SetValueBoolean("mute", $value);
-//                    break;
-//                case "volume":
-//                    $this->SetValueInteger("volume", $value);
-//                    break;
-//                case "name":
-//                    $this->SetValueString("name", $value);
-//                    break;
-//                case "version":
-//                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-//                    break;
-//            }
-//        }
     }
 
 ################## ActionHandler
@@ -351,15 +364,63 @@ if (isset($_GET["button"]))
     {
         switch ($Ident)
         {
-//            case "mute":
-//                return $this->Mute($Value);
-//            case "volume":
-//                return $this->Volume($Value);
-//            case "quit":
-//                return $this->Quit();
-//            default:
-//                return trigger_error('Invalid Ident.', E_USER_NOTICE);
+            case "navremote":
+                switch ($Value)
+                {
+                    case 1:
+                        $ret = $this->Left();
+                        break;
+                    case 2:
+                        $ret = $this->Right();
+                        break;
+                    case 3:
+                        $ret = $this->Up();
+                        break;
+                    case 4:
+                        $ret = $this->Down();
+                        break;
+                    case 5:
+                        $ret = $this->Select();
+                        break;
+                    case 6:
+                        $ret = $this->Back();
+                        break;
+                    case 7:
+                        $ret = $this->Home();
+                        break;
+                    default:
+                        return trigger_error('Invalid Value.', E_USER_NOTICE);
+                }
+            case "ctrlremote":
+                switch ($Value)
+                {
+                    case 1:
+                        $ret = $this->ExecuteAction("rewind");
+                        break;
+                    case 2:
+                        $ret = $this->ExecuteAction("menu");
+                        break;
+                    case 3:
+                        $ret = $this->ExecuteAction("play");
+                        break;
+                    case 4:
+                        $ret = $this->ExecuteAction("pause");
+                        break;
+                    case 5:
+                        $ret = $this->ExecuteAction("stop");
+                        break;
+                    case 6:
+                        $ret = $this->ExecuteAction("fastforward");
+                        break;
+                    default:
+                        return trigger_error('Invalid Value.', E_USER_NOTICE);
+                }
+            default:
+                trigger_error('Invalid Ident.', E_USER_NOTICE);
+                return;
         }
+        if (!$ret)
+            trigger_error('Error on execute action.', E_USER_NOTICE);
     }
 
 ################## PUBLIC
@@ -372,7 +433,8 @@ if (isset($_GET["button"]))
 
     public function Up()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Up');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Up();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -387,7 +449,8 @@ if (isset($_GET["button"]))
      */
     public function Down()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Down');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Down();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -402,7 +465,8 @@ if (isset($_GET["button"]))
      */
     public function Left()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Left');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Left();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -417,7 +481,8 @@ if (isset($_GET["button"]))
      */
     public function Right()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Right');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Right();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -432,7 +497,8 @@ if (isset($_GET["button"]))
      */
     public function Back()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Back');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Back();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -447,7 +513,8 @@ if (isset($_GET["button"]))
      */
     public function ContextMenu()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'ContextMenu');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->ContextMenu();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -462,7 +529,8 @@ if (isset($_GET["button"]))
      */
     public function Home()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Home');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Home();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -477,7 +545,8 @@ if (isset($_GET["button"]))
      */
     public function Info()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Info');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Info();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -492,7 +561,8 @@ if (isset($_GET["button"]))
      */
     public function Select()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Select');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Select();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -507,7 +577,8 @@ if (isset($_GET["button"]))
      */
     public function ShowOSD()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'ShowOSD');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->ShowOSD();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -522,7 +593,8 @@ if (isset($_GET["button"]))
      */
     public function ShowCodec()
     {
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'ShowCodec');
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->ShowCodec();
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -579,36 +651,6 @@ if (isset($_GET["button"]))
         return $ret === 'OK';
     }
 
-    /**
-     * IPS-Instanz-Funktion 'KODIINPUT_RequestState'. Keine Funktion bei KODIINPUT.
-     *
-     * @access public
-     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
-     */
-    public function RequestState(string $Ident)
-    {
-        
-    }
-
-################## Datapoints
-    /*
-      public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      }
-     */
-    /*
-      protected function Send(Kodi_RPC_Data $KodiData)
-      {
-      return parent::Send($KodiData);
-      }
-
-      protected function SendDataToParent($Data)
-      {
-      return parent::SendDataToParent($Data);
-      }
-     */
-
     private function RegisterHook($WebHook, $TargetID)
     {
         $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
@@ -633,6 +675,39 @@ if (isset($_GET["button"]))
             IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
             IPS_ApplyChanges($ids[0]);
         }
+    }
+
+    private function UnregisterHook($WebHook)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    unset($hooks[$index]);
+                    $found = true;
+                }
+            }
+            if ($found)
+            {
+                IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+                IPS_ApplyChanges($ids[0]);
+            }
+        }
+    }
+
+    protected function UnregisterScript($Ident)
+    {
+        $sid = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
+        if ($sid === false)
+            return;
+        if (!IPS_ScriptExists($sid))
+            return; //bail out
+        IPS_DeleteScript($sid);
     }
 
 }

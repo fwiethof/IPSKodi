@@ -248,9 +248,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        if ($ret->limits->total > 0)
             return json_decode(json_encode($ret->albumdetails), true);
-        return array();
     }
 
     /**
@@ -291,9 +289,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        if ($ret->limits->total > 0)
             return json_decode(json_encode($ret->artistdetails), true);
-        return array();
     }
 
     /**
@@ -424,9 +420,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        if ($ret->limits->total > 0)
             return json_decode(json_encode($ret->songdetails), true);
-        return array();
     }
 
     /**

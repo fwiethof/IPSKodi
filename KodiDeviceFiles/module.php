@@ -257,9 +257,7 @@ class KodiDeviceFiles extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        if ($ret->limits->total > 0)
-            return json_decode(json_encode($ret->filedetails), true);
-        return array();
+        return json_decode(json_encode($ret->filedetails), true);
     }
 
     /**

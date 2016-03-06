@@ -605,18 +605,28 @@ class KodiRPCException extends Exception
  * @method null GetSources(array $Params (string "media"  enum["video", "music", "pictures", "files", "programs"])) Liest die Quellen.
  * @method null GetFileDetails(array $Params (string "file" Dateiname) (string "media"  enum["video", "music", "pictures", "files", "programs"]) (array "properties" Zu lesende Eigenschaften)) Liest die Quellen.
  * @method null GetDirectory(array $Params (string "directory" Verzeichnis welches gelesen werden soll.)) Liest ein Verzeichnis aus.
+ * @method null SetFullscreen(array $Params (boolean "fullscreen"))
+ * @method null ShowNotification($Data) ??? 
+ * @method null ActivateWindow(array $Params (integer "window" ID des Fensters)) Aktiviert ein Fenster.
+ * @method null Up(null) Tastendruck hoch.
+ * @method null Down(null) Tastendruck runter.
+ * @method null Left(null) Tastendruch links.
+ * @method null Right(null) Tastendruck right.
+ * @method null Back(null) Tastendruck zurück.
+ * @method null ContextMenu(null) Tastendruck Context-Menü.
+ * @method null Home(null) Tastendruck Home.
+ * @method null Info(null) Tastendruck Info.
+ * @method null Select(null) Tastendruck Select.
+ * @method null ShowOSD(null) OSD Anzeigen.
+ * @method null ShowCodec(null) Codec-Info anzeigen.
+ * @method null ExecuteAction(array $Params (string "action" Die auszuführende Aktion)) Sendet eine Aktion.
+ * @method null SendText(array $Params (string "text" Zu sender String) (boolean "done" True zum beenden der Eingabe)) Sendet einen Eingabetext
  
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.
  * @method null Reboot(null) Führt einen Reboot auf Betriebssystemebene aus.
  * @method null EjectOpticalDrive(null) Öffnet das Optische Laufwerk.
- * 
- * @method null SetFullscreen(array $Params (boolean "fullscreen"))
- * @method null ShowNotification($Data) ??? 
- * @method null ActivateWindow(array $Params (integer "window" ID des Fensters)) Aktiviert ein Fenster.
- * @method null ExecuteAction(array $Params (string "action" Die auszuführende Aktion)) Sendet eine Aktion.
- * @method null SendText(array $Params (string "text" Zu sender String) (boolean "done" True zum beenden der Eingabe)) Sendet einen Eingabetext
  * @property-read integer $Id Id des RPC-Objektes
  * @property-read integer $Typ Typ des RPC-Objektes 
  * @property-read string $Namespace Namespace der RPC-Methode

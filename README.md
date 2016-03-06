@@ -59,7 +59,6 @@ Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
  
  Lautstärke             - Setzen, lesen und visualisieren.  
  Stummschaltung         - Setzen, lesen und visualisieren.  
- Bildschrimschoner      - Status visualisieren.  
  Software beenden       - Nur ausführen.  
  Namen der Software     - Lesen und visualisieren.  
  Version der Software   - Lesen und visualisieren.  
@@ -77,9 +76,30 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
 ---
 
  **Kodi Files (KodiDeviceFiles):**
- RPC-Namensraum : Files
+ RPC-Namensraum : Files  
 
+ Quellen       - Lesen aller bekannten Medienquellen.
+ Verzeichnisse - Auslesen von Verzeichnissen.
+ Dateien       - Auslesen von Eigenschaften einer Datei.
+---
 
+ **Kodi GUI (KodiDeviceGUI):**  
+ RPC-Namensraum : GUI  
+
+ Aktuelles Fenster  - Lesen und visualisieren.  
+ Aktuelle Steuerung - Lesen und visualisieren.  
+ Aktueller Skin     - Lesen und visualisieren.  
+ Vollbildmodus      - Setzen, lesen und visualisieren.  
+ Bildschrimschoner  - Status visualisieren.  
+ Benachrichtungen   - Senden.  
+---
+
+ **Kodi Input (KodiDeviceInput):**  
+ RPC-Namensraum : Input  
+  
+ Tastendruck    - Senden
+ Text           - Senden
+ 
 ## 7. PHP-Befehlsreferenz
 
  **Kodi Anwendung (KodiDeviceApplication):**  
@@ -291,7 +311,12 @@ array|boolean KODIFILES_GetSources(integer $InstanzeID, string $Media);
     "pictures"=Bilder  
     "files"=Dateien  
     "programs"=Programme  
- Rückgabewert ist ein Array mit den Quellen oder FALSE bei einem Fehler.
+ Rückgabewert ist ein Array mit den Quellen oder FALSE bei einem Fehler.  
+
+| Index   | Typ     | Beschreibung                  |
+|:-------:|:-------:|:-----------------------------:|
+| file    | string  | Verzeichniss der Quelle       |
+| label   | string  | Name der Quelle               |
 
  ```php
 array|boolean KODIFILES_GetFileDetails(integer $InstanzeID, string $File, string $Media);
@@ -401,7 +426,148 @@ array|boolean KODIFILES_GetDirectoryDetails(integer $InstanzeID, string $Directo
     "programs"=Programme  
  Rückgabewert ist ein Array mit den Eigenschaften oder FALSE bei einem Fehler.  
  Es gilt die Tabelle von KODIFILES_GetFileDetails.  
+---
  
+ **Kodi GUI (KodiDeviceGUI):**  
+
+```php
+boolean KODIGUI_SetFullscreen(integer $InstanzeID, boolean $Value);
+```
+ De-/Aktiviert den Vollbildmodus.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIGUI_ShowNotification(integer $InstanzeID, string $Title, string $Message, string $Image, integer $Timeout);
+```
+ Erzeugt eine Benachrichtigung.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIGUI_ActivateWindow(integer $InstanzeID, string $Window);
+```
+ Aktiviert ein Fenster.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIGUI_RequestState(integer $InstanzeID, string $Ident);
+```
+ Frage einen Wert ab.  
+ Es ist der Ident der Statusvariable zu übergeben:  
+    "currentwindow",  
+    "currentcontrol",  
+    "skin",  
+    "fullscreen"  
+    
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ **Kodi GUI (KodiDeviceGUI):**  
+
+```php
+boolean KODIINPUT_Up(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'hoch'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_Down(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'runter'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_Left(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'links'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_Right(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'rechts'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_ContextMenu(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'Context-Menü'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_Home(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'Home'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_Info(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'Info'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_Select(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'auswählen'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_ShowOSD(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'OSD anzeigen'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_ShowCodec(integer $InstanzeID);
+```
+ Sendet den Tastendruck 'Codec anzeigen'.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIINPUT_ExecuteAction(integer $InstanzeID, string $Action);
+```
+ Sendet die in $Action übegebene Aktion.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+ $Action kann sein:  
+ "left", "right", "up", "down", "pageup", "pagedown", "select", "highlight", "parentdir",
+ "parentfolder", "back", "previousmenu", "info", "pause", "stop", "skipnext", "skipprevious",
+ "fullscreen", "aspectratio", "stepforward", "stepback", "bigstepforward", "bigstepback",
+ "chapterorbigstepforward", "chapterorbigstepback", "osd", "showsubtitles", "nextsubtitle",
+ "cyclesubtitle", "codecinfo", "nextpicture", "previouspicture", "zoomout", "zoomin",
+ "playlist", "queue", "zoomnormal", "zoomlevel1", "zoomlevel2", "zoomlevel3", "zoomlevel4",
+ "zoomlevel5", "zoomlevel6", "zoomlevel7", "zoomlevel8", "zoomlevel9", "nextcalibration",
+ "resetcalibration", "analogmove", "analogmovex", "analogmovey", "rotate", "rotateccw",
+ "close", "subtitledelayminus", "subtitledelay", "subtitledelayplus", "audiodelayminus", 
+ "audiodelay", "audiodelayplus", "subtitleshiftup", "subtitleshiftdown", "subtitlealign",
+ "audionextlanguage", "verticalshiftup", "verticalshiftdown", "nextresolution", "audiotoggledigital",
+ "number0", "number1", "number2", "number3", "number4", "number5", "number6", "number7",
+ "number8", "number9", "osdleft", "osdright", "osdup", "osddown", "osdselect", "osdvalueplus",
+ "osdvalueminus", "smallstepback", "fastforward", "rewind", "play", "playpause", "switchplayer",
+ "delete", "copy", "move", "mplayerosd", "hidesubmenu", "screenshot", "rename", "togglewatched",
+ "scanitem", "reloadkeymaps", "volumeup", "volumedown", "mute", "backspace", "scrollup",
+ "scrolldown", "analogfastforward", "analogrewind", "moveitemup", "moveitemdown", "contextmenu",
+ "shift", "symbols", "cursorleft", "cursorright", "showtime", "analogseekforward", "analogseekback",
+ "showpreset", "nextpreset", "previouspreset", "lockpreset", "randompreset","increasevisrating",
+ "decreasevisrating", "showvideomenu", "enter", "increaserating", "decreaserating", "togglefullscreen",
+ "nextscene", "previousscene", "nextletter", "prevletter", "jumpsms2", "jumpsms3", "jumpsms4",
+ "jumpsms5", "jumpsms6", "jumpsms7", "jumpsms8", "jumpsms9", "filter", "filterclear","filtersms2",
+ "filtersms3", "filtersms4", "filtersms5", "filtersms6", "filtersms7", "filtersms8","filtersms9",
+ "firstpage", "lastpage", "guiprofile", "red", "green", "yellow", "blue", "increasepar",
+ "decreasepar", "volampup", "volampdown", "volumeamplification", "createbookmark","createepisodebookmark",
+ "settingsreset", "settingslevelchange", "stereomode", "nextstereomode","previousstereomode",
+ "togglestereomode", "stereomodetomono", "channelup", "channeldown","previouschannelgroup",
+ "nextchannelgroup", "playpvr", "playpvrtv", "playpvrradio", "record", "leftclick", "rightclick",
+ "middleclick", "doubleclick", "longclick", "wheelup", "wheeldown", "mousedrag", "mousemove",
+ "tap", "longpress", "pangesture", "zoomgesture", "rotategesture", "swipeleft", "swiperight",
+ "swipeup", "swipedown", "error", "noop"
+
+```php
+boolean KODIINPUT_SendText(integer $InstanzeID, string $Text, boolean $Done);
+```
+ Sendet den in $Text übegebenen Text an Kodi.
+ Mit $Done = true kann die Eingabe beendet werden.
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+
 ## 8. Parameter / Modul-Infos
 
 GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):  
@@ -411,6 +577,8 @@ GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):
 | KodiDeviceApplication  | {3AF936C4-9B31-48EC-84D8-A30F0BEF104C} |
 | KodiDeviceAudioLibrary | {AA078FB4-30C1-4EF1-A2DE-5F957F58BDDC} |
 | KodiDeviceFiles        | {54827867-BB3B-4ACC-A453-7A8D4DC78130} |
+| KodiDeviceGUI          | {E15F2C11-0B28-4CFB-AEE6-463BD313A964} |
+| KodiDeviceInput        | {9F3BE8BB-4610-49F4-A41A-40E14F641F43} |
 
 Eigenschaften von KodiDeviceApplication:  
 
@@ -431,7 +599,26 @@ Eigenschaften von KodiDeviceAudioLibrary:
 
  Eigenschaften von KodiDeviceFiles:  
 
-keine
+keine  
+
+ Eigenschaften von KodiDeviceGUI:  
+
+| Eigenschaft        | Typ     | Standardwert | Funktion                                        |
+| :----------------: | :-----: | :----------: | :---------------------------------------------: |
+| showCurrentWindow  | boolean | true         | Statusvariable für aktuelles Fenster verwenden  |
+| showCurrentControl | boolean | true         | Statusvariable für aktuelle Steuerung verwenden |
+| showSkin           | boolean | true         | Statusvariable für Skin verwenden               |
+| showFullscreen     | boolean | true         | Statusvariable für Vollbildmodus verwenden      |
+| showScreensaver    | boolean | true         | Statusvariable für Bildschirmschoner verwenden  |
+
+ Eigenschaften von KodiDeviceInput: 
+
+| Eigenschaft           | Typ     | Standardwert | Funktion                                 |
+| :-------------------: | :-----: | :----------: | :--------------------------------------: |
+| showSVGRemote         | boolean | true         | SVG-Remote anzeigen                      |
+| showNavigationButtons | boolean | true         | Aktions-Variable zum navigieren anzeigen |
+| showControlButtons    | boolean | true         | Aktions-Variable zum steuern anzeigen    |
+| showInputRequested    | boolean | true         | Status-Variable wenn Eingaben nötig sind |
 
 
 ## 9. Tips & Tricks
