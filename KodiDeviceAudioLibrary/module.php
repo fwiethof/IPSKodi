@@ -13,7 +13,6 @@ class KodiDeviceAudioLibrary extends KodiBase
         "description",
         "type",
         "style",
-//        "albumid",
         "playcount",
         "albumlabel",
         "mood",
@@ -31,7 +30,6 @@ class KodiDeviceAudioLibrary extends KodiBase
         "thumbnail"
     );
     static $AlbumItemListSmall = array(
-        "albumid",
         "playcount",
         "albumlabel",
         "displayartist",
