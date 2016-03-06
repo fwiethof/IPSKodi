@@ -13,7 +13,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         "description",
         "type",
         "style",
-        "albumid",
+//        "albumid",
         "playcount",
         "albumlabel",
         "mood",
