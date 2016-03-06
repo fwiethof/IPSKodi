@@ -602,6 +602,9 @@ class KodiRPCException extends Exception
  * @method null GetSongDetails (array $Params (string "songid" SongID) (array "properties" Zu lesende Song-Eigenschaften) Liest die Eigenschaften eines Songs aus.
  * @method null GetSongs(null) Liest die Eigenschaften aller Songs aus.
  * @method null Scan(null) Startet das Scannen der Quellen für neue Einträge in der Datenbank.
+ * @method null GetSources(array $Params (string "media"  enum["video", "music", "pictures", "files", "programs"])) Liest die Quellen.
+ * @method null GetFileDetails(array $Params (string "file" Dateiname) (string "media"  enum["video", "music", "pictures", "files", "programs"]) (array "properties" Zu lesende Eigenschaften)) Liest die Quellen.
+ * @method null GetDirectory(array $Params (string "directory" Verzeichnis welches gelesen werden soll.)) Liest ein Verzeichnis aus.
  
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
@@ -609,9 +612,6 @@ class KodiRPCException extends Exception
  * @method null Reboot(null) Führt einen Reboot auf Betriebssystemebene aus.
  * @method null EjectOpticalDrive(null) Öffnet das Optische Laufwerk.
  * 
- * @method null GetSources(array $Params (string "media"  enum["video", "music", "pictures", "files", "programs"])) Liest die Quellen.
- * @method null GetFileDetails(array $Params (string "file" Dateiname) (string "media"  enum["video", "music", "pictures", "files", "programs"]) (array "properties" Zu lesende Eigenschaften)) Liest die Quellen.
- * @method null GetDirectory(array $Params (string "directory" Verzeichnis welches gelesen werden soll.)) Liest ein Verzeichnis aus.
  * @method null SetFullscreen(array $Params (boolean "fullscreen"))
  * @method null ShowNotification($Data) ??? 
  * @method null ActivateWindow(array $Params (integer "window" ID des Fensters)) Aktiviert ein Fenster.

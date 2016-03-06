@@ -193,32 +193,34 @@ class KodiDeviceFiles extends KodiBase
      * IPS-Instanz-Funktion 'KODIFILES_GetSources'. Liefert alle bekannten Quellen nach Typ.
      * 
      * @access public
-     * @param string $Value Der Typ der zu suchenden Quellen.
+     * @param string $Media Der Typ der zu suchenden Quellen.
      *   enum["video"=Video, "music"=Musik, "pictures"=Bilder, "files"=Dateien, "programs"=Programme]
      * @return array|boolean Array mit den Quellen oder false bei Fehler.
      */
 
-    public function GetSources(string $Value)
+    public function GetSources(string $Media)
     {
-        if (!is_string($Value))
+        if (!is_string($Media))
         {
             trigger_error('Value must be string', E_USER_NOTICE);
             return false;
         }
 
-        $Value = strtolower($Value);
-        if (!in_array($Value, array("video", "music", "pictures", "files", "programs")))
+        $Media = strtolower($Media);
+        if (!in_array($Media, array("video", "music", "pictures", "files", "programs")))
         {
             trigger_error('Value must be "video", "music", "pictures", "files" or "programs".', E_USER_NOTICE);
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetSources', array("media" => $Value));
-        $KodiData->GetSources(array("media" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetSources(array("media" => $Media));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-        return json_decode(json_encode($ret->sources), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->sources), true);
+        return array();
     }
 
     /**
@@ -250,13 +252,14 @@ class KodiDeviceFiles extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetFileDetails', array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetFileDetails(array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->filedetails), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->filedetails), true);
+        return array();
     }
 
     /**
@@ -279,7 +282,9 @@ class KodiDeviceFiles extends KodiBase
         if (is_null($ret))
             return false;
 
-        return json_decode(json_encode($ret->files), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->files), true);
+        return array();
     }
 
     /**
@@ -317,38 +322,11 @@ class KodiDeviceFiles extends KodiBase
         if (is_null($ret))
             return false;
 
-        return json_decode(json_encode($ret->files), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->files), true);
+        return array();
     }
 
-    /**
-     * Ohne Funktion.
-     *
-     * @access public
-     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
-     * @return boolean true immer
-     */
-    /*    public function RequestState(string $Ident)
-      {
-      return true;
-      } */
-
-################## Datapoints
-    /*
-      public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      }
-
-      protected function Send(Kodi_RPC_Data $KodiData)
-      {
-      return parent::Send($KodiData);
-      }
-
-      protected function SendDataToParent($Data)
-      {
-      return parent::SendDataToParent($Data);
-      }
-     */
 }
 
 /** @} */

@@ -135,21 +135,21 @@ class KodiDeviceAudioLibrary extends KodiBase
 
     protected function Decode($Method, $KodiPayload)
     {
-            switch ($Method)
-            {
-                  case "OnScanStarted":
-                  $this->SetValueBoolean("scan", true);
-                  break;
-                  case "OnScanFinished":
-                  $this->SetValueBoolean("scan", false);
-                  break;
-                  case "OnCleanStarted":
-                  $this->SetValueBoolean("clean", true);
-                  break;
-                  case "OnCleanFinished":
-                  $this->SetValueBoolean("clean", false);
-                  break;
-            }
+        switch ($Method)
+        {
+            case "OnScanStarted":
+                $this->SetValueBoolean("scan", true);
+                break;
+            case "OnScanFinished":
+                $this->SetValueBoolean("scan", false);
+                break;
+            case "OnCleanStarted":
+                $this->SetValueBoolean("clean", true);
+                break;
+            case "OnCleanFinished":
+                $this->SetValueBoolean("clean", false);
+                break;
+        }
     }
 
 ################## ActionHandler
@@ -248,8 +248,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->albumdetails), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->albumdetails), true);
+        return array();
     }
 
     /**
@@ -265,8 +266,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->albums), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->albums), true);
+        return array();
     }
 
     /**
@@ -289,8 +291,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->artistdetails), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->artistdetails), true);
+        return array();
     }
 
     /**
@@ -306,8 +309,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->artists), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->artists), true);
+        return array();
     }
 
     /**
@@ -323,8 +327,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->genres), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->genres), true);
+        return array();
     }
 
     /**
@@ -340,8 +345,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->albums), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->albums), true);
+        return array();
     }
 
     /**
@@ -357,8 +363,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->songs), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->songs), true);
+        return array();
     }
 
     /**
@@ -374,8 +381,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->albums), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->albums), true);
+        return array();
     }
 
     /**
@@ -391,8 +399,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->songs), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->songs), true);
+        return array();
     }
 
     /**
@@ -415,8 +424,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->songdetails), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->songdetails), true);
+        return array();
     }
 
     /**
@@ -432,8 +442,9 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-
-        return json_decode(json_encode($ret->songs), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->songs), true);
+        return array();
     }
 
     /**
@@ -450,11 +461,6 @@ class KodiDeviceAudioLibrary extends KodiBase
         if (is_null($ret))
             return false;
         return $ret === "OK";
-    }
-
-    public function RequestState(string $Ident)
-    {
-        return parent::RequestState($Ident);
     }
 
 }

@@ -70,10 +70,14 @@ Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
 
  Künstler   - Lesen von Daten aus der Datenbank.  
  Alben      - Lesen von Daten aus der Datenbank.  
+ Songs      - Lesen von Daten aus der Datenbank.  
+ Datenbank  - Ausführen von Scan un Clean. Status visualisieren.
 
 Das Setzen von Daten in der Datenbank ist nicht möglich!  
-
 ---
+
+ **Kodi Files (KodiDeviceFiles):**
+ RPC-Namensraum : Files
 
 
 ## 7. PHP-Befehlsreferenz
@@ -126,7 +130,7 @@ boolean KODIAUDIOLIB_Export(integer $InstanzeID, string $Path, boolean $Overwrit
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
-boolean KODIAUDIOLIB_GetAlbumDetails(integer $InstanzeID, integer $AlbumID);
+array|boolean KODIAUDIOLIB_GetAlbumDetails(integer $InstanzeID, integer $AlbumID);
 ```
  Liest die Eigenschaften eines Album aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
@@ -155,28 +159,28 @@ boolean KODIAUDIOLIB_GetAlbumDetails(integer $InstanzeID, integer $AlbumID);
 | thumbnail                 | string    | Pfad zum Cover             |
 
 ```php
-boolean KODIAUDIOLIB_GetAlbums(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetAlbums(integer $InstanzeID);
 ```
  Liest einen Teil der Eigenschaften aller Alben aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetAlbumDetails.  
 
 ```php
-boolean KODIAUDIOLIB_GetRecentlyAddedAlbums(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetRecentlyAddedAlbums(integer $InstanzeID);
 ```
  Liest die Eigenschaften der Alben aus, welche zuletzt zur Datenbank hinzugefügt wurden.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetAlbumDetails.  
 
 ```php
-boolean KODIAUDIOLIB_GetRecentlyPlayedAlbums(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetRecentlyPlayedAlbums(integer $InstanzeID);
 ```
  Liest die Eigenschaften der Alben aus, welche zuletzt zur wiedergegeben wurden.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetAlbumDetails.  
 
 ```php
-boolean KODIAUDIOLIB_GetArtistDetails(integer $InstanzeID, integer $ArtistID);
+array|boolean KODIAUDIOLIB_GetArtistDetails(integer $InstanzeID, integer $ArtistID);
 ```
  Liest die Eigenschaften eines Künstlers aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
@@ -200,14 +204,14 @@ boolean KODIAUDIOLIB_GetArtistDetails(integer $InstanzeID, integer $ArtistID);
 | thumbnail             | string    | Pfad zum Cover    |
 
 ```php
-boolean KODIAUDIOLIB_GetArtists(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetArtists(integer $InstanzeID);
 ```
  Liest die Eigenschaften aller Künstler aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetArtistDetails.  
 
 ```php
-boolean KODIAUDIOLIB_GetGenres(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetGenres(integer $InstanzeID);
 ```
  Liest die Eigenschaften aller bekannten Genres aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
@@ -219,7 +223,7 @@ boolean KODIAUDIOLIB_GetGenres(integer $InstanzeID);
 | thumbnail | string  | Pfad zum Cover  |
 
 ```php
-boolean KODIAUDIOLIB_GetSongDetails(integer $InstanzeID, integer $SongID);
+array|boolean KODIAUDIOLIB_GetSongDetails(integer $InstanzeID, integer $SongID);
 ```
  Liest die Eigenschaften eines Songs aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
@@ -255,34 +259,158 @@ boolean KODIAUDIOLIB_GetSongDetails(integer $InstanzeID, integer $SongID);
 | thumbnail                 | string    | Pfad zum Cover                |
 
 ```php
-boolean KODIAUDIOLIB_GetSongs(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetSongs(integer $InstanzeID);
 ```
  Liest die Eigenschaften aller Songs aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetSongDetails.  
 
 ```php
-boolean GetRecentlyAddedSongs(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetRecentlyAddedSongs(integer $InstanzeID);
 ```
  Liest die Eigenschaften der Songs aus, welche zuletzt zur Datenbank hinzugefügt wurden.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetSongDetails.  
 
 ```php
-boolean GetRecentlyPlayedSongs(integer $InstanzeID);
+array|boolean KODIAUDIOLIB_GetRecentlyPlayedSongs(integer $InstanzeID);
 ```
  Liest die Eigenschaften der Songs aus, welche zuletzt zur wiedergegeben wurden.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetSongDetails.  
 
+ **Kodi Files (KodiDeviceFiles):**  
+
+ ```php
+array|boolean KODIFILES_GetSources(integer $InstanzeID, string $Media);
+```
+ Liefert alle bekannten Quellen nach Typ $Value.
+ $Media: Der Typ der zu suchenden Quellen.  
+    "video"=Video  
+    "music"=Musik  
+    "pictures"=Bilder  
+    "files"=Dateien  
+    "programs"=Programme  
+ Rückgabewert ist ein Array mit den Quellen oder FALSE bei einem Fehler.
+
+ ```php
+array|boolean KODIFILES_GetFileDetails(integer $InstanzeID, string $File, string $Media);
+```
+ Liefert alle Details einer Datei.  
+ $File : Dateiname  
+ $Media: Der Typ der zu suchenden Quellen.  
+    "video"=Video  
+    "music"=Musik  
+    "pictures"=Bilder  
+    "files"=Dateien  
+    "programs"=Programme  
+ Rückgabewert ist ein Array mit den Eigenschaften oder FALSE bei einem Fehler.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| filetyp                   | string    |                               |
+| size                      | integer   |                               |
+| mimetype                  | integer   |                               |
+| file                      | string    |                               |
+| lastmodified              | string    |                               |
+| sorttitle                 | string    |                               |
+| productioncode            | string    |                               |
+| cast                      | array     |                               |
+| votes                     | string    |                               |
+| duration                  | integer   |                               |
+| trailer                   | string    |                               |
+| albumid                   | integer   |                               |
+| musicbrainzartistid       | string    |                               |
+| mpaa                      | string    |                               |
+| albumlabel                | string    |                               |
+| originaltitle             | string    |                               |
+| writer                    | string[]  |                               |
+| albumartistid             | integer[] |                               |
+| type                      | string    |                               |
+| episode                   | integer   |                               |
+| firstaired                | string    |                               |
+| showtitle                 | string    |                               |
+| country                   | string[]  ]                               |
+| mood                      | string[]  |                               |
+| set                       | string    |                               |
+| musicbrainztrackid        | string    |                               |
+| tag                       | string[]  |                               |
+| lyrics                    | string    |                               |
+| top250                    | integer   |                               |
+| comment                   | string    |                               |
+| premiered                 | string    |                               |
+| showlink                  | string[]  |                               |
+| style                     | string[]  |                               |
+| album                     | string    |                               |
+| tvshowid                  | integer   |                               |
+| season                    | integer   |                               |
+| theme                     | string[]  |                               |
+| description               | string    |                               |
+| setid                     | integer   |                               |
+| track                     | integer   |                               |
+| tagline                   | string    |                               |
+| plotoutline               | string    |                               |
+| watchedepisodes           | integer   |                               |
+| id                        | integer   |                               |
+| disc                      | integer   |                               |
+| albumartist               | string[]  |                               |
+| studio                    | string[]  |                               |
+| uniqueid                  | array     |                               |
+| episodeguide              | string    |                               |
+| imdbnumber                | string    |                               |
+| dateadded                 | string    |                               |
+| lastplayed                | string    |                               |
+| plot                      | string    |                               |
+| streamdetails             | array     |                               |
+| director                  | string[]  |                               |
+| resume                    | array     |                               |
+| runtime                   | integer   |                               |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| displayartist             | string    | Künstler                      |
+| artist                    | string[]  | Array der Künstler            |
+| genreid                   | integer[] | Array der Genre IDs           |
+| musicbrainzalbumartistid  | string    | Music Brainz AlbumArtistID    |
+| year                      | integer   | Erscheinungsjahr              |
+| rating                    | integer   | Bewertung                     |
+| artistid                  | integer[] | Array der Künstler IDs        |
+| title                     | string    | Titel der Datei               |
+| musicbrainzalbumid        | string    | Music Brainz AlbumID          |
+| genre                     | string[]  | Array der Genres              |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+ ```php
+array|boolean KODIFILES_GetDirectory(integer $InstanzeID, string $Directory);
+```
+ Liefert Informationen zu einem Verzeichnis.  
+ $Directory : Verzeichnis  
+ Rückgabewert ist ein Array mit den Eigenschaften des Verzeichnises FALSE bei einem Fehler.  
+ Es gilt die Tabelle von KODIFILES_GetFileDetails.  
+
+ ```php
+array|boolean KODIFILES_GetDirectoryDetails(integer $InstanzeID, string $Directory, string $Media);
+```
+ Liefert alle Details eines Verzeichnisses.  
+ $Directory : Verzeichnis  
+ $Media: Der Typ der zu suchenden Quellen.  
+    "video"=Video  
+    "music"=Musik  
+    "pictures"=Bilder  
+    "files"=Dateien  
+    "programs"=Programme  
+ Rückgabewert ist ein Array mit den Eigenschaften oder FALSE bei einem Fehler.  
+ Es gilt die Tabelle von KODIFILES_GetFileDetails.  
+ 
 ## 8. Parameter / Modul-Infos
 
 GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):  
 
-| Instanz  | GUID                                   |
-| :------: | :------------------------------------: |
+| Instanz                | GUID                                   |
+| :--------------------: | :------------------------------------: |
 | KodiDeviceApplication  | {3AF936C4-9B31-48EC-84D8-A30F0BEF104C} |
 | KodiDeviceAudioLibrary | {AA078FB4-30C1-4EF1-A2DE-5F957F58BDDC} |
+| KodiDeviceFiles        | {54827867-BB3B-4ACC-A453-7A8D4DC78130} |
 
 Eigenschaften von KodiDeviceApplication:  
 
@@ -300,6 +428,10 @@ Eigenschaften von KodiDeviceAudioLibrary:
 | showDoScan  | boolean | true         | Statusvariable für DB-Bereinigung verwenden          |
 | showClean   | boolean | true         | Aktions-Variable zum starten des Scan anlegen        |
 | showDoClean | boolean | true         | Aktions-Variable zum starten der Bereinigung anlegen |
+
+ Eigenschaften von KodiDeviceFiles:  
+
+keine
 
 
 ## 9. Tips & Tricks
