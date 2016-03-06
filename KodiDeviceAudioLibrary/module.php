@@ -50,7 +50,6 @@ class KodiDeviceAudioLibrary extends KodiBase
         "disbanded",
         "description",
         "instrument",
-        "artistid",
         "genre",
         "fanart",
         "thumbnail"
