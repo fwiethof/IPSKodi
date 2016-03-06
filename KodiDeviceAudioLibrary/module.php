@@ -164,10 +164,12 @@ class KodiDeviceAudioLibrary extends KodiBase
         switch ($Ident)
         {
             case "doclean":
-                $this->Clean();
+                if ($this->Clean() === false)
+                    trigger_error('Error start cleaning', E_USER_NOTICE);
                 break;
             case "doscan":
-                $this->Scan();
+                if ($this->Scan() === false)
+                    trigger_error('Error start scanning', E_USER_NOTICE);
                 break;
 
             default:

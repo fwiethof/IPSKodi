@@ -138,13 +138,19 @@ class KodiDeviceApplication extends KodiBase
         switch ($Ident)
         {
             case "mute":
-                $this->SetMute($Value);
+                if ($this->SetMute($Value) === false)
+                    trigger_error('Error set mute', E_USER_NOTICE);
+
                 break;
             case "volume":
-                $this->SetVolume($Value);
+                if ($this->SetVolume($Value) === false)
+                    trigger_error('Error set volume', E_USER_NOTICE);
+
                 break;
             case "quit":
-                $this->Quit();
+                if ($this->Quit() === false)
+                    trigger_error('Error exit Kodi', E_USER_NOTICE);
+
                 break;
             default:
                 trigger_error('Invalid Ident.', E_USER_NOTICE);
