@@ -137,6 +137,7 @@ boolean KODIAUDIOLIB_GetAlbumDetails(integer $InstanzeID, integer $AlbumID);
 | description               | string    | Beschreibung               |
 | type                      | string    |                            |
 | style                     | string[]  | Array der Stiele           |
+| albumid                   | integer   |                            |
 | playcount                 | integer   | Anzahl der Wiedergaben     |
 | albumlabel                | string    |                            |
 | mood                      | string[]  | Array der Stimmungen       |

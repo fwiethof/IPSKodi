@@ -49,7 +49,6 @@ class KodiDeviceAudioLibrary extends KodiBase
         "musicbrainzartistid",
         "disbanded",
         "description",
-        "artist",
         "instrument",
         "artistid",
         "genre",
