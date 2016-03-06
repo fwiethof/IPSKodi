@@ -140,26 +140,21 @@ class KodiDeviceAudioLibrary extends KodiBase
 
     protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
-        {
-            switch ($param)
+            switch ($Method)
             {
-                /*                case "mute":
-                  case "muted":
-                  $this->SetValueBoolean("mute", $value);
+                  case "OnScanStarted":
+                  $this->SetValueBoolean("scan", true);
                   break;
-                  case "volume":
-                  $this->SetValueInteger("volume", $value);
+                  case "OnScanFinished":
+                  $this->SetValueBoolean("scan", false);
                   break;
-                  case "name":
-                  $this->SetValueString("name", $value);
+                  case "OnCleanStarted":
+                  $this->SetValueBoolean("clean", true);
                   break;
-                  case "version":
-                  $this->SetValueString("version", $value->major . '.' . $value->minor);
+                  case "OnCleanFinished":
+                  $this->SetValueBoolean("clean", false);
                   break;
-                 */
             }
-        }
     }
 
 ################## ActionHandler
