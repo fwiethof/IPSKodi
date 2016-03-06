@@ -393,6 +393,7 @@ if (isset($_GET["button"]))
                     default:
                         return trigger_error('Invalid Value.', E_USER_NOTICE);
                 }
+                break;
             case "ctrlremote":
                 switch ($Value)
                 {
@@ -417,6 +418,7 @@ if (isset($_GET["button"]))
                     default:
                         return trigger_error('Invalid Value.', E_USER_NOTICE);
                 }
+                break;
             default:
                 trigger_error('Invalid Ident.', E_USER_NOTICE);
                 return;
