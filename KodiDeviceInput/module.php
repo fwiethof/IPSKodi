@@ -298,6 +298,7 @@ if (isset($_GET["button"]))
                 Array(7, "Home", "", -1)
             ));
             $this->RegisterVariableInteger("navremote", "Navigation", "Navigation.Kodi", 2);
+            $this->EnableAction("navremote");
         }
         else
             $this->UnregisterVariable("navremote");
@@ -313,6 +314,7 @@ if (isset($_GET["button"]))
                 Array(6, ">>", "", -1)
             ));
             $this->RegisterVariableInteger("ctrlremote", "Steuerung", "Control.Kodi", 3);
+            $this->EnableAction("ctrlremote");
         }
         else
             $this->UnregisterVariable("ctrlremote");
