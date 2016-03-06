@@ -56,8 +56,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     );
     static $GenreItemList = array(
         "thumbnail",
-        "title",
-        "genreid"
+        "title"
     );
     static $SongItemList = array(
         "title",
@@ -354,7 +353,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     public function GetRecentlyAddedSongs()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->GetRecentlyAddedSongs(array("properties" => static::$AlbumItemList));
+        $KodiData->GetRecentlyAddedSongs(array("properties" => static::$SongItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
