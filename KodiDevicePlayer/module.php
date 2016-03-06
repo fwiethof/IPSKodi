@@ -1531,24 +1531,18 @@ class KodiDevicePlayer extends KodiBase
       return parent::RequestState($Ident);
       }
      */
-################## Datapoints
-    /*
-      public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      }
+    /**
+     * Liefert den Parent der Instanz.
+     * 
+     * @return integer|boolean InstanzID des Parent, false wenn kein Parent vorhanden.
      */
-    /*
-      protected function Send(Kodi_RPC_Data $KodiData)
-      {
-      return parent::Send($KodiData);
-      }
 
-      protected function SendDataToParent($Data)
-      {
-      return parent::SendDataToParent($Data);
-      }
-     */
+    protected function GetParent()
+    {
+        $instance = IPS_GetInstance($this->InstanceID);
+        return ($instance['ConnectionID'] > 0) ? $instance['ConnectionID'] : false;
+    }
+
 }
 
 /** @} */
