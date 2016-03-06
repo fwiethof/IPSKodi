@@ -9,7 +9,7 @@
                 {
                     "name": "Host",
                     "type": "ValidationTextBox",
-                    "caption": "LMS Adresse"
+                    "caption": "Adresse"
                 },
                 {
                     "name": "Port",
