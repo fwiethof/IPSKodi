@@ -233,12 +233,6 @@ class KodiDeviceApplication extends KodiBase
         return parent::RequestState($Ident);
     }
 
-################## Datapoints
-
-    /*    public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      } */
 }
 
 /** @} */

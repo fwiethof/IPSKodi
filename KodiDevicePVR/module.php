@@ -1,80 +1,154 @@
 <?
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
 
+/**
+ * KodiDevicePVR Klasse für den Namespace PVR der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDevicePVR extends KodiBase
 {
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     *  @var string
+     * @value 'PVR'
+     */
     static $Namespace = 'PVR';
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
     static $Properties = array(
-//        "volume",
-//        "muted",
-//        "name",
-//        "version"
+        "available",
+        "recording",
+        "scanning"
     );
 
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
     public function Create()
     {
         parent::Create();
+        $this->RegisterPropertyBoolean("showIsAvailable", true);
+        $this->RegisterPropertyBoolean("showIsRecording", true);
+        $this->RegisterPropertyBoolean("showDoRecording", true);
+        $this->RegisterPropertyBoolean("showIsScanning", true);
+        $this->RegisterPropertyBoolean("showDoScanning", true);
     }
 
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
     public function ApplyChanges()
     {
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
+        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
+            Array(0, "Ausführen", "", -1)
+        ));
+        if ($this->ReadPropertyBoolean('showIsAvailable'))
+            $this->RegisterVariableBoolean("available", "Verfügbar", "", 1);
+        else
+            $this->UnregisterVariable("available");
 
-        //Never delete this line!
+        if ($this->ReadPropertyBoolean('showIsRecording'))
+            $this->RegisterVariableBoolean("recording", "Aufnahame läuft", "", 3);
+        else
+            $this->UnregisterVariable("recording");
+
+        if ($this->ReadPropertyBoolean('showDoRecording'))
+        {
+            $this->RegisterVariableBoolean("record", "Aufnahame aktueller Kanal", "~Switch", 4);
+            $this->EnableAction("record");
+        }
+        else
+            $this->UnregisterVariable("record");
+
+        if ($this->ReadPropertyBoolean('showIsScanning'))
+            $this->RegisterVariableBoolean("scanning", "Kanalsuche aktiv", "", 5);
+        else
+            $this->UnregisterVariable("scanning");
+
+        if ($this->ReadPropertyBoolean('showDoScanning'))
+        {
+            $this->RegisterVariableInteger("scan", "Kanalsuche starten", "Action.Kodi", 6);
+            $this->EnableAction("scan");
+        }
+        else
+            $this->UnregisterVariable("scan");
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
 
-    protected function Decode($Method,$KodiPayload)
+    /**
+     * Dekodiert die empfangenen Events und Anworten auf 'GetProperties'.
+     *
+     * @param string $Method RPC-Funktion ohne Namespace
+     * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
+     */
+    protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
+        switch ($Method)
         {
-            switch ($param)
-            {
-//                case "mute":
-//                case "muted":
-//                    $this->SetValueBoolean("mute", $value);
-//                    break;
-//                case "volume":
-//                    $this->SetValueInteger("volume", $value);
-//                    break;
-//                case "name":
-//                    $this->SetValueString("name", $value);
-//                    break;
-//                case "version":
-//                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-//                    break;
-            }
+            case "GetProperties":
+                foreach ($KodiPayload as $param => $value)
+                {
+                    $this->SetValueBoolean($param, $value);
+                }
+                break;
+            default:
+                ob_start();
+                var_dump($KodiPayload);
+                $dump = ob_get_clean();
+                IPS_LogMessage('KODI_Event:' . $Method, $dump);
+
+                break;
         }
     }
 
 ################## ActionHandler
 
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
         {
-//            case "mute":
-//                return $this->Mute($Value);
-//            case "volume":
-//                return $this->Volume($Value);
-//            case "quit":
-//                return $this->Quit();
-//            default:
-//                return trigger_error('Invalid Ident.', E_USER_NOTICE);
+            case "scan":
+                if ($this->Scan() === false)
+                    trigger_error('Error start scan', E_USER_NOTICE);
+                break;
+            case "record":
+                if ($this->Record($Value, "current") === false)
+                    trigger_error('Error start recording', E_USER_NOTICE);
+                break;
+            default:
+                trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
     }
 
@@ -86,72 +160,48 @@ class KodiDevicePVR extends KodiBase
 
     public function RawSend(string $Namespace, string $Method, $Params)
     {
-     return   parent::RawSend($Namespace, $Method, $Params);
+        return parent::RawSend($Namespace, $Method, $Params);
     }
-//
-//    public function Mute(boolean $Value)
-//    {
-//        if (!is_bool($Value))
-//        {
-//            trigger_error('Value must be boolean', E_USER_NOTICE);
-//            return false;
-//        }
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueBoolean("mute", $ret);
-//        return $ret['mute'] === $Value;
-//    }
-//
-//    public function Volume(integer $Value)
-//    {
-//        if (!is_int($Value))
-//        {
-//            trigger_error('Value must be integer', E_USER_NOTICE);
-//            return false;
-//        }
-////        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace);
-//        $KodiData->SetVolume(array("volume" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueInteger("volume", $ret);
-//        return $ret['volume'] === $Value;
-//    }
-//
-//    public function Quit()
-//    {
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Quit');
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        return true;
-//    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_Scan'. Startet einen Suchlauf.
+     *
+     * @access public
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
+    public function Scan()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Scan();
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return $ret === "OK";
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAPP_Record'. Startet/Beendet eine Aufnahme.
+     *
+     * @access public
+     * @param boolean $Record True für starten, false zum stoppen.
+     * @param string $Channel Kanalname.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
+    public function Record(boolean $Record, string $Channel)
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Record(array("record" => $Record, "channel" => $Channel));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return $ret === "OK";
+    }
 
     public function RequestState(string $Ident)
     {
-      return  parent::RequestState($Ident);
+        return parent::RequestState($Ident);
     }
 
-
-################## Datapoints
-
-    public function ReceiveData($JSONString)
-    {
-        return parent::ReceiveData($JSONString);
-    }
-/*
-    protected function Send(Kodi_RPC_Data $KodiData)
-    {
-        return parent::Send($KodiData);
-    }
-
-    protected function SendDataToParent($Data)
-    {
-        return parent::SendDataToParent($Data);
-    }*/
 }
-
+/** @} */
 ?>

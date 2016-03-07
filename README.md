@@ -99,6 +99,15 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
   
  Tastendruck    - Senden
  Text           - Senden
+ ---
+
+ **Kodi PVR (KodiDevicePVR):**  
+ RPC-Namensraum : PVR  
+
+ Verfügbarkeit  - Zustand lesen und visualisieren.
+ Suchlauf       - Starten, Zustand lesen und visualisieren.
+ Aufnahme       - Steuern, Zustand lesen und visualisieren.
+
  
 ## 7. PHP-Befehlsreferenz
 
@@ -567,6 +576,21 @@ boolean KODIINPUT_SendText(integer $InstanzeID, string $Text, boolean $Done);
  Mit $Done = true kann die Eingabe beendet werden.
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
+ **Kodi PVR (KodiDevicePVR):**  
+
+```php
+boolean KODIPVR_Scan();
+```
+ Startet einen Suchlauf.
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIAPP_Record(integer $InstanzeID, boolean $Record, string $Channel);
+```
+ Startet/Beendet eine Aufnahme.
+ Mit $Record TRUE für starten, FALSE zum stoppen.
+ Mit $Channel wird der Kanalname übergeben.
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ## 8. Parameter / Modul-Infos
 
@@ -579,6 +603,7 @@ GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):
 | KodiDeviceFiles        | {54827867-BB3B-4ACC-A453-7A8D4DC78130} |
 | KodiDeviceGUI          | {E15F2C11-0B28-4CFB-AEE6-463BD313A964} |
 | KodiDeviceInput        | {9F3BE8BB-4610-49F4-A41A-40E14F641F43} |
+| KodiDevicePVR          | {9D73D46E-7B80-4814-A7B2-31768DC6AB7E} |
 
 Eigenschaften von KodiDeviceApplication:  
 
@@ -620,6 +645,15 @@ keine
 | showControlButtons    | boolean | true         | Aktions-Variable zum steuern anzeigen    |
 | showInputRequested    | boolean | true         | Status-Variable wenn Eingaben nötig sind |
 
+ Eigenschaften von KodiDevicePVR:  
+
+| Eigenschaft     | Typ     | Standardwert | Funktion                                                 |
+| :-------------: | :-----: | :----------: | :------------------------------------------------------: |
+| showIsAvailable | boolean | true         | Status-Variable PVR-Verfügbarkeit anzeigen               |
+| showIsRecording | boolean | true         | Status-Variable Aufzeichnung aktiv anzeigen              |
+| showDoRecording | boolean | true         | Aktions-Variable zum steuern einer Aufzeichnung anzeigen |
+| showIsScanning  | boolean | true         | Status-Variable für sktive Kanalsuche anzeigen           |
+| showDoScanning  | boolean | true         | Aktions-Variable zum starten einer Kanalsuche anzeigen   |
 
 ## 9. Tips & Tricks
 
