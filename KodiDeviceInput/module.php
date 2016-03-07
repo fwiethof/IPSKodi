@@ -331,7 +331,8 @@ if (isset($_GET["button"]))
         parent::ApplyChanges();
     }
 
-################## PRIVATE     
+################## PRIVATE    
+
     /**
      * Dekodiert die empfangenen Events und Anworten auf 'GetProperties'.
      * 
@@ -339,7 +340,6 @@ if (isset($_GET["button"]))
      * @param string $Method RPC-Funktion ohne Namespace
      * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
      */
-
     protected function Decode($Method, $KodiPayload)
     {
         switch ($Method)
@@ -354,6 +354,7 @@ if (isset($_GET["button"]))
     }
 
 ################## ActionHandler
+
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      * 
@@ -361,7 +362,6 @@ if (isset($_GET["button"]))
      * @param string $Ident Der Ident der Statusvariable.
      * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
      */
-
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
@@ -428,13 +428,13 @@ if (isset($_GET["button"]))
     }
 
 ################## PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'KODIINPUT_Up'. Tastendruck 'Hoch' ausführen.
      *
      * @access public
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-
     public function Up()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
@@ -655,6 +655,15 @@ if (isset($_GET["button"]))
         return $ret === 'OK';
     }
 
+################## WORKAROUNDS - protected
+
+    /**
+     * Erstellt einen WebHook, wenn nicht schon vorhanden.
+     *
+     * @access private
+     * @param string $WebHook URI des WebHook.
+     * @param integer $TargetID Ziel-Script des WebHook.
+     */
     private function RegisterHook($WebHook, $TargetID)
     {
         $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
@@ -681,6 +690,12 @@ if (isset($_GET["button"]))
         }
     }
 
+    /**
+     * Löscht einen WebHook, wenn vorhanden.
+     *
+     * @access private
+     * @param string $WebHook URI des WebHook.
+     */
     private function UnregisterHook($WebHook)
     {
         $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
@@ -704,6 +719,12 @@ if (isset($_GET["button"]))
         }
     }
 
+    /**
+     * Löscht eine Statusvariable, sofern vorhanden.
+     *
+     * @access private
+     * @param integer $Ident Ident der Variable.
+     */
     protected function UnregisterScript($Ident)
     {
         $sid = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);

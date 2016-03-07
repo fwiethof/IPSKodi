@@ -592,6 +592,24 @@ boolean KODIAPP_Record(integer $InstanzeID, boolean $Record, string $Channel);
  Mit $Channel wird der Kanalname übergeben.
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
+```php
+boolean KODIAPP_GetChannels(integer $InstanzeID, string $ChannelTyp);
+```
+ Liest alle Kanäle vom Typ $ChannelTyp aus und liefert die Eigenschaften als Array.  
+ $ChannelTyp kann 'tv' oder 'radio' sein.
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+
+| Index                    | Typ      | Beschreibung                  |
+|:------------------------:|:--------:|:-----------------------------:|
+| channeltype              | string   |                               |
+| thumbnail                | string   |                               |
+| channel                  | string   |                               |
+| hidden                   | boolean  |                               |
+| channelid                | integer  |                               |
+| locked                   | boolean  |                               |
+| lastplayed               | string   |                               |
+
+
 ## 8. Parameter / Modul-Infos
 
 GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):  

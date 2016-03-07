@@ -41,6 +41,21 @@ class KodiDevicePVR extends KodiBase
     );
 
     /**
+     * Alle Eigenschaften von Kanal-Items.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $ItemList = array(
+        "thumbnail",
+        "channeltype",
+        "hidden",
+        "locked",
+        "channel",
+        "lastplayed"
+    );
+
+    /**
      * Interne Funktion des SDK.
      *
      * @access public
@@ -197,11 +212,48 @@ class KodiDevicePVR extends KodiBase
         return $ret === "OK";
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODIAPP_GetChannels'. Liest die Kanalliste
+     *
+     * @access public
+     * @param string $ChannelTyp [enum "tv", "radio"] Kanaltyp welcher gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetChannels(string $ChannelTyp)
+    {
+        if (!in_array($ChannelTyp, array("radio", "tv")))
+        {
+            trigger_error("ChannelTyp must 'tv' or 'radio'.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetChannels(array("channelgroupid" => "all" . $ChannelTyp, "properties" => static::$ItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->channels), true);
+        return array();
+    }
+
+    // GetChannelDetails
+    // GetChannelGroups
+    // GetChannelGroupDetails
+    
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_RequestState'. Frage eine oder mehrere Properties eines Namespace ab.
+     *
+     * @access public
+     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
+     * @return boolean true bei erfolgreicher Ausführung, sonst false.
+     */
     public function RequestState(string $Ident)
     {
         return parent::RequestState($Ident);
     }
 
 }
+
 /** @} */
 ?>

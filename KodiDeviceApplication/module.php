@@ -158,6 +158,7 @@ class KodiDeviceApplication extends KodiBase
     }
 
 ################## PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'KODIAPP_SetMute'. De-/Aktiviert die Stummschaltung
      *
@@ -165,7 +166,6 @@ class KodiDeviceApplication extends KodiBase
      * @param boolean $Value True für Stummschaltung aktiv, False bei inaktiv.
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-
     public function SetMute(boolean $Value)
     {
         if (!is_bool($Value))

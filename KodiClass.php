@@ -263,28 +263,7 @@ abstract class KodiBase extends IPSModule
         }
     }
 
-################## ActionHandler
-
-    /**
-     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
-     * 
-     * @abstract
-     * @access public
-     * @param string $Ident Der Ident der Statusvariable.
-     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
-     */
-//    abstract public function RequestAction($Ident, $Value);
 ################## PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
-     */
-    /*    public function RawSend(string $Namespace, string $Method, $Params)
-      {
-      $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
-      $ret = $this->Send($KodiData);
-      return $ret;
-      } */
 
     /**
      * IPS-Instanz-Funktion '*_RequestState'. Frage eine oder mehrere Properties eines Namespace ab.
@@ -622,7 +601,11 @@ class KodiRPCException extends Exception
  * @method null ExecuteAction(array $Params (string "action" Die auszuführende Aktion)) Sendet eine Aktion.
  * @method null SendText(array $Params (string "text" Zu sender String) (boolean "done" True zum beenden der Eingabe)) Sendet einen Eingabetext.
  * @method null Record(array $Params (boolean "record" Starten/Stoppen) (string "channel" Kanal für die Aufnahme)) Startet/Beendet eine laufende Aufnahme.
- 
+ * @method null GetChannels
+ * @method null GetChannelDetails
+ * @method null GetChannelGroups
+ * @method null GetChannelGroupDetails
+ * 
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.

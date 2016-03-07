@@ -140,26 +140,6 @@ class KodiDeviceFiles extends KodiBase
         "albumlabel",
     );
 
-    /**
-     * Interne Funktion des SDK.
-     *
-     * @access public
-     */
-    /* public function Create()
-      {
-      parent::Create();
-      } */
-
-    /**
-     * Interne Funktion des SDK.
-     * 
-     * @access public
-     */
-    /*  public function ApplyChanges()
-      {
-      parent::ApplyChanges();
-      }
-     */
 ################## PRIVATE     
 
     /**
@@ -174,21 +154,8 @@ class KodiDeviceFiles extends KodiBase
         return;
     }
 
-################## ActionHandler
-
-    /**
-     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
-     * 
-     * @access public
-     * @param string $Ident Der Ident der Statusvariable.
-     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
-     */
-    public function RequestAction($Ident, $Value)
-    {
-        
-    }
-
 ################## PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'KODIFILES_GetSources'. Liefert alle bekannten Quellen nach Typ.
      * 
@@ -197,7 +164,6 @@ class KodiDeviceFiles extends KodiBase
      *   enum["video"=Video, "music"=Musik, "pictures"=Bilder, "files"=Dateien, "programs"=Programme]
      * @return array|boolean Array mit den Quellen oder false bei Fehler.
      */
-
     public function GetSources(string $Media)
     {
         if (!is_string($Media))

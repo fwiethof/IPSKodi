@@ -277,6 +277,7 @@ class KodiSplitter extends IPSModule
     }
 
 ################## PRIVATE     
+    
     /**
      * Sendet ein PowerEvent an die Childs.
      * Ermöglicht es dass der Child vom Typ KodiDeviceSystem den aktuellen an/aus Zustand von Kodi kennt.
@@ -284,7 +285,6 @@ class KodiSplitter extends IPSModule
      * @access private
      * @param boolean $value true für an, false für aus.
      */
-
     private function SendPowerEvent($value)
     {
         $KodiData = new Kodi_RPC_Data('System', 'Power', array('data' => $value), 0);
@@ -298,10 +298,6 @@ class KodiSplitter extends IPSModule
     }
 
 ################## PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
-     */
 
     /**
      * IPS-Instanz-Funktion 'KODIRPC_GetImage'. Holt ein Bild vom Kodi-Webfront.
@@ -499,6 +495,7 @@ class KodiSplitter extends IPSModule
     }
 
 ################## DATAPOINTS PARENT    
+
     /**
      * Empfängt Daten vom Parent.
      * 
@@ -506,7 +503,6 @@ class KodiSplitter extends IPSModule
      * @param string $JSONString Das empfangene JSON-kodierte Objekt vom Parent.
      * @result boolean True wenn Daten verarbeitet wurden, sonst false.
      */
-
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
@@ -662,13 +658,13 @@ class KodiSplitter extends IPSModule
         return false;
     }
 
-################## DUMMYS / WOARKAROUNDS - protected
+################## DUMMYS / WORKAROUNDS - protected
+
     /**
      * Liefert den Parent der Instanz.
      * 
      * @return integer|boolean InstanzID des Parent, false wenn kein Parent vorhanden.
      */
-
     protected function GetParent()
     {
         $instance = IPS_GetInstance($this->InstanceID);

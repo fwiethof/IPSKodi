@@ -1,13 +1,48 @@
 <?
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
 
+/**
+ * KodiDeviceAudioLibrary Klasse für den Namespace AudioLibrary der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDeviceAudioLibrary extends KodiBase
 {
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     *  @var string
+     * @value 'AudioLibrary'
+     */
     static $Namespace = 'AudioLibrary';
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
     static $Properties = array(
     );
+
+    /**
+     * Alle Eigenschaften eines Alben.
+     * 
+     * @access private
+     *  @var array 
+     */
     static $AlbumItemList = array(
         "theme",
         "description",
@@ -29,6 +64,13 @@ class KodiDeviceAudioLibrary extends KodiBase
         "fanart",
         "thumbnail"
     );
+
+    /**
+     * Ein Teil der Eigenschaften der Alben.
+     * 
+     * @access private
+     *  @var array 
+     */
     static $AlbumItemListSmall = array(
         "playcount",
         "albumlabel",
@@ -39,6 +81,13 @@ class KodiDeviceAudioLibrary extends KodiBase
         "fanart",
         "thumbnail"
     );
+
+    /**
+     * Alle Eigenschaften von Künstlern.
+     * 
+     * @access private
+     *  @var array 
+     */
     static $ArtistItemList = array(
         "born",
         "formed",
@@ -54,10 +103,24 @@ class KodiDeviceAudioLibrary extends KodiBase
         "fanart",
         "thumbnail"
     );
+
+    /**
+     * Alle Eigenschaften von Genres.
+     * 
+     * @access private
+     *  @var array 
+     */
     static $GenreItemList = array(
         "thumbnail",
         "title"
     );
+
+    /**
+     * Alle Eigenschaften von Songs.
+     * 
+     * @access private
+     *  @var array 
+     */
     static $SongItemList = array(
         "title",
         "artist",
@@ -87,6 +150,11 @@ class KodiDeviceAudioLibrary extends KodiBase
         "albumartistid"
     );
 
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
     public function Create()
     {
         parent::Create();
@@ -96,6 +164,11 @@ class KodiDeviceAudioLibrary extends KodiBase
         $this->RegisterPropertyBoolean("showClean", true);
     }
 
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
     public function ApplyChanges()
     {
         $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
@@ -133,6 +206,12 @@ class KodiDeviceAudioLibrary extends KodiBase
 
 ################## PRIVATE     
 
+    /**
+     * Dekodiert die empfangenen Events.
+     *
+     * @param string $Method RPC-Funktion ohne Namespace
+     * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
+     */
     protected function Decode($Method, $KodiPayload)
     {
         switch ($Method)
@@ -154,6 +233,13 @@ class KodiDeviceAudioLibrary extends KodiBase
 
 ################## ActionHandler
 
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
@@ -173,10 +259,6 @@ class KodiDeviceAudioLibrary extends KodiBase
     }
 
 ################## PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
-     */
 
     /**
      * IPS-Instanz-Funktion 'KODIAUDIOLIB_Clean'. Startet das bereinigen der Datenbank
@@ -248,7 +330,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-            return json_decode(json_encode($ret->albumdetails), true);
+        return json_decode(json_encode($ret->albumdetails), true);
     }
 
     /**
@@ -289,7 +371,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-            return json_decode(json_encode($ret->artistdetails), true);
+        return json_decode(json_encode($ret->artistdetails), true);
     }
 
     /**
@@ -420,7 +502,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
-            return json_decode(json_encode($ret->songdetails), true);
+        return json_decode(json_encode($ret->songdetails), true);
     }
 
     /**
@@ -458,5 +540,5 @@ class KodiDeviceAudioLibrary extends KodiBase
     }
 
 }
-
+/** @} */
 ?>

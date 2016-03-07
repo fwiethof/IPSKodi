@@ -111,6 +111,7 @@ class KodiDeviceGUI extends KodiBase
     }
 
 ################## PRIVATE     
+
     /**
      * Dekodiert die empfangenen Events und Anworten auf 'GetProperties'.
      * 
@@ -118,7 +119,6 @@ class KodiDeviceGUI extends KodiBase
      * @param string $Method RPC-Funktion ohne Namespace
      * @param object $KodiPayload Der zu dekodierende Datensatz als Objekt.
      */
-
     protected function Decode($Method, $KodiPayload)
     {
         switch ($Method)
@@ -155,6 +155,7 @@ class KodiDeviceGUI extends KodiBase
     }
 
 ################## ActionHandler
+
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      * 
@@ -162,14 +163,13 @@ class KodiDeviceGUI extends KodiBase
      * @param string $Ident Der Ident der Statusvariable.
      * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
      */
-
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
         {
             case "fullscreen":
                 if ($this->SetFullscreen($Value) === false)
-                trigger_error('Error set fullscreen.', E_USER_NOTICE);
+                    trigger_error('Error set fullscreen.', E_USER_NOTICE);
                 break;
             default:
                 trigger_error('Invalid Ident.', E_USER_NOTICE);
@@ -178,6 +178,7 @@ class KodiDeviceGUI extends KodiBase
     }
 
 ################## PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'KODIGUI_SetFullscreen'.
      * De-/Aktiviert den Vollbildmodus.
@@ -186,7 +187,6 @@ class KodiDeviceGUI extends KodiBase
      * @param boolean $Value True für Vollbild aktiv, False bei inaktiv.
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-
     public function SetFullscreen(boolean $Value)
     {
         if (!is_bool($Value))
