@@ -26,6 +26,21 @@
             [
                 {
                     "type": "Button",
+                    "label": "Record on",
+                    "onClick": "KODIPVR_Record($id,true,'current');"
+                },
+                {
+                    "type": "Button",
+                    "label": "Record off",
+                    "onClick": "KODIPVR_Record($id,false,'current');"
+                },
+                {
+                    "type": "Button",
+                    "label": "Channelscan",
+                    "onClick": "KODIPVR_Scan($id);"
+                },
+                {
+                    "type": "Button",
                     "label": "Request State",
                     "onClick": "KODIPVR_RequestState($id,'ALL');"
                 }

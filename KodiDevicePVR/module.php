@@ -168,15 +168,6 @@ class KodiDevicePVR extends KodiBase
     }
 
 ################## PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
-     */
-
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
-        return parent::RawSend($Namespace, $Method, $Params);
-    }
 
     /**
      * IPS-Instanz-Funktion 'KODIPVR_Scan'. Startet einen Suchlauf.
@@ -237,10 +228,83 @@ class KodiDevicePVR extends KodiBase
         return array();
     }
 
-    // GetChannelDetails
-    // GetChannelGroups
-    // GetChannelGroupDetails
-    
+    /**
+     * IPS-Instanz-Funktion 'KODIAPP_GetChannelDetails'. Liefert die Eigenschaften eines Kanals.
+     *
+     * @access public
+     * @param integer $ChannelId Kanal welcher gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetChannelDetails(integer $ChannelId)
+    {
+        if (!is_int($ChannelId))
+        {
+            trigger_error("ChannelId must be integer.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetChannelDetails(array("channelid" => $ChannelId, "properties" => static::$ItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->channeldetails), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAPP_GetChannelGroups'. Liest alle Kanalgruppen.
+     *
+     * @access public
+     * @param string $ChannelTyp [enum "tv", "radio"] Kanaltyp welcher gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetChannelGroups(string $ChannelTyp)
+    {
+        if (!in_array($ChannelTyp, array("radio", "tv")))
+        {
+            trigger_error("ChannelTyp must 'tv' or 'radio'.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetChannelGroups(array("channeltype" => "all" . $ChannelTyp)); //, "properties" => static::$ItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->channelgroups), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIAPP_GetChannelGroupDetails'. Liefert die Eigenschaften einer Kanalgruppe.
+     *
+     * @access public
+     * @param integer $ChannelGroupdId Kanal welcher gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetChannelGroupDetails(integer $ChannelGroupdId)
+    {
+        if (!is_int($ChannelId))
+        {
+            trigger_error("ChannelId must be integer.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetChannelGroupDetails(array("channelgroupid" => $ChannelGroupdId, "properties" => static::$ItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->channelgroupdetails), true);
+        return array();
+    }
+
+    // 
+
     /**
      * IPS-Instanz-Funktion 'KODIPVR_RequestState'. Frage eine oder mehrere Properties eines Namespace ab.
      *

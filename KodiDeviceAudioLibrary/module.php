@@ -540,5 +540,6 @@ class KodiDeviceAudioLibrary extends KodiBase
     }
 
 }
+
 /** @} */
 ?>

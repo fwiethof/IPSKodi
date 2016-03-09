@@ -1,159 +1,155 @@
 <?
 
 require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
+/*
+ * @addtogroup kodi
+ * @{
+ *
+ * @package       Kodi
+ * @file          module.php
+ * @author        Michael Tröger
+ *
+ */
 
+/**
+ * KodiDeviceVideoLibrary Klasse für den Namespace VideoLibrary der KODI-API.
+ * Erweitert KodiBase.
+ *
+ */
 class KodiDeviceVideoLibrary extends KodiBase
 {
 
+    /**
+     * RPC-Namespace
+     * 
+     * @access private
+     *  @var string
+     * @value 'VideoLibrary'
+     */
     static $Namespace = 'VideoLibrary';
+
+    /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
     static $Properties = array(
-//        "volume",
-//        "muted",
-//        "name",
-//        "version"
     );
 
+    /**
+     * Alle Eigenschaften eines .....
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $ItemList = array(
+    );
+
+    /**
+     * Interne Funktion des SDK.
+     *
+     * @access public
+     */
     public function Create()
     {
         parent::Create();
+        $this->RegisterPropertyBoolean("showDoScan", true);
+        $this->RegisterPropertyBoolean("showDoClean", true);
+        $this->RegisterPropertyBoolean("showScan", true);
+        $this->RegisterPropertyBoolean("showClean", true);
     }
 
+    /**
+     * Interne Funktion des SDK.
+     * 
+     * @access public
+     */
     public function ApplyChanges()
     {
-//        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
-//            Array(0, "Ausführen", "", -1)
-//        ));
-//        $this->RegisterVariableString("name", "Name", "", 0);
-//        $this->RegisterVariableString("version", "Version", "", 1);
-//        $this->RegisterVariableInteger("quit", "Kodi beenden", "Action.Kodi", 2);
-//        $this->EnableAction("quit");
-//        $this->RegisterVariableBoolean("mute", "Mute", "~Switch", 3);
-//        $this->EnableAction("mute");
-//        $this->RegisterVariableInteger("volume", "Volume", "~Intensity.100", 4);
-//        $this->EnableAction("volume");
+        $this->RegisterProfileIntegerEx("Action.Kodi", "", "", "", Array(
+            Array(0, "Ausführen", "", -1)
+        ));
 
-        //Never delete this line!
+        if ($this->ReadPropertyBoolean('showDoScan'))
+        {
+            $this->RegisterVariableInteger("doscan", "Suche nach neuen / veränderten Inhalten", "Action.Kodi", 1);
+            $this->EnableAction("doscan");
+        }
+        else
+            $this->UnregisterVariable("doscan");
+
+        if ($this->ReadPropertyBoolean('showScan'))
+            $this->RegisterVariableBoolean("scan", "Datenbanksuche läuft", "~Switch", 2);
+        else
+            $this->UnregisterVariable("scan");
+
+        if ($this->ReadPropertyBoolean('showDoClean'))
+        {
+            $this->RegisterVariableInteger("doclean", "Bereinigen der Datenbank", "Action.Kodi", 3);
+            $this->EnableAction("doclean");
+        }
+        else
+            $this->UnregisterVariable("doclean");
+
+        if ($this->ReadPropertyBoolean('showClean'))
+            $this->RegisterVariableBoolean("clean", "Bereinigung der Datenbank läuft", "~Switch", 4);
+        else
+            $this->UnregisterVariable("clean");
+
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
 
-    protected function Decode($Method,$KodiPayload)
+    protected function Decode($Method, $KodiPayload)
     {
-        foreach ($KodiPayload as $param => $value)
+        switch ($Method)
         {
-            switch ($param)
-            {
-/*                case "mute":
-                case "muted":
-                    $this->SetValueBoolean("mute", $value);
-                    break;
-                case "volume":
-                    $this->SetValueInteger("volume", $value);
-                    break;
-                case "name":
-                    $this->SetValueString("name", $value);
-                    break;
-                case "version":
-                    $this->SetValueString("version", $value->major . '.' . $value->minor);
-                    break;*/
-            }
+            case "OnScanStarted":
+                $this->SetValueBoolean("scan", true);
+                break;
+            case "OnScanFinished":
+                $this->SetValueBoolean("scan", false);
+                break;
+            case "OnCleanStarted":
+                $this->SetValueBoolean("clean", true);
+                break;
+            case "OnCleanFinished":
+                $this->SetValueBoolean("clean", false);
+                break;
         }
     }
 
 ################## ActionHandler
 
+    /**
+     * Actionhandler der Statusvariablen. Interne SDK-Funktion.
+     * 
+     * @access public
+     * @param string $Ident Der Ident der Statusvariable.
+     * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
+     */
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
         {
-//            case "mute":
-//                return $this->Mute($Value);
-//            case "volume":
-//                return $this->Volume($Value);
-//            case "quit":
-//                return $this->Quit();
-//            default:
-//                return trigger_error('Invalid Ident.', E_USER_NOTICE);
+            case "doclean":
+                if ($this->Clean() === false)
+                    trigger_error('Error start cleaning', E_USER_NOTICE);
+                break;
+            case "doscan":
+                if ($this->Scan() === false)
+                    trigger_error('Error start scanning', E_USER_NOTICE);
+                break;
+
+            default:
+                trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
     }
 
 ################## PUBLIC
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
-     */
-
-    public function RawSend(string $Namespace, string $Method, $Params)
-    {
-     return   parent::RawSend($Namespace, $Method, $Params);
-    }
-//
-//    public function Mute(boolean $Value)
-//    {
-//        if (!is_bool($Value))
-//        {
-//            trigger_error('Value must be boolean', E_USER_NOTICE);
-//            return false;
-//        }
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetMute', array("mute" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueBoolean("mute", $ret);
-//        return $ret['mute'] === $Value;
-//    }
-//
-//    public function Volume(integer $Value)
-//    {
-//        if (!is_int($Value))
-//        {
-//            trigger_error('Value must be integer', E_USER_NOTICE);
-//            return false;
-//        }
-////        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetVolume', array("volume" => $Value));
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace);
-//        $KodiData->SetVolume(array("volume" => $Value));
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        $this->SetValueInteger("volume", $ret);
-//        return $ret['volume'] === $Value;
-//    }
-//
-//    public function Quit()
-//    {
-//        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Quit');
-//        $ret = $this->Send($KodiData);
-//        if (is_null($ret))
-//            return false;
-//        return true;
-//    }
-
-    public function RequestState(string $Ident)
-    {
-     return   parent::RequestState($Ident);
-    }
-
-
-################## Datapoints
-
-    public function ReceiveData($JSONString)
-    {
-        return parent::ReceiveData($JSONString);
-    }
-/*
-    protected function Send(Kodi_RPC_Data $KodiData)
-    {
-        return parent::Send($KodiData);
-    }
-
-    protected function SendDataToParent($Data)
-    {
-        return parent::SendDataToParent($Data);
-    }
- 
- */
 }
 
+/** @} */
 ?>

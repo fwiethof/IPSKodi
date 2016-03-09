@@ -52,7 +52,7 @@ class KodiDeviceSystem extends KodiBase
         $this->RegisterPropertyInteger('PowerScript', 0);
         $this->RegisterPropertyInteger('PowerOff', 0);
         $this->RegisterPropertyInteger('PreSelectScript', 0);
-        $this->RegisterPropertyString('MACAddress', 0);
+        $this->RegisterPropertyString('MACAddress', '');
     }
 
     /**
@@ -95,19 +95,17 @@ class KodiDeviceSystem extends KodiBase
         $this->RegisterVariableInteger("ejectOpticalDrive", "Laufwerk öffnen", "Action.Kodi", 5);
         $this->EnableAction("ejectOpticalDrive");
         $this->RegisterVariableBoolean("LowBatteryEvent", "Batterie leer Event", "", 6);
-
-//Never delete this line!
         parent::ApplyChanges();
     }
 
 ################## PRIVATE     
+
     /**
      * Liest den String auf der Instanz-Eigenschaft MACAddress und konvertiert sie in ein bereinigtes Format.
      * 
      * @access private
      * @result string Die bereinigte Adresse.
      */
-
     private function GetMac()
     {
         $Address = $this->ReadPropertyString('MACAddress');
@@ -209,7 +207,7 @@ function wake($ip, $mac)
                 }
                 break;
             case 'Power':
-                    $this->SetValueBoolean('Power', $KodiPayload);
+                $this->SetValueBoolean('Power', $KodiPayload);
                 break;
             case 'OnLowBattery':
                 IPS_SetValueBoolean($this->GetIDForIdent('LowBatteryEvent'), true);
@@ -226,6 +224,7 @@ function wake($ip, $mac)
     }
 
 ################## ActionHandler
+
     /**
      * Actionhandler der Statusvariablen. Interne SDK-Funktion.
      * 
@@ -233,20 +232,21 @@ function wake($ip, $mac)
      * @param string $Ident Der Ident der Statusvariable.
      * @param boolean|float|integer|string $Value Der angeforderte neue Wert.
      */
-
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident)
         {
             case "Power":
-                $this->Power($Value);
+                if (!$this->Power($Value))
+                    trigger_error('Error on send powerstate', E_USER_NOTICE);
                 break;
             case "shutdown":
             case "reboot":
             case "hibernate":
             case "suspend":
             case "ejectOpticalDrive":
-                $this->{ucfirst($Ident)}();
+                if (!$this->{ucfirst($Ident)}())
+                    trigger_error('Error on send ' . ucfirst($Ident), E_USER_NOTICE);
                 break;
             default:
                 trigger_error('Invalid Ident.', E_USER_NOTICE);
@@ -255,6 +255,7 @@ function wake($ip, $mac)
     }
 
 ################## PUBLIC
+
     /**
      * IPS-Instanz-Funktion 'KODISYS_Power'. Schaltet Kodi ein oder aus. Einschalten erfolgt per hinterlegten PHP-Script in der Instanz. Der Modus für das Ausschalten ist ebenfalls in der Instanz zu konfigurieren.
      *
@@ -262,7 +263,6 @@ function wake($ip, $mac)
      * @param boolean $Value True für Einschalten, False für Ausschalten.
      * @return boolean true bei erfolgreicher Ausführung, sonst false.
      */
-
     public function Power(boolean $Value)
     {
         if (!is_bool($Value))
@@ -280,12 +280,23 @@ function wake($ip, $mac)
             switch ($this->ReadPropertyInteger('PowerOff'))
             {
                 case 0:
-                    return $this->Shutdown();
+                    $ret = $this->Shutdown();
+                    break;
                 case 1:
-                    return $this->Hibernate();
+                    $ret = $this->Hibernate();
+                    break;
                 case 2:
-                    return $this->Suspend();
+                    $ret = $this->Suspend();
+                    break;
+                default:
+                    $ret = false;
+                    break;
             }
+            if (!$ret)
+            {
+                trigger_error('Error on send power off', E_USER_NOTICE);
+            }
+            return $ret;
         }
     }
 
@@ -424,24 +435,6 @@ function wake($ip, $mac)
         return parent::RequestState($Ident);
     }
 
-################## Datapoints
-    /*
-      public function ReceiveData($JSONString)
-      {
-      return parent::ReceiveData($JSONString);
-      }
-     */
-    /*
-      protected function Send(Kodi_RPC_Data $KodiData)
-      {
-      return parent::Send($KodiData);
-      }
-
-      protected function SendDataToParent($Data)
-      {
-      return parent::SendDataToParent($Data);
-      }
-     */
 }
 
 /** @} */

@@ -104,11 +104,26 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  **Kodi PVR (KodiDevicePVR):**  
  RPC-Namensraum : PVR  
 
- Verfügbarkeit  - Zustand lesen und visualisieren.
- Suchlauf       - Starten, Zustand lesen und visualisieren.
- Aufnahme       - Steuern, Zustand lesen und visualisieren.
+ Verfügbarkeit  - Zustand lesen und visualisieren.  
+ Suchlauf       - Starten, Zustand lesen und visualisieren.  
+ Aufnahme       - Steuern, Zustand lesen und visualisieren.  
+---
 
- 
+ **Kodi Playerstatus (KodiDevicePlayer):**  
+ PRC-Namensraum : Player  
+TODO
+---
+
+ **Kodi System (KodiDeviceSystem):**  
+ RPC-Namensraum : System  
+
+ Systemzustand  - Starten, Beenden, Status visualisieren.  
+ Optisches LW   - Auswerfen  
+---
+
+ **Kodi VideoLibrary (KodiDeviceVideoLibrary):**  
+ RPC-Namensraum : VideoLibrary  
+
 ## 7. PHP-Befehlsreferenz
 
  **Kodi Anwendung (KodiDeviceApplication):**  
@@ -307,6 +322,7 @@ array|boolean KODIAUDIOLIB_GetRecentlyPlayedSongs(integer $InstanzeID);
  Liest die Eigenschaften der Songs aus, welche zuletzt zur wiedergegeben wurden.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetSongDetails.  
+---
 
  **Kodi Files (KodiDeviceFiles):**  
 
@@ -468,9 +484,10 @@ boolean KODIGUI_RequestState(integer $InstanzeID, string $Ident);
     "fullscreen"  
     
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+ ---
 
- **Kodi GUI (KodiDeviceGUI):**  
-
+ **Kodi Input (KodiDeviceInput):**  
+ 
 ```php
 boolean KODIINPUT_Up(integer $InstanzeID);
 ```
@@ -572,31 +589,32 @@ boolean KODIINPUT_ExecuteAction(integer $InstanzeID, string $Action);
 ```php
 boolean KODIINPUT_SendText(integer $InstanzeID, string $Text, boolean $Done);
 ```
- Sendet den in $Text übegebenen Text an Kodi.
- Mit $Done = true kann die Eingabe beendet werden.
+ Sendet den in $Text übegebenen Text an Kodi.  
+ Mit $Done = true kann die Eingabe beendet werden.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
+---
  **Kodi PVR (KodiDevicePVR):**  
 
 ```php
 boolean KODIPVR_Scan();
 ```
- Startet einen Suchlauf.
+ Startet einen Suchlauf.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
 boolean KODIAPP_Record(integer $InstanzeID, boolean $Record, string $Channel);
 ```
- Startet/Beendet eine Aufnahme.
- Mit $Record TRUE für starten, FALSE zum stoppen.
- Mit $Channel wird der Kanalname übergeben.
+ Startet/Beendet eine Aufnahme.  
+ Mit $Record TRUE für starten, FALSE zum stoppen.  
+ Mit $Channel wird der Kanalname übergeben.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
-boolean KODIAPP_GetChannels(integer $InstanzeID, string $ChannelTyp);
+array|boolean KODIAPP_GetChannels(integer $InstanzeID, string $ChannelTyp);
 ```
  Liest alle Kanäle vom Typ $ChannelTyp aus und liefert die Eigenschaften als Array.  
- $ChannelTyp kann 'tv' oder 'radio' sein.
+ $ChannelTyp kann 'tv' oder 'radio' sein.  
  Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
 
 | Index                    | Typ      | Beschreibung                  |
@@ -609,6 +627,101 @@ boolean KODIAPP_GetChannels(integer $InstanzeID, string $ChannelTyp);
 | locked                   | boolean  |                               |
 | lastplayed               | string   |                               |
 
+```php
+array|boolean KODIAPP_GetChannelDetails(integer $InstanzeID, integer $ChannelId);
+```
+ Liefert die Eigenschaften des in $ChannelId übergeben Kanals als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+ Es gilt die Tabelle von KODIAPP_GetChannels. 
+
+```php
+array|boolean KODIAPP_GetChannelGroups(integer $InstanzeID, string $ChannelTyp);
+```
+ Liest alle Kanalgruppen vom Typ $ChannelTyp aus und liefert die Eigenschaften als Array.  
+ $ChannelTyp kann 'tv' oder 'radio' sein.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+
+
+| Index                    | Typ      | Beschreibung                  |
+|:------------------------:|:--------:|:-----------------------------:|
+| channeltype              | string   |                               |
+| channelgroupid           | integer  |                              |
+    
+```php
+array|boolean KODIAPP_GetChannelGroupDetails(integer $InstanzeID, integer $ChannelGroupdId);
+```
+ Liefert die Eigenschaften der in $ChannelGroupdId übergeben Kanalgruppe als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+ Es gilt die Tabelle von KODIAPP_GetChannelGroups.  
+
+---
+
+ **Kodi Playerstatus (KodiDevicePlayer):**  
+
+ TODO  
+
+ ---
+
+ **Kodi System (KodiDeviceSystem):**  
+
+ ```php
+boolean KODISYS_Power(integer $InstanzeID, boolean $Value);
+```
+ Schaltet Kodi ein (TRUE) oder aus (FALSE).  
+ Einschalten erfolgt per hinterlegten PHP-Script in der Instanz-Konfiguration.  
+ Der Modus für das Ausschalten ist ebenfalls in der Instanz zu konfigurieren.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ```php
+boolean KODISYS_WakeUp(integer $InstanzeID);
+```
+ Startet das hinterlegte Einschalt-Script um die Kodi-Hardware einzuschalten.  
+ Der Modus für das Ausschalten ist ebenfalls in der Instanz zu konfigurieren.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ```php
+boolean KODISYS_Shutdown(integer $InstanzeID);
+```
+ Führt einen Shutdown auf Betriebssystemebene aus.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ```php
+boolean KODISYS_Hibernate(integer $InstanzeID);
+```
+ Führt einen Hibernate auf Betriebssystemebene aus.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ```php
+boolean KODISYS_Suspend(integer $InstanzeID);
+```
+ Führt einen Suspend auf Betriebssystemebene aus.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ```php
+boolean KODISYS_Reboot(integer $InstanzeID);
+```
+ Führt einen Reboot auf Betriebssystemebene aus.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ```php
+boolean KODISYS_EjectOpticalDrive(integer $InstanzeID);
+```
+ Öffnet das Optische Laufwerk.  
+ Ein Schließen ist häufig nicht möglich!  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODISYS_RequestState(integer $InstanzeID, string $Ident);
+```
+ Frage einen Wert ab.  
+ Es können hier nur Fähigkeiten angefragt werden.  
+ Diese verstecken automatisch die Aktionsvariablen welche nicht verwendet werden können.
+ $Ident kann "canshutdown", "canhibernate", "cansuspend" oder "canreboot" sein.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+---
+
+ **Kodi VideoLibrary (KodiDeviceVideoLibrary):**  
 
 ## 8. Parameter / Modul-Infos
 
@@ -622,6 +735,9 @@ GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):
 | KodiDeviceGUI          | {E15F2C11-0B28-4CFB-AEE6-463BD313A964} |
 | KodiDeviceInput        | {9F3BE8BB-4610-49F4-A41A-40E14F641F43} |
 | KodiDevicePVR          | {9D73D46E-7B80-4814-A7B2-31768DC6AB7E} |
+| KodiDevicePlayer       | {BA014AD9-9568-4F12-BE31-17D37BFED06D} |
+| KodiDeviceSystem       | {03E18A60-02FD-45E8-8A2C-1F8E247C92D0} |
+| KodiDeviceVideoLibrary | {07943DF4-FAB9-454F-AA9E-702A5F9C9D57} |
 
 Eigenschaften von KodiDeviceApplication:  
 
@@ -672,6 +788,32 @@ keine
 | showDoRecording | boolean | true         | Aktions-Variable zum steuern einer Aufzeichnung anzeigen |
 | showIsScanning  | boolean | true         | Status-Variable für sktive Kanalsuche anzeigen           |
 | showDoScanning  | boolean | true         | Aktions-Variable zum starten einer Kanalsuche anzeigen   |
+
+ Eigenschaften von KodiDevicePlayer:  
+
+| Eigenschaft | Typ     | Standardwert | Funktion                                                         |
+| :---------: | :-----: | :----------: | :--------------------------------------------------------------: |
+| PlayerID    | integer | 0            | Playermodus: 0 = Audio, 1 = Video, 2 = Bilder                    |
+| CoverSize   | integer | 300          | Die Höhe vom Cover in Pixel auf welche das 'Cover' skaliert wird |
+| CoverTyp    | string  | thumb        | Varianten: 'thumb', 'artist', 'poster', 'banner'                 |
+
+ Eigenschaften von KodiDeviceSystem:  
+
+| Eigenschaft     | Typ     | Standardwert | Funktion                                                         |
+| :-------------: | :-----: | :----------: | :--------------------------------------------------------------: |
+| PowerScript     | integer | 0            | Script welches zum einschalten des System ausgeführt werden soll |
+| PowerOff        | integer | 0            | Ausschalt-Methode: 0 = OFF, 1 = Hibernate, 2 = Standby           |
+| PreSelectScript | intger  | 0            | immer 0 nach Appylchanges, Erzeugt eine PowerScript aus Vorlagen |
+| MACAddress      | string  |              | MAC-Adresse für PowerScript                                      |
+
+ Eigenschaften von KodiDeviceVideoLibrary:  
+
+| Eigenschaft | Typ     | Standardwert | Funktion                                             |
+| :---------: | :-----: | :----------: | :--------------------------------------------------: |
+| showScan    | boolean | true         | Statusvariable für DB-Scanner verwenden              |
+| showDoScan  | boolean | true         | Statusvariable für DB-Bereinigung verwenden          |
+| showClean   | boolean | true         | Aktions-Variable zum starten des Scan anlegen        |
+| showDoClean | boolean | true         | Aktions-Variable zum starten der Bereinigung anlegen |
 
 ## 9. Tips & Tricks
 

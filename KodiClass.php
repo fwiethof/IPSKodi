@@ -605,12 +605,15 @@ class KodiRPCException extends Exception
  * @method null GetChannelDetails
  * @method null GetChannelGroups
  * @method null GetChannelGroupDetails
- * 
+ * PLAYER FEHLT
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.
  * @method null Reboot(null) Führt einen Reboot auf Betriebssystemebene aus.
  * @method null EjectOpticalDrive(null) Öffnet das Optische Laufwerk.
+ * 
+ * VIDEOLIB
+ * 
  * @property-read integer $Id Id des RPC-Objektes
  * @property-read integer $Typ Typ des RPC-Objektes 
  * @property-read string $Namespace Namespace der RPC-Methode

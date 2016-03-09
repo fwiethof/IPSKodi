@@ -55,7 +55,39 @@
 
             ],
     "actions":
-            [
+            [{
+                    "type": "Button",
+                    "label": "Einschalten",
+                    "onClick": "KODISYS_Power($id,true);"
+                }, {
+                    "type": "Button",
+                    "label": "Ausschalten",
+                    "onClick": "KODISYS_Power($id,true);"
+                }, {
+                    "type": "Button",
+                    "label": "WakeUp",
+                    "onClick": "KODISYS_WakeUp($id);"
+                }, {
+                    "type": "Button",
+                    "label": "Shutdown",
+                    "onClick": "KODISYS_Shutdown($id);"
+                }, {
+                    "type": "Button",
+                    "label": "Hibernate",
+                    "onClick": "KODISYS_Hibernate($id);"
+                }, {
+                    "type": "Button",
+                    "label": "Suspend",
+                    "onClick": "KODISYS_Suspend($id);"
+                }, {
+                    "type": "Button",
+                    "label": "Reboot",
+                    "onClick": "KODISYS_Reboot($id);"
+                }, {
+                    "type": "Button",
+                    "label": "Laufwerk \u00246ffnen",
+                    "onClick": "KODISYS_EjectOpticalDrive($id);"
+                },
                 {
                     "type": "Button",
                     "label": "Request State",
