@@ -611,7 +611,10 @@ class KodiRPCException extends Exception
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.
  * @method null Reboot(null) Führt einen Reboot auf Betriebssystemebene aus.
  * @method null EjectOpticalDrive(null) Öffnet das Optische Laufwerk.
- * 
+ * @method null GetEpisodeDetails (array $Params (string "episodeid" EpisodeID) (array "properties" Zu lesende Episoden-Eigenschaften) Liest die Eigenschaften eine Episode aus.
+ * @method null GetEpisodes(null) Liest die Eigenschaften aller Episoden aus.
+ * @method null GetMovieDetails (array $Params (string "movieid" MovieID) (array "properties" Zu lesende Films-Eigenschaften) Liest die Eigenschaften eines Film aus.
+ * @method null GetMovies(null) Liest die Eigenschaften aller Filme aus.
  * VIDEOLIB
  * 
  * @property-read integer $Id Id des RPC-Objektes

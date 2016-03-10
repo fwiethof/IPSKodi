@@ -186,7 +186,7 @@ class KodiDevicePVR extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_Record'. Startet/Beendet eine Aufnahme.
+     * IPS-Instanz-Funktion 'KODIPVR_Record'. Startet/Beendet eine Aufnahme.
      *
      * @access public
      * @param boolean $Record True für starten, false zum stoppen.
@@ -204,7 +204,7 @@ class KodiDevicePVR extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_GetChannels'. Liest die Kanalliste
+     * IPS-Instanz-Funktion 'KODIPVR_GetChannels'. Liest die Kanalliste
      *
      * @access public
      * @param string $ChannelTyp [enum "tv", "radio"] Kanaltyp welcher gelesen werden soll.
@@ -229,7 +229,7 @@ class KodiDevicePVR extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_GetChannelDetails'. Liefert die Eigenschaften eines Kanals.
+     * IPS-Instanz-Funktion 'KODIPVR_GetChannelDetails'. Liefert die Eigenschaften eines Kanals.
      *
      * @access public
      * @param integer $ChannelId Kanal welcher gelesen werden soll.
@@ -254,7 +254,7 @@ class KodiDevicePVR extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_GetChannelGroups'. Liest alle Kanalgruppen.
+     * IPS-Instanz-Funktion 'KODIPVR_GetChannelGroups'. Liest alle Kanalgruppen.
      *
      * @access public
      * @param string $ChannelTyp [enum "tv", "radio"] Kanaltyp welcher gelesen werden soll.
@@ -279,7 +279,7 @@ class KodiDevicePVR extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIAPP_GetChannelGroupDetails'. Liefert die Eigenschaften einer Kanalgruppe.
+     * IPS-Instanz-Funktion 'KODIPVR_GetChannelGroupDetails'. Liefert die Eigenschaften einer Kanalgruppe.
      *
      * @access public
      * @param integer $ChannelGroupdId Kanal welcher gelesen werden soll.

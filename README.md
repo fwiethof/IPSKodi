@@ -603,7 +603,7 @@ boolean KODIPVR_Scan();
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
-boolean KODIAPP_Record(integer $InstanzeID, boolean $Record, string $Channel);
+boolean KODIPVR_Record(integer $InstanzeID, boolean $Record, string $Channel);
 ```
  Startet/Beendet eine Aufnahme.  
  Mit $Record TRUE für starten, FALSE zum stoppen.  
@@ -611,7 +611,7 @@ boolean KODIAPP_Record(integer $InstanzeID, boolean $Record, string $Channel);
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
-array|boolean KODIAPP_GetChannels(integer $InstanzeID, string $ChannelTyp);
+array|boolean KODIPVR_GetChannels(integer $InstanzeID, string $ChannelTyp);
 ```
  Liest alle Kanäle vom Typ $ChannelTyp aus und liefert die Eigenschaften als Array.  
  $ChannelTyp kann 'tv' oder 'radio' sein.  
@@ -628,14 +628,14 @@ array|boolean KODIAPP_GetChannels(integer $InstanzeID, string $ChannelTyp);
 | lastplayed               | string   |                               |
 
 ```php
-array|boolean KODIAPP_GetChannelDetails(integer $InstanzeID, integer $ChannelId);
+array|boolean KODIPVR_GetChannelDetails(integer $InstanzeID, integer $ChannelId);
 ```
  Liefert die Eigenschaften des in $ChannelId übergeben Kanals als Array.  
  Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
  Es gilt die Tabelle von KODIAPP_GetChannels. 
 
 ```php
-array|boolean KODIAPP_GetChannelGroups(integer $InstanzeID, string $ChannelTyp);
+array|boolean KODIPVR_GetChannelGroups(integer $InstanzeID, string $ChannelTyp);
 ```
  Liest alle Kanalgruppen vom Typ $ChannelTyp aus und liefert die Eigenschaften als Array.  
  $ChannelTyp kann 'tv' oder 'radio' sein.  
@@ -648,7 +648,7 @@ array|boolean KODIAPP_GetChannelGroups(integer $InstanzeID, string $ChannelTyp);
 | channelgroupid           | integer  |                              |
     
 ```php
-array|boolean KODIAPP_GetChannelGroupDetails(integer $InstanzeID, integer $ChannelGroupdId);
+array|boolean KODIPVR_GetChannelGroupDetails(integer $InstanzeID, integer $ChannelGroupdId);
 ```
  Liefert die Eigenschaften der in $ChannelGroupdId übergeben Kanalgruppe als Array.  
  Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
@@ -722,6 +722,132 @@ boolean KODISYS_RequestState(integer $InstanzeID, string $Ident);
 ---
 
  **Kodi VideoLibrary (KodiDeviceVideoLibrary):**  
+
+```php
+boolean KODIVIDIOLIB_Scan(integer $InstanzeID);
+```
+ Startet das bereinigen der Datenbank.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIVIDIOLIB_Clean(integer $InstanzeID);
+```
+ Startet das bereinigen der Datenbank.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+array|boolean KODIVIDIOLIB_GetEpisodeDetails(integer $InstanzeID, integer $EpisodeId);
+```
+ Liest die Eigenschaften einer Episode aus.
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| cast                      | array     |                               |
+| productioncode            | string    |                               |
+| rating                    | integer   | Bewertung                     |
+| votes                     | string    |                               |
+| episode                   | integer   |                               |
+| showtitle                 | string    |                               |
+| episodeid                 | integer   |                               |
+| tvshowid                  | integer   |                               |
+| season                    | integer   |                               |
+| firstaired                | string    |                               |
+| uniqueid                  | array     |                               |
+| originaltitle             | string    |                               |
+| writer                    | string[]  |                               |
+| streamdetails             | array     |                               |
+| director                  | string[]  |                               |
+| resume                    | array     |                               |
+| runtime                   | integer   |                               |
+| dateadded                 | string    |                               |
+| file                      | string    |                               |
+| lastplayed                | string    |                               |
+| plot                      | string    |                               |
+| title                     | string    | Titel der Datei               |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+```php
+array|boolean KODIVIDEOLIB_GetEpisodes(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller Episoden aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDIOLIB_GetEpisodeDetails.  
+
+```php
+array|boolean KODIVIDEOLIB_GetGenres(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller bekannten Genres aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ 
+| Index     | Typ     | Beschreibung    |
+|:---------:|:-------:|:---------------:|
+| genreid   | integer | ID des Genres   |
+| fanart    | string  | Pfad zum Fanart |
+| thumbnail | string  | Pfad zum Cover  |
+
+```php
+array|boolean KODIVIDIOLIB_GetMovieDetails(integer $InstanzeID, integer $MovieId);
+```
+ Liest die Eigenschaften eines Film aus.
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| plotoutline               | string    |                               |
+| sorttitle                 | string    |                               |
+| movieid                   | integer   |                               |
+| cast                      | array     |                               |
+| votes                     | string    |                               |
+| showlink                  | string[]  |                               |
+| top250                    | integer   |                               |
+| trailer                   | string    |                               |
+| year                      | integer   | Erscheinungsjahr              |
+| rating                    | integer   | Bewertung                     |
+| year                      | integer   | Erscheinungsjahr              |
+| country                   | string[]  ]                               |
+| studio                    | string[]  |                               |
+| set                       | string    |                               |
+| genre                     | string[]  | Array der Genres              |
+| mpaa                      | string    |                               |
+| setid                     | integer   |                               |
+| rating                    | integer   | Bewertung                     |
+| rating                    | integer   | Bewertung                     |
+| tag                       | string[]  |                               |
+| tagline                   | string    |                               |
+| writer                    | string[]  |                               |
+| originaltitle             | string    |                               |
+| imdbnumber                | string    |                               |
+| streamdetails             | array     |                               |
+| director                  | string[]  |                               |
+| resume                    | array     |                               |
+| runtime                   | integer   |                               |
+| dateadded                 | string    |                               |
+| file                      | string    |                               |
+| lastplayed                | string    |                               |
+| plot                      | string    |                               |
+| title                     | string    | Titel der Datei               |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+
+```php
+array|boolean KODIVIDEOLIB_GetMovies(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller Filme aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDIOLIB_GetMovieDetails.  
+
+```php
+boolean KODIVIDIOLIB_Export(integer $InstanzeID, string $Path, boolean $Overwrite, boolean $includeImages);
+```
+ Exportiert die Audio Datenbank.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ## 8. Parameter / Modul-Infos
 
