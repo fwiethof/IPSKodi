@@ -11,10 +11,11 @@ Implementierung der Kodi JSON-RPC API in IP-Symcon.
 3. [Installation](#3-installation)
 4. [Vorbereitungen](#4-vorbereitungen)
 5. [Einrichten der Instanzen in IPS](#5-einrichten-der--instanzen-in-ips)
-6. [PHP-Befehlsreferenz](#6-php-befehlsreferenz) 
-7. [Parameter / Modul-Infos](#7-parameter--modul-infos) 
-8. [Tips & Tricks](#8-tips--tricks) 
-9. [Anhang](#9-anhang)
+6. [Funktionen der Instanzen] (#6-funktionen-der-instanzen)
+7. [PHP-Befehlsreferenz](#6-php-befehlsreferenz) 
+8. [Parameter / Modul-Infos](#7-parameter--modul-infos) 
+9. [Tips & Tricks](#8-tips--tricks) 
+10. [Anhang](#9-anhang)
 
 ## 1. Funktionsumfang
 
@@ -62,6 +63,7 @@ Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
  Software beenden       - Nur ausführen.  
  Namen der Software     - Lesen und visualisieren.  
  Version der Software   - Lesen und visualisieren.  
+
 ---
 
  **Kodi Audio Datenbank (KodiDeviceAudioLibrary):**
@@ -73,6 +75,7 @@ Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
  Datenbank  - Ausführen von Scan un Clean. Status visualisieren.
 
 Das Setzen von Daten in der Datenbank ist nicht möglich!  
+
 ---
 
  **Kodi Files (KodiDeviceFiles):**
@@ -80,7 +83,8 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
 
  Quellen       - Lesen aller bekannten Medienquellen.
  Verzeichnisse - Auslesen von Verzeichnissen.
- Dateien       - Auslesen von Eigenschaften einer Datei.
+ Dateien       - Auslesen von Eigenschaften einer Datei.  
+
 ---
 
  **Kodi GUI (KodiDeviceGUI):**  
@@ -92,13 +96,15 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  Vollbildmodus      - Setzen, lesen und visualisieren.  
  Bildschrimschoner  - Status visualisieren.  
  Benachrichtungen   - Senden.  
+
 ---
 
  **Kodi Input (KodiDeviceInput):**  
  RPC-Namensraum : Input  
   
- Tastendruck    - Senden
- Text           - Senden
+ Tastendruck    - Senden  
+ Text           - Senden  
+
  ---
 
  **Kodi PVR (KodiDevicePVR):**  
@@ -107,11 +113,13 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  Verfügbarkeit  - Zustand lesen und visualisieren.  
  Suchlauf       - Starten, Zustand lesen und visualisieren.  
  Aufnahme       - Steuern, Zustand lesen und visualisieren.  
+
 ---
 
  **Kodi Playerstatus (KodiDevicePlayer):**  
  PRC-Namensraum : Player  
-TODO
+ TODO  
+
 ---
 
  **Kodi System (KodiDeviceSystem):**  
@@ -119,6 +127,7 @@ TODO
 
  Systemzustand  - Starten, Beenden, Status visualisieren.  
  Optisches LW   - Auswerfen  
+
 ---
 
  **Kodi VideoLibrary (KodiDeviceVideoLibrary):**  
