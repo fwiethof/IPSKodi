@@ -386,6 +386,8 @@ class KodiDeviceVideoLibrary extends KodiBase
         return array();
     }
 
+    // GetMovieSets
+    
     /**
      * IPS-Instanz-Funktion 'KODIVIDEOLIB_Scan'. Startet das Scannen der Quellen für neue Einträge in der Datenbank.
      *
