@@ -29,6 +29,15 @@ class KodiDeviceVideoLibrary extends KodiBase
     static $Namespace = 'VideoLibrary';
 
     /**
+     * Alle Properties des RPC-Namespace
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $Properties = array(
+    );
+
+    /**
      * Alle Eigenschaften von Episoden.
      * 
      * @access private
@@ -104,6 +113,101 @@ class KodiDeviceVideoLibrary extends KodiBase
         "art");
 
     /**
+     * Alle Eigenschaften von Filmsets.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $SetItemList = array(
+        "title",
+        "playcount",
+        "fanart",
+        "thumbnail",
+        "art"
+    );
+
+    /**
+     * Alle Eigenschaften von Seasons.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $SeasonItemList = array(
+        "season",
+        "showtitle",
+        "playcount",
+        "episode",
+        "fanart",
+        "thumbnail",
+        "tvshowid",
+        "watchedepisodes",
+        "art"
+    );
+
+    /**
+     * Alle Eigenschaften von Musikvideos.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $MusicVideoItemList = array(
+        "title",
+        "playcount",
+        "runtime",
+        "director",
+        "studio",
+        "year",
+        "plot",
+        "album",
+        "artist",
+        "genre",
+        "track",
+        "streamdetails",
+        "lastplayed",
+        "fanart",
+        "thumbnail",
+        "file",
+        "resume",
+        "dateadded",
+        "tag",
+        "art"
+    );
+
+    /**
+     * Alle Eigenschaften von TV-Serien.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $TvShowItemList = array(
+        "title",
+        "genre",
+        "year",
+        "rating",
+        "plot",
+        "studio",
+        "mpaa",
+        "cast",
+        "playcount",
+        "episode",
+        "imdbnumber",
+        "premiered",
+        "votes",
+        "lastplayed",
+        "fanart",
+        "thumbnail",
+        "file",
+        "originaltitle",
+        "sorttitle",
+        "episodeguide",
+        "season",
+        "watchedepisodes",
+        "dateadded",
+        "tag",
+        "art"
+    );
+
+    /**
      * Alle Eigenschaften von Genres.
      * 
      * @access private
@@ -112,24 +216,6 @@ class KodiDeviceVideoLibrary extends KodiBase
     static $GenreItemList = array(
         "thumbnail",
         "title"
-    );
-
-    /**
-     * Alle Properties des RPC-Namespace
-     * 
-     * @access private
-     *  @var array 
-     */
-    static $Properties = array(
-    );
-
-    /**
-     * Alle Eigenschaften eines .....
-     * 
-     * @access private
-     *  @var array 
-     */
-    static $ItemList = array(
     );
 
     /**
@@ -287,7 +373,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIVIDIOLIB_GetEpisodeDetails'. Liest die Eigenschaften eines Künstlers aus.
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetEpisodeDetails'. Liest die Eigenschaften eines Künstlers aus.
      *
      * @access public
      * @param  integer $EpisodeId EpisodenID der zu lesenden Episode.
@@ -346,7 +432,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIVIDIOLIB_GetMovieDetails'. Liest die Eigenschaften eines Films aus.
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetMovieDetails'. Liest die Eigenschaften eines Films aus.
      *
      * @access public
      * @param  integer $MovieId MovieID des zu lesenden Films.
@@ -356,7 +442,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         if (!is_int($MovieId))
         {
-            trigger_error('EpisodeId must be integer', E_USER_NOTICE);
+            trigger_error('MovieId must be integer', E_USER_NOTICE);
             return false;
         }
 
@@ -386,8 +472,206 @@ class KodiDeviceVideoLibrary extends KodiBase
         return array();
     }
 
-    // GetMovieSets
-    
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetMovieSetDetails'. Liest die Eigenschaften eines Film-Sets aus.
+     *
+     * @access public
+     * @param  integer $SetId SetId des zu lesenden Film-Sets.
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetMovieSetDetails(integer $SetId)
+    {
+        if (!is_int($SetId))
+        {
+            trigger_error('SetId must be integer', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetMovieSetDetails(array("setid" => $SetId, "properties" => static::SetItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->setdetails), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetMovieSets'. Liest die Eigenschaften aller Film-Sets.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetMovieSets()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetMovieSets(array("properties" => static::$SetItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->sets), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetMusicVideoDetails'. Liest die Eigenschaften eines Musikvideos aus.
+     *
+     * @access public
+     * @param  integer $MusicVideoId MusicVideoId des zu lesenden Musikvideos.
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetMusicVideoDetails(integer $MusicVideoId)
+    {
+        if (!is_int($MusicVideoId))
+        {
+            trigger_error('MusicVideoId must be integer', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetMusicVideoDetails(array("musicvideoid" => $MusicVideoId, "properties" => static::$MusicVideoItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->musicvideodetails), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetMusicVideos'. Liest die Eigenschaften aller Musikvideos.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetMusicVideos()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetMusicVideos(array("properties" => static::$MusicVideoItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->musicvideos), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetRecentlyAddedEpisodes'. Liest die Eigenschaften der zuletzt hinzugefügten Episoden aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetRecentlyAddedEpisodes()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyAddedEpisodes(array("properties" => static::$EpisodeItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->episodes), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetRecentlyAddedMovies'. Liest die Eigenschaften der zuletzt hinzugefügten Filme aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetRecentlyAddedMovies()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyAddedMovies(array("properties" => static::$MovieItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->movies), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetRecentlyAddedMusicVideos'. Liest die Eigenschaften der zuletzt hinzugefügten Filme aus.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetRecentlyAddedMusicVideos()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecentlyAddedMusicVideos(array("properties" => static::$MusicVideoItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->musicvideos), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetSeasons'. Liest die Eigenschaften eines Musikvideos aus.
+     *
+     * @access public
+     * @param  integer $TvShowId TvShowId der zu lesenden Serie.
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetSeasons(integer $TvShowId)
+    {
+        if (!is_int($TvShowId))
+        {
+            trigger_error('TvShowId must be integer', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetSeasons(array("tvshowid" => $TvShowId, "properties" => static::$SeasonItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->seasons), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetTVShowDetails'. Liest die Eigenschaften eines TV-Serie aus.
+     *
+     * @access public
+     * @param  integer $TvShowId TvShowId der zu lesenden TV-Serie.
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetTVShowDetails(integer $TvShowId)
+    {
+        if (!is_int($TvShowId))
+        {
+            trigger_error('TvShowId must be integer', E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetTVShowDetails(array("tvshowid" => $TvShowId, "properties" => static::$TvShowItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->tvshowdetails), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetTVShows'. Liest die Eigenschaften aller TV-Serien.
+     *
+     * @access public
+     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     */
+    public function GetTVShows()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetTVShows(array("properties" => static::$TvShowItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->tvshows), true);
+        return array();
+    }
+
     /**
      * IPS-Instanz-Funktion 'KODIVIDEOLIB_Scan'. Startet das Scannen der Quellen für neue Einträge in der Datenbank.
      *

@@ -303,7 +303,8 @@ class KodiDevicePVR extends KodiBase
         return array();
     }
 
-    // 
+    // GetBroadcastDetails
+    //GetBroadcasts 
 
     /**
      * IPS-Instanz-Funktion 'KODIPVR_RequestState'. Frage eine oder mehrere Properties eines Namespace ab.

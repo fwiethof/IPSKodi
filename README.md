@@ -133,6 +133,18 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  **Kodi VideoLibrary (KodiDeviceVideoLibrary):**  
  RPC-Namensraum : VideoLibrary  
 
+ Filme      - Lesen von Daten aus der Datenbank.  
+ Serien     - Lesen von Daten aus der Datenbank.  
+ Musikvideo - Lesen von Daten aus der Datenbank.  
+ Datenbank  - Ausführen von Scan un Clean. Status visualisieren.
+
+Das Setzen von Daten in der Datenbank ist nicht möglich!  
+
+---
+
+ **Kodi Splitter (KodiSplitter):**  
+ RPC-Namensraum : JSONRPC  
+
 ## 7. PHP-Befehlsreferenz
 
  **Kodi Anwendung (KodiDeviceApplication):**  
@@ -733,19 +745,19 @@ boolean KODISYS_RequestState(integer $InstanzeID, string $Ident);
  **Kodi VideoLibrary (KodiDeviceVideoLibrary):**  
 
 ```php
-boolean KODIVIDIOLIB_Scan(integer $InstanzeID);
+boolean KODIVIDEOLIB_Scan(integer $InstanzeID);
 ```
  Startet das bereinigen der Datenbank.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
-boolean KODIVIDIOLIB_Clean(integer $InstanzeID);
+boolean KODIVIDEOLIB_Clean(integer $InstanzeID);
 ```
  Startet das bereinigen der Datenbank.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
-array|boolean KODIVIDIOLIB_GetEpisodeDetails(integer $InstanzeID, integer $EpisodeId);
+array|boolean KODIVIDEOLIB_GetEpisodeDetails(integer $InstanzeID, integer $EpisodeId);
 ```
  Liest die Eigenschaften einer Episode aus.
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
@@ -784,7 +796,14 @@ array|boolean KODIVIDEOLIB_GetEpisodes(integer $InstanzeID);
 ```
  Liest die Eigenschaften aller Episoden aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
- Es gilt die Tabelle von KODIVIDIOLIB_GetEpisodeDetails.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetEpisodeDetails.  
+
+```php
+array|boolean KODIVIDEOLIB_GetRecentlyAddedAlbums(integer $InstanzeID);
+```
+ Liest die Eigenschaften der Episoden aus, welche zuletzt zur Datenbank hinzugefügt wurden.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetEpisodeDetails.  
 
 ```php
 array|boolean KODIVIDEOLIB_GetGenres(integer $InstanzeID);
@@ -799,7 +818,7 @@ array|boolean KODIVIDEOLIB_GetGenres(integer $InstanzeID);
 | thumbnail | string  | Pfad zum Cover  |
 
 ```php
-array|boolean KODIVIDIOLIB_GetMovieDetails(integer $InstanzeID, integer $MovieId);
+array|boolean KODIVIDEOLIB_GetMovieDetails(integer $InstanzeID, integer $MovieId);
 ```
  Liest die Eigenschaften eines Film aus.
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
@@ -823,7 +842,6 @@ array|boolean KODIVIDIOLIB_GetMovieDetails(integer $InstanzeID, integer $MovieId
 | genre                     | string[]  | Array der Genres              |
 | mpaa                      | string    |                               |
 | setid                     | integer   |                               |
-| rating                    | integer   | Bewertung                     |
 | rating                    | integer   | Bewertung                     |
 | tag                       | string[]  |                               |
 | tagline                   | string    |                               |
@@ -850,13 +868,153 @@ array|boolean KODIVIDEOLIB_GetMovies(integer $InstanzeID);
 ```
  Liest die Eigenschaften aller Filme aus.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
- Es gilt die Tabelle von KODIVIDIOLIB_GetMovieDetails.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetMovieDetails.  
 
 ```php
-boolean KODIVIDIOLIB_Export(integer $InstanzeID, string $Path, boolean $Overwrite, boolean $includeImages);
+array|boolean KODIVIDEOLIB_GetRecentlyAddedMovies(integer $InstanzeID);
+```
+ Liest die Eigenschaften der Filme aus, welche zuletzt zur Datenbank hinzugefügt wurden.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetMovieDetails.  
+
+```php
+array|boolean KODIVIDEOLIB_GetMovieSetDetails(integer $InstanzeID, integer $SetId);
+```
+ Liest die Eigenschaften eines Film-Sets aus.
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung                      |
+|:-------------------------:|:---------:|:---------------------------------:|
+| movies                    | array     | Ein Array mit allen Film-Objekten |
+| setid                     | integer   |                                  |
+| title                     | string    | Titel                             |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+```php
+array|boolean KODIVIDEOLIB_GetMovieSets(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller Film-Sets aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetMovieSetDetails.  
+
+```php
+array|boolean KODIVIDEOLIB_GetMusicVideoDetails(integer $InstanzeID, integer $MusicVideoId);
+```
+ Liest die Eigenschaften eines Musikvideos aus.
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| genre                     | string[]  | Array der Genres              |
+| artist                    | string[]  | Array der Künstler            |
+| musicvideoid              | integer   |                               |
+| tag                       | string[]  |                               |
+| album                     | string    |                               |
+| track                     | integer   |                               |
+| studio                    | string[]  |                               |
+| year                      | integer   | Erscheinungsjahr              |
+| streamdetails             | array     |                               |
+| director                  | string[]  |                               |
+| resume                    | array     |                               |
+| runtime                   | integer   |                               |
+| dateadded                 | string    |                               |
+| file                      | string    |                               |
+| lastplayed                | string    |                               |
+| plot                      | string    |                               |
+| title                     | string    | Titel der Datei               |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+```php
+array|boolean KODIVIDEOLIB_GetMusicVideos(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller Musikvideos aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetMusicVideoDetails.  
+
+```php
+array|boolean KODIVIDEOLIB_GetRecentlyAddedMusicVideos(integer $InstanzeID);
+```
+ Liest die Eigenschaften der Musikvideos aus, welche zuletzt zur Datenbank hinzugefügt wurden.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetMusicVideoDetails.  
+
+```php
+array|boolean KODIVIDEOLIB_GetSeasons(integer $InstanzeID, integer $TvShowId);
+```
+ Liest die Eigenschaften Alles Seasons eine TV-Serie ($TvShowId) aus.
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| showtitle                 | string    |                               |
+| watchedepisodes           | integer   |                               |
+| tvshowid                  | integer   |                               |
+| episode                   | integer   |                               |
+| season                    | integer   |                               |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+```php
+array|boolean KODIVIDEOLIB_GetTVShowDetails(integer $InstanzeID, integer $TvShowId);
+```
+ Liest die Eigenschaften eines TV-Serie aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| sorttitle                 | string    |                               |
+| mpaa                      | string    |                               |
+| premiered                 | string    |                               |
+| year                      | integer   | Erscheinungsjahr              |
+| episode                   | integer   |                               |
+| watchedepisodes           | integer   |                               |
+| votes                     | string    |                               |
+| rating                    | integer   | Bewertung                     |
+| tvshowid                  | integer   |                               |
+| studio                    | string[]  |                               |
+| season                    | integer   |                               |
+| genre                     | string[]  | Array der Genres              |
+| cast                      | array     |                               |
+| episodeguide              | string    |                               |
+| tag                       | string[]  |                               |
+| originaltitle             | string    |                               |
+| imdbnumber                | string    |                               |
+| dateadded                 | string    |                               |
+| file                      | string    |                               |
+| lastplayed                | string    |                               |
+| plot                      | string    |                               |
+| title                     | string    | Titel der Datei               |
+| art                       | array     |                               |
+| playcount                 | integer   | Anzahl der Wiedergaben        |
+| fanart                    | string    | Pfad zum Fanart               |
+| thumbnail                 | string    | Pfad zum Cover                |
+
+```php
+array|boolean KODIVIDEOLIB_GetTVShows(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller TV-Serien.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIVIDEOLIB_GetTVShowDetails.  
+
+```php
+boolean KODIVIDEOLIB_Export(integer $InstanzeID, string $Path, boolean $Overwrite, boolean $includeImages);
 ```
  Exportiert die Audio Datenbank.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+---  
+
+**Kodi Splitter (KodiSplitter):**  
+
+TODO  
 
 ## 8. Parameter / Modul-Infos
 
@@ -873,6 +1031,7 @@ GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):
 | KodiDevicePlayer       | {BA014AD9-9568-4F12-BE31-17D37BFED06D} |
 | KodiDeviceSystem       | {03E18A60-02FD-45E8-8A2C-1F8E247C92D0} |
 | KodiDeviceVideoLibrary | {07943DF4-FAB9-454F-AA9E-702A5F9C9D57} |
+| KodiSplitter           | {D2F106B5-4473-4C19-A48F-812E8BAA316C} |
 
 Eigenschaften von KodiDeviceApplication:  
 
@@ -938,7 +1097,7 @@ keine
 | :-------------: | :-----: | :----------: | :--------------------------------------------------------------: |
 | PowerScript     | integer | 0            | Script welches zum einschalten des System ausgeführt werden soll |
 | PowerOff        | integer | 0            | Ausschalt-Methode: 0 = OFF, 1 = Hibernate, 2 = Standby           |
-| PreSelectScript | intger  | 0            | immer 0 nach Appylchanges, Erzeugt eine PowerScript aus Vorlagen |
+| PreSelectScript | integer  | 0            | immer 0 nach Appylchanges, Erzeugt eine PowerScript aus Vorlagen |
 | MACAddress      | string  |              | MAC-Adresse für PowerScript                                      |
 
  Eigenschaften von KodiDeviceVideoLibrary:  
@@ -949,6 +1108,17 @@ keine
 | showDoScan  | boolean | true         | Statusvariable für DB-Bereinigung verwenden          |
 | showClean   | boolean | true         | Aktions-Variable zum starten des Scan anlegen        |
 | showDoClean | boolean | true         | Aktions-Variable zum starten der Bereinigung anlegen |
+
+ Eigenschaften von KodiSplitter:  
+
+| Eigenschaft | Typ     | Standardwert | Funktion                                                       |
+| :---------: | :-----: | :----------: | :------------------------------------------------------------: |
+| Open        | boolean | false        | Verbindung herstellen                                          |
+| Host        | string  |              | Hostnamen, IP-Adresse von Kodi                                 |
+| Port        | integer | 9090         | Ziel-Port in KoDi für die RPC-JSON-API via TCP                 |
+| Webport     | integer | 80           | Webfront von Kodi, wird für den download der Cover genutzt     |
+| Watchdog    | boolean | false        | Mit Ping prüfen bevor versucht wird eine Verbindung aufzubauen |
+| Interval    | integer | 5            | Interval der Ping-Prüfung                                      |
 
 ## 9. Tips & Tricks
 

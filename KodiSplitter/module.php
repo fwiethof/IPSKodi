@@ -277,7 +277,7 @@ class KodiSplitter extends IPSModule
     }
 
 ################## PRIVATE     
-    
+
     /**
      * Sendet ein PowerEvent an die Childs.
      * Ermöglicht es dass der Child vom Typ KodiDeviceSystem den aktuellen an/aus Zustand von Kodi kennt.
@@ -298,6 +298,13 @@ class KodiSplitter extends IPSModule
     }
 
 ################## PUBLIC
+
+    public function RawSend(string $Namespace, string $Method, $Params)
+    {
+        $KodiData = new Kodi_RPC_Data($Namespace, $Method, $Params);
+        $ret = $this->Send($KodiData);
+        return $ret;
+    }
 
     /**
      * IPS-Instanz-Funktion 'KODIRPC_GetImage'. Holt ein Bild vom Kodi-Webfront.
@@ -339,7 +346,7 @@ class KodiSplitter extends IPSModule
             trigger_error('Connection to Kodi lost.', E_USER_NOTICE);
             $this->SendPowerEvent(false);
             $this->SetStatus(203);
-            return true;//$this->ApplyChanges();
+            return true; //$this->ApplyChanges();
         }
         $this->SetStatus(IS_ACTIVE);
 

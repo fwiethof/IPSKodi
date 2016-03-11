@@ -613,10 +613,17 @@ class KodiRPCException extends Exception
  * @method null EjectOpticalDrive(null) Öffnet das Optische Laufwerk.
  * @method null GetEpisodeDetails (array $Params (string "episodeid" EpisodeID) (array "properties" Zu lesende Episoden-Eigenschaften) Liest die Eigenschaften eine Episode aus.
  * @method null GetEpisodes(null) Liest die Eigenschaften aller Episoden aus.
+ * @method null GetRecentlyAddedEpisodes(null) Liest die Eigenschaften der zuletzt hinzugefügten Episoden aus.
  * @method null GetMovieDetails (array $Params (string "movieid" MovieID) (array "properties" Zu lesende Films-Eigenschaften) Liest die Eigenschaften eines Film aus.
  * @method null GetMovies(null) Liest die Eigenschaften aller Filme aus.
- * VIDEOLIB
- * 
+ * @method null GetRecentlyAddedMovies(null) Liest die Eigenschaften der zuletzt hinzugefügten Filme aus.
+ * @method null GetMovieSetDetails (array $Params (string "setid" SetID) (array "properties" Zu lesende Movie-Set-Eigenschaften) Liest die Eigenschaften eines Movie-Set aus.
+ * @method null GetMovieSets (null) Liest die Eigenschaften alle Movie-Sets aus.
+ * @method null GetMusicVideoDetails (array $Params (string "musicvideoid" MusicVideoID) (array "properties" Zu lesende Musikvideo-Eigenschaften) Liest die Eigenschaften eines Musikvideos aus.
+ * @method null GetRecentlyAddedMusicVideos(null) Liest die Eigenschaften der zuletzt hinzugefügten Musikvideos aus.
+ * @method null GetSeasons (array $Params (string "tvshowid" TVShowID) (array "properties" Zu lesende Season Eigenschaften) Liest die Eigenschaften einer Season aus.
+ * @method null GetTVShowDetails (array $Params (string "tvshowid" TVShowID) (array "properties" Zu lesende TV-Serien Eigenschaften) Liest die Eigenschaften einer TV-Serie.
+ * @method null GetTVShows (null) Liest die Eigenschaften alle TV-Serien.
  * @property-read integer $Id Id des RPC-Objektes
  * @property-read integer $Typ Typ des RPC-Objektes 
  * @property-read string $Namespace Namespace der RPC-Methode
