@@ -46,13 +46,92 @@ class KodiDevicePVR extends KodiBase
      * @access private
      *  @var array 
      */
-    static $ItemList = array(
+    static $ChanneltemList = array(
         "thumbnail",
         "channeltype",
         "hidden",
         "locked",
         "channel",
         "lastplayed"
+    );
+
+    /**
+     * Alle Eigenschaften von Sendung-Items.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $BroadcastItemList = array(
+        "title",
+        "plot",
+        "plotoutline",
+        "starttime",
+        "endtime",
+        "runtime",
+        "progress",
+        "progresspercentage",
+        "genre",
+        "episodename",
+        "episodenum",
+        "episodepart",
+        "firstaired",
+        "hastimer",
+        "isactive",
+        "parentalrating",
+        "wasactive",
+        "thumbnail",
+        "rating"
+    );
+
+    /**
+     * Alle Eigenschaften von Aufnahmen.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $RecordingItemList = array(
+        "title",
+        "plot",
+        "plotoutline",
+        "genre",
+        "playcount",
+        "resume",
+        "channel",
+        "starttime",
+        "endtime",
+        "runtime",
+        "lifetime",
+        "icon",
+        "art",
+        "streamurl",
+        "file",
+        "directory"
+    );
+
+    /**
+     * Alle Eigenschaften von Timern.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $TimerItemList = array(
+        "title",
+        "summary",
+        "channelid",
+        "isradio",
+        "repeating",
+        "starttime",
+        "endtime",
+        "runtime",
+        "lifetime",
+        "firstday",
+        "weekdays",
+        "priority",
+        "startmargin",
+        "endmargin",
+        "state",
+        "file",
+        "directory"
     );
 
     /**
@@ -219,7 +298,7 @@ class KodiDevicePVR extends KodiBase
         }
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->GetChannels(array("channelgroupid" => "all" . $ChannelTyp, "properties" => static::$ItemList));
+        $KodiData->GetChannels(array("channelgroupid" => "all" . $ChannelTyp, "properties" => static::$ChanneltemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -244,7 +323,7 @@ class KodiDevicePVR extends KodiBase
         }
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->GetChannelDetails(array("channelid" => $ChannelId, "properties" => static::$ItemList));
+        $KodiData->GetChannelDetails(array("channelid" => $ChannelId, "properties" => static::$ChanneltemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -287,14 +366,14 @@ class KodiDevicePVR extends KodiBase
      */
     public function GetChannelGroupDetails(integer $ChannelGroupdId)
     {
-        if (!is_int($ChannelId))
+        if (!is_int($ChannelGroupdId))
         {
             trigger_error("ChannelId must be integer.", E_USER_NOTICE);
             return false;
         }
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->GetChannelGroupDetails(array("channelgroupid" => $ChannelGroupdId, "properties" => static::$ItemList));
+        $KodiData->GetChannelGroupDetails(array("channelgroupid" => $ChannelGroupdId, "properties" => static::$ChanneltemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -303,8 +382,135 @@ class KodiDevicePVR extends KodiBase
         return array();
     }
 
-    // GetBroadcastDetails
-    //GetBroadcasts 
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_GetBroadcasts'. Liest die Sendungen eines Senders.
+     *
+     * @access public
+     * @param string $ChannelId  Kanal welcher gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetBroadcasts(integer $ChannelId)
+    {
+        if (!is_int($ChannelId))
+        {
+            trigger_error("ChannelId must be integer.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetBroadcasts(array("channelid" => $ChannelId, "properties" => static::$BroadcastItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->broadcasts), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_GetBroadcastDetails'. Liefert die Eigenschaften einer Sendung.
+     *
+     * @access public
+     * @param integer $BroadcastId Sendung welche gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetBroadcastDetails(integer $BroadcastId)
+    {
+        if (!is_int($BroadcastId))
+        {
+            trigger_error("BroadcastId must be integer.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetBroadcastDetails(array("broadcastid" => $BroadcastId, "properties" => static::$BroadcastItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->broadcastdetails), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_GetRecordings'. Liefert alle Aufnahmen.
+     *
+     * @access public
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetRecordings()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecordings(array("properties" => static::$RecordingItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->recordings), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_GetRecordingDetails'. Liefert die Eigenschaften einer Aufnahme.
+     *
+     * @access public
+     * @param integer $RecordingId Aufnahme welche gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetRecordingDetails(integer $RecordingId)
+    {
+        if (!is_int($RecordingId))
+        {
+            trigger_error("RecordingId must be integer.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetRecordingDetails(array("recordingid" => $RecordingId, "properties" => static::$RecordingItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->recordingdetails), true);
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_GetTimers'. Liefert alle Aufnahmetimer.
+     *
+     * @access public
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetTimers()
+    {
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetTimers(array("properties" => static::$TimerItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->timers), true);
+        return array();
+    }
+
+    /**
+     * IPS-Instanz-Funktion 'KODIPVR_GetTimerDetails'. Liefert die Eigenschaften einer Aufnahmetimers.
+     *
+     * @access public
+     * @param integer $TimerId Timers welcher gelesen werden soll.
+     * @return array|boolean Ein Array mit den Daten oder FALSE bei Fehler.
+     */
+    public function GetTimerDetails(integer $TimerId)
+    {
+        if (!is_int($TimerId))
+        {
+            trigger_error("TimerId must be integer.", E_USER_NOTICE);
+            return false;
+        }
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetTimerDetails(array("timerid" => $TimerId, "properties" => static::$TimerItemList));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        return json_decode(json_encode($ret->timerdetails), true);
+    }
 
     /**
      * IPS-Instanz-Funktion 'KODIPVR_RequestState'. Frage eine oder mehrere Properties eines Namespace ab.

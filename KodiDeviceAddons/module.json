@@ -1,0 +1,11 @@
+{
+    "id": "{0731DD94-99E6-43D8-9BE3-2854B0C6EF24}",
+    "name": "KodiDeviceAddons",
+    "type": 3,
+    "vendor": "Kodi",
+    "aliases": ["Kodi Addons"],
+    "parentRequirements": ["{0222A902-A6FA-4E94-94D3-D54AA4666321}"],
+    "childRequirements": [],
+    "implemented": ["{73249F91-710A-4D24-B1F1-A72F216C2BDC}"],
+    "prefix": "KODIADDONS"
+}

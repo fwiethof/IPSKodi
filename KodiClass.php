@@ -564,6 +564,11 @@ class KodiRPCException extends Exception
 /**
  * Enthält einen Kodi-RPC Datensatz.
  * 
+ * @method null ExecuteAddon
+ * @method null GetAddons
+ * @method null GetAddonDetails
+ * @method null SetAddonEnabled
+ * 
  * @method null SetVolume(array $Params (integer "volume" Neue Lautstärke)) Setzen der Lautstärke.
  * @method null SetMute(array $Params (boolean "mute" Neuer Wert der Stummschaltung)) Setzen der Stummschaltung.
  * @method null Quit(null) Beendet Kodi.
@@ -581,6 +586,7 @@ class KodiRPCException extends Exception
  * @method null GetSongDetails (array $Params (string "songid" SongID) (array "properties" Zu lesende Song-Eigenschaften) Liest die Eigenschaften eines Songs aus.
  * @method null GetSongs(null) Liest die Eigenschaften aller Songs aus.
  * @method null Scan(null) Startet das Scannen von PVR-Kanälen oder von Quellen für neue Einträge in der Datenbank.
+ * @method null GetFavourites
  * @method null GetSources(array $Params (string "media"  enum["video", "music", "pictures", "files", "programs"])) Liest die Quellen.
  * @method null GetFileDetails(array $Params (string "file" Dateiname) (string "media"  enum["video", "music", "pictures", "files", "programs"]) (array "properties" Zu lesende Eigenschaften)) Liest die Quellen.
  * @method null GetDirectory(array $Params (string "directory" Verzeichnis welches gelesen werden soll.)) Liest ein Verzeichnis aus.
@@ -601,11 +607,20 @@ class KodiRPCException extends Exception
  * @method null ExecuteAction(array $Params (string "action" Die auszuführende Aktion)) Sendet eine Aktion.
  * @method null SendText(array $Params (string "text" Zu sender String) (boolean "done" True zum beenden der Eingabe)) Sendet einen Eingabetext.
  * @method null Record(array $Params (boolean "record" Starten/Stoppen) (string "channel" Kanal für die Aufnahme)) Startet/Beendet eine laufende Aufnahme.
+ * 
+ * @method null GetBroadcasts
+ * @method null GetBroadcastDetails
  * @method null GetChannels
  * @method null GetChannelDetails
  * @method null GetChannelGroups
  * @method null GetChannelGroupDetails
+ * @method null GetRecordings
+ * @method null GetRecordingDetails
+ * @method null GetTimers
+ * @method null GetTimerDetails
+ * 
  * PLAYER FEHLT
+ * 
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
  * @method null Suspend(null) Führt einen Suspend auf Betriebssystemebene aus.
@@ -814,7 +829,7 @@ class Kodi_RPC_Data extends stdClass
                 else
                     return new KodiRPCException((string) $this->Error->data->stack, (int) $this->Error->code);
             else
-                return new KodiRPCException((string) $this->Error->data, (int) $this->Error->code);
+                return new KodiRPCException($this->Error->data->message, (int) $this->Error->code);
         else
             return new KodiRPCException((string) $this->Error->message, (int) $this->Error->code);
     }

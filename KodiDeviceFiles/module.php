@@ -13,7 +13,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
  */
 
 /**
- * KodiDeviceFiles Klasse für den Namespace Application der KODI-API.
+ * KodiDeviceFiles Klasse für den Namespace Files der KODI-API.
  * Erweitert KodiBase.
  *
  */
@@ -168,14 +168,14 @@ class KodiDeviceFiles extends KodiBase
     {
         if (!is_string($Media))
         {
-            trigger_error('Value must be string', E_USER_NOTICE);
+            trigger_error('Media must be string', E_USER_NOTICE);
             return false;
         }
 
         $Media = strtolower($Media);
         if (!in_array($Media, array("video", "music", "pictures", "files", "programs")))
         {
-            trigger_error('Value must be "video", "music", "pictures", "files" or "programs".', E_USER_NOTICE);
+            trigger_error('Media must be "video", "music", "pictures", "files" or "programs".', E_USER_NOTICE);
             return false;
         }
 
