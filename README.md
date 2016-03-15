@@ -21,8 +21,12 @@ Implementierung der Kodi JSON-RPC API in IP-Symcon.
 
  Ermöglicht das Steuern und das empfangen von Statusänderungen, von der Mediacenter-Software Kodi über das Netzwerk.
  Direkte (eingeschränkte) Bedienung im WebFront möglich.
- Abbilden der gesamten Kodi-API in vollen Funktionsumfangs in PHP-Befehlen für eigene Scripte in IPS.
-
+ Abbilden fast der gesamten Kodi-API in vollen Funktionsumfangs in PHP-Befehlen für eigene Scripte in IPS.
+ Folgende Namespaces der API wurden aktuell nicht berücksichtigt, sollte hier Bedarf bestehen, so können Diese noch nachgepflegt werden:
+- Profiles  
+- Settings  
+- Textures  
+- XBMC  
 
 ## 2. Voraussetzungen
 
@@ -55,6 +59,13 @@ Der Zugriff wird außerdem nur für das Anzeigen von Covern, Bannern bzw. Poster
 
 Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
 
+ **Kodi Addons (KodiDeviceAddons):**  
+ RPC-Namensraum : Addons
+ 
+ Addons                 - lesen und ausführen.
+ 
+---
+
  **Kodi Anwendung (KodiDeviceApplication):**  
  RPC-Namensraum : Application
  
@@ -75,6 +86,12 @@ Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
  Datenbank  - Ausführen von Scan un Clean. Status visualisieren.
 
 Das Setzen von Daten in der Datenbank ist nicht möglich!  
+
+---  
+**Kodi Favoriten (KodiDeviceFavourites):**  
+ RPC-Namensraum : Favourites  
+
+ Favoriten   - Lesen
 
 ---
 
@@ -97,6 +114,9 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  Bildschrimschoner  - Status visualisieren.  
  Benachrichtungen   - Senden.  
 
+Hinweise zu den 'Window IDs' und 'Window Name' sind hier verfügbar:  
+[Kodi Website - Window IDs] (http://kodi.wiki/view/Window_IDs)  
+
 ---
 
  **Kodi Input (KodiDeviceInput):**  
@@ -110,10 +130,13 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  **Kodi PVR (KodiDevicePVR):**  
  RPC-Namensraum : PVR  
 
- Verfügbarkeit  - Zustand lesen und visualisieren.  
- Suchlauf       - Starten, Zustand lesen und visualisieren.  
- Aufnahme       - Steuern, Zustand lesen und visualisieren.  
-
+ Verfügbarkeit      - Zustand lesen und visualisieren.  
+ Suchlauf           - Starten, Zustand lesen und visualisieren.  
+ Aufnahme           - Steuern, Zustand lesen und visualisieren.  
+ Kanäle & Gruppen   - Lesen  
+ Aufnahmen          - Lesen  
+ Timer              - Lesen  
+ 
 ---
 
  **Kodi Playerstatus (KodiDevicePlayer):**  
@@ -146,6 +169,24 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
  RPC-Namensraum : JSONRPC  
 
 ## 7. PHP-Befehlsreferenz
+
+
+     string addonid
+    [ string disclaimer = "" ]
+    [ string fanart = "" ]
+    [ mixed broken = null ]
+    [ string author = "" ]
+    [ boolean enabled = False ]
+    [ array extrainfo ]
+    [ string thumbnail = "" ]
+    [ string path = "" ]
+    [ array dependencies ]
+    Addon.Types type
+    [ string description = "" ]
+    [ string name = "" ]
+    [ string version = "" ]
+    [ string summary = "" ]
+    [ integer rating = 0 ] 
 
  **Kodi Anwendung (KodiDeviceApplication):**  
 ```php
@@ -632,6 +673,42 @@ boolean KODIPVR_Record(integer $InstanzeID, boolean $Record, string $Channel);
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ```php
+array|boolean KODIPVR_GetBroadcasts(integer $InstanzeID, integer $ChannelId);
+```
+ Liefert die Sendungen des in $ChannelId übergeben Kanals als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+ 
+| Index                | Typ       | Beschreibung                      |
+|:--------------------:|:---------:|:---------------------------------:|
+| broadcastid          | integer   |                                   |
+| endtime              | string    |                                   |
+| episodename          | string    |                                   |
+| episodenum           | integer   |                                   |
+| episodepart          | integer   |                                   |
+| firstaired           | string    |                                   |
+| genre                | string    |                                   |
+| hastimer             | boolean   |                                   |
+| isactive             | boolean   |                                   |
+| parentalrating       | integer   |                                   |
+| plot                 | string    |                                   |
+| plotoutline          | string    |                                   |
+| progress             | integer   |                                   |
+| progresspercentage   | float     |                                   |
+| rating               | integer   |                                   |
+| runtime              | integer   |                                   |
+| starttime            | string    |                                   |
+| thumbnail            | string    |                                   |
+| title                | string    |                                   |
+| wasactive            | boolean   |                                   |
+     
+```php
+array|boolean KODIPVR_GetBroadcastDetails(integer $InstanzeID, integer $BroadcastId);
+```
+ Liefert die Eigenschaften der Sendungen welche mit $BroadcastId übergeben wurde als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+ Es gilt die Tabelle von KODIPVR_GetBroadcasts. 
+ 
+```php
 array|boolean KODIPVR_GetChannels(integer $InstanzeID, string $ChannelTyp);
 ```
  Liest alle Kanäle vom Typ $ChannelTyp aus und liefert die Eigenschaften als Array.  
@@ -674,6 +751,73 @@ array|boolean KODIPVR_GetChannelGroupDetails(integer $InstanzeID, integer $Chann
  Liefert die Eigenschaften der in $ChannelGroupdId übergeben Kanalgruppe als Array.  
  Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
  Es gilt die Tabelle von KODIAPP_GetChannelGroups.  
+
+```php
+array|boolean KODIPVR_GetRecordings(integer $InstanzeID);
+```
+ Liefert alle Aufnahmen als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| art                       | array     |                               |
+| channel                   | string    |                               |
+| directory                 | string    |                               |
+| endtime                   | string    |                               |
+| file                      | string    |                               |
+| genre                     | string[]  | Array der Genres              |
+| icon                      | string    |                               |
+| lifetime                  | integer   |                               |
+| playcount                 | integer   |                               |
+| plot                      | string    |                               |
+| plotoutline               | string    |                               |
+| recordingid               | integer   |                               |
+| resume                    | array     |                               |
+| runtime                   | integer   |                               |
+| starttime                 | string    |                               |
+| streamurl                 | string    |                               |
+| title                     | string    |                               |
+ 
+```php
+array|boolean KODIPVR_GetRecordingDetails(integer $InstanzeID, integer $RecordingId);
+```
+ Liefert die Eigenschaften der in $RecordingId übergeben Aufnahme als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+ Es gilt die Tabelle von KODIPVR_GetRecordings. 
+
+```php
+array|boolean KODIPVR_GetTimers(integer $InstanzeID);
+```
+ Liefert alle Aufnahmentimer als Array.
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+| channelid                 | integer   |                               |
+| directory                 | string    |                               |
+| endmargin                 | integer   |                               |
+| endtime                   | string    |                               |
+| file                      | string    |                               |
+| firstday                  | string    |                               |
+| isradio                   | boolean   |                               |
+| lifetime                  | integer   |                               |
+| priority                  | integer   |                               |
+| repeating                 | boolean   |                               |
+| runtime                   | integer   |                               |
+| startmargin               | integer   |                               |
+| starttime                 | string    |                               |
+| state                     | array     |                               |
+| summary                   | string    |                               |
+| timerid                   | integer   |                               |
+| title                     | string    |                               |
+| weekdays                  | array     |                               |
+
+```php
+array|boolean KODIPVR_GetTimerDetails(integer $InstanzeID, integer $TimerId);
+```
+ Liefert die Eigenschaften des in $TimerId übergeben Aufnahmetimers als Array.  
+ Rückgabewert ist ein Array bei erfolgreicher Ausführung, sonst FALSE.  
+ Es gilt die Tabelle von KODIPVR_GetTimers. 
 
 ---
 
@@ -1022,8 +1166,10 @@ GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):
 
 | Instanz                | GUID                                   |
 | :--------------------: | :------------------------------------: |
+| KodiDeviceAddons       | {0731DD94-99E6-43D8-9BE3-2854B0C6EF24} |
 | KodiDeviceApplication  | {3AF936C4-9B31-48EC-84D8-A30F0BEF104C} |
 | KodiDeviceAudioLibrary | {AA078FB4-30C1-4EF1-A2DE-5F957F58BDDC} |
+| KodiDeviceFavourites   | {DA2C90A2-3863-4454-9B07-FBD083420E10} |
 | KodiDeviceFiles        | {54827867-BB3B-4ACC-A453-7A8D4DC78130} |
 | KodiDeviceGUI          | {E15F2C11-0B28-4CFB-AEE6-463BD313A964} |
 | KodiDeviceInput        | {9F3BE8BB-4610-49F4-A41A-40E14F641F43} |
@@ -1032,6 +1178,10 @@ GUIDs der Instanzen (z.B. wenn Instanz per PHP angelegt werden soll):
 | KodiDeviceSystem       | {03E18A60-02FD-45E8-8A2C-1F8E247C92D0} |
 | KodiDeviceVideoLibrary | {07943DF4-FAB9-454F-AA9E-702A5F9C9D57} |
 | KodiSplitter           | {D2F106B5-4473-4C19-A48F-812E8BAA316C} |
+
+Eigenschaften von KodiDeviceAddons:  
+
+keine  
 
 Eigenschaften von KodiDeviceApplication:  
 
@@ -1049,6 +1199,10 @@ Eigenschaften von KodiDeviceAudioLibrary:
 | showDoScan  | boolean | true         | Statusvariable für DB-Bereinigung verwenden          |
 | showClean   | boolean | true         | Aktions-Variable zum starten des Scan anlegen        |
 | showDoClean | boolean | true         | Aktions-Variable zum starten der Bereinigung anlegen |
+
+ Eigenschaften von KodiDeviceFavourites:  
+
+keine  
 
  Eigenschaften von KodiDeviceFiles:  
 
@@ -1115,7 +1269,7 @@ keine
 | :---------: | :-----: | :----------: | :------------------------------------------------------------: |
 | Open        | boolean | false        | Verbindung herstellen                                          |
 | Host        | string  |              | Hostnamen, IP-Adresse von Kodi                                 |
-| Port        | integer | 9090         | Ziel-Port in KoDi für die RPC-JSON-API via TCP                 |
+| Port        | integer | 9090         | Ziel-Port in Kodi für die RPC-JSON-API via TCP                 |
 | Webport     | integer | 80           | Webfront von Kodi, wird für den download der Cover genutzt     |
 | Watchdog    | boolean | false        | Mit Ping prüfen bevor versucht wird eine Verbindung aufzubauen |
 | Interval    | integer | 5            | Interval der Ping-Prüfung                                      |
