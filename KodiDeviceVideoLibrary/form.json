@@ -23,11 +23,11 @@
                 {
                     "type": "Button",
                     "label": "Scan",
-                    "onClick": "KODIVIDIOLIB_Scan($id);"
+                    "onClick": "KODIVIDEOLIB_Scan($id);"
                 },{
                     "type": "Button",
                     "label": "Clean",
-                    "onClick": "KODIVIDIOLIB_Clean($id);"
+                    "onClick": "KODIVIDEOLIB_Clean($id);"
                 }
             ]
 }
