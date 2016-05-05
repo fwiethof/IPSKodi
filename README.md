@@ -62,7 +62,7 @@ Jeder Typ von Instanz bildet einen bestimmen Funktionsbereich der Kodi-API ab.
  **Kodi Addons (KodiDeviceAddons):**  
  RPC-Namensraum : Addons
  
- Addons                 - lesen und ausführen.
+ Addons                 - de/aktivieren, lesen und ausführen.  
  
 ---
 
@@ -170,27 +170,76 @@ Das Setzen von Daten in der Datenbank ist nicht möglich!
 
 ## 7. PHP-Befehlsreferenz
 
+ **Kodi Addons (KodiDeviceAddons):**  
 
-     string addonid
-    [ string disclaimer = "" ]
-    [ string fanart = "" ]
-    [ mixed broken = null ]
-    [ string author = "" ]
-    [ boolean enabled = False ]
-    [ array extrainfo ]
-    [ string thumbnail = "" ]
-    [ string path = "" ]
-    [ array dependencies ]
-    Addon.Types type
-    [ string description = "" ]
-    [ string name = "" ]
-    [ string version = "" ]
-    [ string summary = "" ]
-    [ integer rating = 0 ] 
+```php
+boolean KODIADDONS_ExecuteAddon(integer $InstanzeID, string $AddonId);
+```
+ Startet das in $AddonId übergebene Addon.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIADDONS_ExecuteAddonWait(integer $InstanzeID, string $AddonId);
+```
+ Startet das in $AddonId übergebene Addon und wartet auf die Ausführung.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIADDONS_ExecuteAddonEx(integer $InstanzeID, string $AddonId, string $Param);
+```
+ Startet das in $AddonId übergebene Addon mit Parametern. 
+ Die zu übergebenden Parameter an das AddOn müssen als JSON-String in $Params übergeben werden.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+boolean KODIADDONS_ExecuteAddonExWait(integer $InstanzeID, string $AddonId, string $Param);
+```
+ Startet das in $AddonId übergebene Addon mit Parametern und wartet auf die Ausführung.  
+ Die zu übergebenden Parameter an das AddOn müssen als JSON-String in $Params übergeben werden.  
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+```php
+array|boolean KODIADDONS_GetAddonDetails(integer $InstanzeID, string $AddonId);
+```
+ Liest die Eigenschaften eines Addons aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+
+| Index                     | Typ       | Beschreibung               |
+|:-------------------------:|:---------:|:--------------------------:|
+| addonid                   | string    |                            |
+| disclaimer                | string    |                            |
+| fanart                    | string    | Pfad zum Fanart            |
+| broken                    | mixed     |                            |
+| author                    | string    |                            |
+| enabled                   | boolean   |                            |
+| extrainfo                 | array     |                            |
+| thumbnail                 | string    | Pfad zum Cover             |
+| path                      | string    |                            |
+| dependencies              | array     |                            |
+| type                      | array     |                            |
+| description               | string    | Beschreibung               |
+| name                      | string    |                            |
+| version                   | string    |                            |
+| summary                   | string    |                            |
+| rating                    | integer   | Bewertung                  |
+
+```php
+array|boolean KODIADDONS_GetAddons(integer $InstanzeID);
+```
+ Liest die Eigenschaften aller Addons aus.  
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ Es gilt die Tabelle von KODIADDONS_GetAddonDetails.  
+
+```php
+boolean KODIADDONS_SetAddonEnabled(integer $InstanzeID, boolean $Value);
+```
+ De-/Aktiviert ein Addon.
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.
+
 
  **Kodi Anwendung (KodiDeviceApplication):**  
 ```php
-boolean KODIAPP_SetMute(integer $InstanzeID, boolean $Value;
+boolean KODIAPP_SetMute(integer $InstanzeID, boolean $Value);
 ```
  De-/Aktiviert die Stummschaltung.  
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.
@@ -384,6 +433,22 @@ array|boolean KODIAUDIOLIB_GetRecentlyPlayedSongs(integer $InstanzeID);
  Liest die Eigenschaften der Songs aus, welche zuletzt zur wiedergegeben wurden.  
  Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
  Es gilt die Tabelle von KODIAUDIOLIB_GetSongDetails.  
+
+---
+
+**Kodi Favoriten (KodiDeviceFavourites):**  
+
+```php
+array|boolean KODIFAV_GetFavourites(integer $InstanzeID, string $Type);
+```
+ Liest die Eigenschaften der Favoriten aus, welche dem im $Type übergeben Typen angehören.  
+ $Type kann dabei "media", "window", "script" oder "unknown" annehmen.
+ Rückgabewert ist ein assoziertes Array mit den Daten. Tritt ein Fehler auf, wird FALSE zurüchgegeben.  
+ 
+| Index                     | Typ       | Beschreibung                  |
+|:-------------------------:|:---------:|:-----------------------------:|
+
+
 ---
 
  **Kodi Files (KodiDeviceFiles):**  

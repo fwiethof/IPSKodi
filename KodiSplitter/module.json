@@ -6,6 +6,6 @@
         "aliases": ["Kodi Splitter"],
         "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
         "childRequirements": ["{73249F91-710A-4D24-B1F1-A72F216C2BDC}"],
-        "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{0222A902-A6FA-4E94-94D3-D54AA4666321}"],
+        "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{0222A902-A6FA-4E94-94D3-D54AA4666321},{152DA20A-FDB5-428C-91C6-480151EC98F3}"],
         "prefix": "KODIRPC"
     }

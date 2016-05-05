@@ -357,7 +357,29 @@ abstract class KodiBase extends IPSModule
         IPS_LogMessage("Kodi-Dev-Result", $dump);
         return $result;
     }
+    
+    /**
+     * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter zum Direktversand.
+     *
+     * @access protected
+     * @param Kodi_RPC_Data $KodiData Zu versendende Daten.
+     * @return Kodi_RPC_Data Objekt mit der Antwort. NULL im Fehlerfall.
+     */
+    protected function SendDirect(Kodi_RPC_Data $KodiData)
+    {
+        //IPS_LogMessage("Kodi-Dev-Send", print_r($KodiData, true));
 
+        $JSONData = $KodiData->ToJSONString('{152DA20A-FDB5-428C-91C6-480151EC98F3}');
+        $anwser = $this->SendDataToParent($JSONData);
+        if ($anwser === false)
+            return NULL;
+        $result = unserialize($anwser);
+        ob_start();
+        var_dump($result);
+        $dump = ob_get_clean();
+        //IPS_LogMessage("Kodi-Dev-Result", $dump);
+        return $result;
+    }
 ################## DUMMYS / WOARKAROUNDS - protected
 
     /**
@@ -950,6 +972,22 @@ class Kodi_RPC_Data extends stdClass
         return json_encode($SendData);
     }
 
+        /**
+     * Erzeugt einen, JSON-kodierten String zum versand an den RPC-Server.
+     * 
+     * @access public
+     * @return string JSON-kodierter String.
+     */
+    public function ToRawRPCJSONString()
+    {
+        $RPC = new stdClass();
+        $RPC->jsonrpc = "2.0";
+        $RPC->method = $this->Namespace . '.' . $this->Method;
+        if (!is_null($this->Params))
+            $RPC->params = $this->Params;
+        $RPC->id = $this->Id;
+        return json_encode($RPC);
+    }
     /**
      * Führt eine UTF8-Dekodierung für einen String oder ein Objekt durch (rekursiv)
      * 

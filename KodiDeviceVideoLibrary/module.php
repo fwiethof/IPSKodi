@@ -405,7 +405,8 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetEpisodes(array("properties" => static::$EpisodeItemList));
-        $ret = $this->Send($KodiData);
+        
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)

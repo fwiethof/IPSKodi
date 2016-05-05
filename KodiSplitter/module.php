@@ -57,33 +57,19 @@ class KodiSplitter extends IPSModule
         // Zwangskonfiguration des ClientSocket
         $Open = $this->ReadPropertyBoolean('Open');
         $NewState = IS_ACTIVE;
-        //IPS_LogMessage('Kodi', '1');
         if (!$Open)
         {
             $NewState = IS_INACTIVE;
-            //IPS_LogMessage('Kodi', '2');
         }
-        if ($this->ReadPropertyString('Host') == '')
+        else
         {
-            //IPS_LogMessage('Kodi', '3');
-
-            if ($Open)
+            if ($this->ReadPropertyString('Host') == '')
             {
-                //IPS_LogMessage('Kodi', '4');
-
                 $NewState = IS_EBASE + 2;
                 $Open = false;
             }
-        }
-
-        if ($this->ReadPropertyString('Port') == '')
-        {
-            //IPS_LogMessage('Kodi', '5');
-
-            if ($Open)
+            if ($this->ReadPropertyString('Port') == '')
             {
-                //IPS_LogMessage('Kodi', '6');
-
                 $NewState = IS_EBASE + 2;
                 $Open = false;
             }
@@ -95,54 +81,30 @@ class KodiSplitter extends IPSModule
             //IPS_LogMessage('Kodi', '7');
 
             if (IPS_GetProperty($ParentID, 'Host') <> $this->ReadPropertyString('Host'))
-            {
-                //IPS_LogMessage('Kodi', '8');
-
                 IPS_SetProperty($ParentID, 'Host', $this->ReadPropertyString('Host'));
-//                $ChangeParentSetting = true;
-            }
-            if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
-            {
-                //IPS_LogMessage('Kodi', '8a');
 
+            if (IPS_GetProperty($ParentID, 'Port') <> $this->ReadPropertyInteger('Port'))
                 IPS_SetProperty($ParentID, 'Port', $this->ReadPropertyInteger('Port'));
-//                $ChangeParentSetting = true;
-            }
+
             // Keine Verbindung erzwingen wenn Host offline ist
             if ($Open)
             {
-                //IPS_LogMessage('Kodi', '9');
-
                 $Open = @Sys_Ping($this->ReadPropertyString('Host'), 500);
                 if (!$Open)
                 {
-                    //IPS_LogMessage('Kodi', '10');
-
                     $NewState = IS_EBASE + 3;
                 }
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $Open)
-            {
-                //IPS_LogMessage('Kodi', '11');
-
                 IPS_SetProperty($ParentID, 'Open', $Open);
-//                $ChangeParentSetting = true;
-            }
-            if (IPS_HasChanges($ParentID))
-            {
-                //IPS_LogMessage('Kodi', '12');
 
+            if (IPS_HasChanges($ParentID))
                 @IPS_ApplyChanges($ParentID);
-            }
         }
         else
         {
-            //IPS_LogMessage('Kodi', '13');
-
             if ($Open)
             {
-                //IPS_LogMessage('Kodi', '14');
-
                 $NewState = IS_INACTIVE;
                 $Open = false;
             }
@@ -164,42 +126,46 @@ class KodiSplitter extends IPSModule
 //        
         // Wenn wir verbunden sind,  mit Kodi, dann anmelden für Events
 
-        if (($Open)
-                and ( $this->HasActiveParent($ParentID)))
+        if ($Open)
         {
-            //IPS_LogMessage('Kodi', '20');
-
             switch (IPS_GetKernelRunlevel())
             {
                 case KR_READY:
-                    //IPS_LogMessage('Kodi', '21');
-//                    if ($NewState == IS_ACTIVE)
-//                    {
-                    $KodiData = new Kodi_RPC_Data('JSONRPC', 'Ping');
-                    $ret = $this->Send($KodiData);
-                    if ($ret == "pong")
+                    if ($this->HasActiveParent($ParentID))
                     {
-                        //IPS_LogMessage('Kodi', '22');
+                        $KodiData = new Kodi_RPC_Data('JSONRPC', 'Ping');
+                        $ret = $this->Send($KodiData);
+                        if ($ret == "pong")
+                        {
+                            $this->SendPowerEvent(true);
+                            $WatchdogTimer = 0;
+                            $this->SetTimerInterval("KeepAlive", 60 * 1000);
 
-                        $this->SendPowerEvent(true);
-                        $WatchdogTimer = 0;
-                        $this->SetTimerInterval("KeepAlive", 60 * 1000);
-
-                        $InstanceIDs = IPS_GetInstanceList();
-                        foreach ($InstanceIDs as $IID)
-                            if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)
-                                @IPS_ApplyChanges($IID);
+                            $InstanceIDs = IPS_GetInstanceList();
+                            foreach ($InstanceIDs as $IID)
+                                if (IPS_GetInstance($IID)['ConnectionID'] == $this->InstanceID)
+                                    @IPS_ApplyChanges($IID);
+                        }
+                        else
+                        {
+                            if (IPS_GetProperty($ParentID, 'Open'))
+                            {
+                                IPS_SetProperty($ParentID, 'Open', false);
+                                @IPS_ApplyChanges($ParentID);
+                            }
+                            $this->SendPowerEvent(false);
+                            $WatchdogTimer = $this->ReadPropertyInteger('Interval');
+                            $this->SetTimerInterval("KeepAlive", 0);
+                            $NewState = IS_EBASE + 3;
+                        }
                     }
                     else
                     {
                         if (IPS_GetProperty($ParentID, 'Open'))
                         {
-                            //IPS_LogMessage('Kodi', '30');
                             IPS_SetProperty($ParentID, 'Open', false);
                             @IPS_ApplyChanges($ParentID);
                         }
-
-                        //IPS_LogMessage('Kodi', '23');
                         $this->SendPowerEvent(false);
                         $WatchdogTimer = $this->ReadPropertyInteger('Interval');
                         $this->SetTimerInterval("KeepAlive", 0);
@@ -207,51 +173,14 @@ class KodiSplitter extends IPSModule
                     }
                     break;
                 case KR_INIT:
-                    //IPS_LogMessage('Kodi', '24');
-
                     if ($NewState == IS_ACTIVE)
-                    {
-                        //IPS_LogMessage('Kodi', '25');
-
                         $NewState = IS_EBASE + 3;
-                    }
                     break;
             }
         }
         else
         {
-            //IPS_LogMessage('Kodi', '26');
-
-            if ($this->ReadPropertyBoolean('Open'))
-            {
-                //IPS_LogMessage('Kodi', '27');
-
-                if (!$this->HasActiveParent($ParentID))
-                {
-                    //IPS_LogMessage('Kodi', '28');
-
-                    if ($NewState == IS_EBASE + 2)
-                        $WatchdogTimer = 0;
-                    else
-                    {
-                        //IPS_LogMessage('Kodi', '29');
-                        $WatchdogTimer = $this->ReadPropertyInteger('Interval');
-                    }
-
-                    if (IPS_GetProperty($ParentID, 'Open'))
-                    {
-                        //IPS_LogMessage('Kodi', '30');
-                        IPS_SetProperty($ParentID, 'Open', false);
-                        @IPS_ApplyChanges($ParentID);
-                    }
-                }
-            }
-            else
-            {
-                //IPS_LogMessage('Kodi', '31');
-
-                $WatchdogTimer = 0;
-            }
+            $WatchdogTimer = 0;
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
         }
@@ -259,20 +188,10 @@ class KodiSplitter extends IPSModule
 
         if ($this->ReadPropertyBoolean('Watchdog'))
         {
-            //IPS_LogMessage('Kodi', '32');
-
             if ($WatchdogTimer >= 5)
-            {
-                //IPS_LogMessage('Kodi', '33');
-
                 $this->SetTimerInterval("Watchdog", $WatchdogTimer * 1000);
-            }
             else
-            {
-                //IPS_LogMessage('Kodi', '34');
-
                 $this->SetTimerInterval("Watchdog", 0);
-            }
         }
     }
 
@@ -288,7 +207,7 @@ class KodiSplitter extends IPSModule
     private function SendPowerEvent($value)
     {
         $KodiData = new Kodi_RPC_Data('System', 'Power', array('data' => $value), 0);
-        IPS_LogMessage('KODI_PWR_Event', print_r($KodiData, true));
+//        IPS_LogMessage('KODI_PWR_Event', print_r($KodiData, true));
         $this->SendDataToDevice($KodiData);
     }
 
@@ -395,26 +314,40 @@ class KodiSplitter extends IPSModule
      */
     public function ForwardData($JSONString)
     {
-//        IPS_LogMessage("forward", $JSONString);
         $Data = json_decode($JSONString);
-        if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
+        if ($Data->DataID == "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
+        {
+            $KodiData = new Kodi_RPC_Data();
+            $KodiData->CreateFromGenericObject($Data);
+            try
+            {
+                $anwser = $this->Send($KodiData);
+                if (!is_null($anwser))
+                    return serialize($anwser);
+            }
+            catch (Exception $ex)
+            {
+                trigger_error($ex->getMessage(), $ex->getCode());
+            }
             return false;
-        $KodiData = new Kodi_RPC_Data();
-        $KodiData->CreateFromGenericObject($Data);
-//        IPS_LogMessage("forward", print_r($KodiData, true));
-
-        try
-        {
-//            $this->ForwardDataToParent($KodiData);
-            $anwser = $this->Send($KodiData);
-            if (!is_null($anwser))
-                return serialize($anwser);
         }
-        catch (Exception $ex)
+        else if ($Data->DataID == "{152DA20A-FDB5-428C-91C6-480151EC98F3}")
         {
-            trigger_error($ex->getMessage(), $ex->getCode());
+            $KodiData = new Kodi_RPC_Data();
+            $KodiData->CreateFromGenericObject($Data);
+            try
+            {
+                $anwser = $this->SendDirect($KodiData);
+                if (!is_null($anwser))
+                    return serialize($anwser);
+            }
+            catch (Exception $ex)
+            {
+                trigger_error($ex->getMessage(), $ex->getCode());
+            }
+            return false;
+            
         }
-        return false;
     }
 
 ################## DATAPOINTS DEVICE
@@ -575,6 +508,57 @@ class KodiSplitter extends IPSModule
         return true;
     }
 
+        /**
+     * Versendet ein Kodi_RPC-Objekt über einen eigenen TCP-Port und empfängt die Antwort.
+     * 
+     * @access protected
+     * @param Kodi_RPC_Data $KodiData Das Objekt welches versendet werden soll.
+     * @result mixed Enthält die Antwort auf das Versendete Objekt oder NULL im Fehlerfall.
+     */
+    protected function SendDirect(Kodi_RPC_Data $KodiData)
+    {
+        try
+        {
+            if (!$this->HasActiveParent())
+                throw new Exception('Intance has no active parent.', E_USER_NOTICE);
+
+            $Data =$KodiData->ToRawRPCJSONString();
+            $URI = $this->ReadPropertyString("Host") .":".$this->ReadPropertyInteger("Port");
+            $fp = stream_socket_client("tcp://".$URI, $errno, $errstr, 30);
+            $raw="";
+            if (!$fp) {
+                throw new Exception('Kodi not reachable', E_USER_NOTICE);
+            } else {
+                fwrite($fp, $Data);
+                while (!feof($fp)) {
+                $raw.=fgets($fp, 1024);
+                }
+            fclose($fp);
+            }
+            $ReplayKodiData = new Kodi_RPC_Data();
+            $ReplayKodiData->CreateFromJSONString($ret);
+//            if ($ReplayKodiData === false)
+//                throw new Exception('No anwser from Kodi', E_USER_NOTICE);
+
+            $ret = $ReplayKodiData->GetResult();
+            if (is_a($ret, 'KodiRPCException'))
+            {
+                throw $ret;
+            }
+            return $ret;
+        }
+        catch (KodiRPCException $ex)
+        {
+            trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
+        }
+        catch (Exception $ex)
+        {
+            trigger_error($ex->getMessage(), $ex->getCode());
+        }
+        return NULL;
+    }
+
+    
     /**
      * Versendet ein Kodi_RPC-Objekt und empfängt die Antwort.
      * 
@@ -592,7 +576,6 @@ class KodiSplitter extends IPSModule
             $this->SendQueuePush($KodiData->Id);
             $this->SendDataToParent($KodiData);
             $ReplayKodiData = $this->WaitForResponse($KodiData->Id);
-            //IPS_LogMessage("ReplayKodiData", print_r($ReplayKodiData, true));
 
             if ($ReplayKodiData === false)
                 throw new Exception('No anwser from Kodi', E_USER_NOTICE);
