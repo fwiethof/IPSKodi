@@ -514,9 +514,9 @@ abstract class KodiBase extends IPSModule
         {
             if (!(($Ident[0] == "_") or ( $Ident == "speed") or ( $Ident == "repeat") or ( IPS_GetVariable($id)["VariableAction"] <> 0)))
             {
-                if (($value == 0) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
+                if (($value <= 0) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
-                if (($value <> 0) and ( IPS_GetObject($id)["ObjectIsHidden"]))
+                if (($value > 0) and ( IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, false);
             }
 
@@ -543,9 +543,9 @@ abstract class KodiBase extends IPSModule
         {
             if ($Ident[0] <> "_")
             {
-                if (($value == "") and ( !IPS_GetObject($id)["ObjectIsHidden"]))
+                if ((($value == "") or ($value == "unknown")) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
-                if (($value <> "") and ( IPS_GetObject($id)["ObjectIsHidden"]))
+                if ((($value <> "") and ($value <> "unknown")) and ( IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, false);
             }
             SetValueString($id, $value);
@@ -1012,10 +1012,10 @@ class Kodi_RPC_Data extends stdClass
             $this->Method = $part[1];
         }
         if (property_exists($Json, 'params'))
-            $this->Params = $this->EncodeUTF8($Json->params);
+            $this->Params = $this->DecodeUTF8($Json->params);
         if (property_exists($Json, 'result'))
         {
-            $this->Result = $this->EncodeUTF8($Json->result);
+            $this->Result = $this->DecodeUTF8($Json->result);
             $this->Typ = Kodi_RPC_Data::$ResultTyp;
         }
         if (property_exists($Json, 'id'))

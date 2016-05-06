@@ -354,7 +354,7 @@ class KodiDevicePlayer extends KodiBase
         $this->EnableAction("Status");
         $this->RegisterVariableInteger("speed", "Geschwindigkeit", "Speed.Kodi", 10);
         $this->RegisterVariableInteger("year", "Jahr", "", 19);
-        $this->RegisterVariableString("type", "Typ", "", 20);
+//        $this->RegisterVariableString("type", "Typ", "", 20);
         $this->RegisterVariableString("duration", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
@@ -604,10 +604,20 @@ class KodiDevicePlayer extends KodiBase
                             $this->SetValueInteger($param, (int) $value);
                             break;
                         case "position":
-                            if ($this->PlayerId == self::Video)
-                                break;
+    //                        if ($this->PlayerId == self::Video)
+                                // TODO
+                                // PLAYLIST refresh ?                                
+  //                              break;
 
-                            $this->SetValueInteger($param, (int) $value + 1);
+//                            $this->SetValueInteger($param, (int) $value + 1);
+                            if ($KodiPayload['playlist'] <> -1)
+                            {
+                            if ($this->SetValueInteger($param, (int) $value))
+                            {
+                                // PLAYLIST refresh !
+                            }
+                            }
+                            
                             break;
 
                         /*    {"canrotate":false,"canzoom":false,
@@ -645,6 +655,13 @@ class KodiDevicePlayer extends KodiBase
                             else
                                 $this->DisableAction('speed');
                             break;
+                        case "playlist":
+                            if ($value == -1)
+                            {
+                                //Playlistvariable prüfen auf änderung
+                                // dann Playlist leeren oder neu erstellen.
+                            }
+                            break;
                         default:
                             IPS_LogMessage($param, print_r($value, true));
                             break;
@@ -668,7 +685,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->SetValueInteger('Status', 2);
                 IPS_RunScriptText('<? KODIPLAYER_RequestState(' . $this->InstanceID . ',"ALL");');
                 IPS_RunScriptText('<? KODIPLAYER_GetItemInternal(' . $this->InstanceID . ');');
-                $this->SetTimerInterval('PlayerStatus', 2);
+                $this->SetTimerInterval('PlayerStatus', 2000);
                 break;
             case 'OnPause':
                 $this->SetTimerInterval('PlayerStatus', 0);
@@ -815,7 +832,7 @@ class KodiDevicePlayer extends KodiBase
         {
             case self::Audio:
                 $this->SetValueString('label', $ret->label);
-                $this->SetValueString('type', $ret->type);
+//                $this->SetValueString('type', $ret->type);
 
                 if (property_exists($ret, 'displayartist'))
                     $this->SetValueString('artist', $ret->displayartist);
@@ -930,7 +947,8 @@ class KodiDevicePlayer extends KodiBase
                     $this->SetValueString('showtitle', "");
 
                 $this->SetValueString('label', $ret->label);
-
+//                $this->SetValueString('type', $ret->type);
+                
                 if (property_exists($ret, 'season'))
                     $this->SetValueInteger('season', $ret->season);
                 else
@@ -1485,6 +1503,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
+        //TODO
         /*        if ($this->PlayerId <> self::Audio)
           {
           trigger_error('Not supported', E_USER_NOTICE);
