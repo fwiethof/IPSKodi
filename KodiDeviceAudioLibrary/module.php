@@ -18,7 +18,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
  */
 class KodiDeviceAudioLibrary extends KodiBase
 {
-
+           
     /**
      * RPC-Namespace
      * 
@@ -304,7 +304,7 @@ class KodiDeviceAudioLibrary extends KodiBase
         }
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->Export(array("options" => array("path" => $Path, "overwrite" => $Overwrite, "images" => $includeImages)));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return $ret === "OK";
@@ -327,7 +327,7 @@ class KodiDeviceAudioLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetAlbumDetails(array("albumid" => $AlbumID, "properties" => static::$AlbumItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->albumdetails), true);
@@ -343,7 +343,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetAlbums(array("properties" => static::$AlbumItemListSmall));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -368,7 +368,7 @@ class KodiDeviceAudioLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetArtistDetails(array("artistid" => $ArtistID, "properties" => static::$ArtistItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->artistdetails), true);
@@ -384,7 +384,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetArtists(array("properties" => static::$ArtistItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -402,7 +402,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetGenres(array("properties" => static::$GenreItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -420,7 +420,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyAddedAlbums(array("properties" => static::$AlbumItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -438,7 +438,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyAddedSongs(array("properties" => static::$SongItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -456,7 +456,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyPlayedAlbums(array("properties" => static::$AlbumItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -474,7 +474,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyPlayedSongs(array("properties" => static::$SongItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -499,7 +499,7 @@ class KodiDeviceAudioLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetSongDetails(array("songid" => $SongID, "properties" => static::$SongItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->songdetails), true);
@@ -515,7 +515,7 @@ class KodiDeviceAudioLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetSongs(array("properties" => static::$SongItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)

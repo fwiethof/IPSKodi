@@ -92,7 +92,8 @@ class KodiSplitter extends IPSModule
                 $Open = @Sys_Ping($this->ReadPropertyString('Host'), 500);
                 if (!$Open)
                 {
-                    $NewState = IS_EBASE + 3;
+                    $NewState = IS_INACTIVE;
+                    $WatchdogTimer = $this->ReadPropertyInteger('Interval');                    
                 }
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $Open)
@@ -180,7 +181,6 @@ class KodiSplitter extends IPSModule
         }
         else
         {
-            $WatchdogTimer = 0;
             $this->SendPowerEvent(false);
             $this->SetTimerInterval("KeepAlive", 0);
         }
@@ -193,6 +193,7 @@ class KodiSplitter extends IPSModule
             else
                 $this->SetTimerInterval("Watchdog", 0);
         }
+        
     }
 
 ################## PRIVATE     
@@ -213,7 +214,7 @@ class KodiSplitter extends IPSModule
 
     protected function Decode($Method, $Event)
     {
-        IPS_LogMessage('KODI_Event:' . $Method, print_r($Event, true));
+            IPS_LogMessage('KODI_Event:' . $Method, print_r($Event, true));
     }
 
 ################## PUBLIC
@@ -281,16 +282,16 @@ class KodiSplitter extends IPSModule
      */
     public function Watchdog()
     {
-        $this->SetTimerInterval("Watchdog", 0);
+//        $this->SetTimerInterval("Watchdog", 0);
         $ParentID = $this->GetParent();
         if ($ParentID > 0)
         {
             if (!@Sys_Ping($this->ReadPropertyString('Host'), 500))
             {
-                $this->SendPowerEvent(false);
-                $this->SetStatus(203);
-                $WatchdogTimer = $this->ReadPropertyInteger('Interval');
-                $this->SetTimerInterval("Watchdog", $WatchdogTimer * 1000);
+//                $this->SendPowerEvent(false);
+//                $this->SetStatus(203);
+//                $WatchdogTimer = $this->ReadPropertyInteger('Interval');
+//                $this->SetTimerInterval("Watchdog", $WatchdogTimer * 1000);
                 return;
             }
             $Parent = IPS_GetInstance($ParentID);
@@ -315,8 +316,8 @@ class KodiSplitter extends IPSModule
     public function ForwardData($JSONString)
     {
         $Data = json_decode($JSONString);
-        if ($Data->DataID == "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
-        {
+        if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
+            return false;
             $KodiData = new Kodi_RPC_Data();
             $KodiData->CreateFromGenericObject($Data);
             try
@@ -330,24 +331,6 @@ class KodiSplitter extends IPSModule
                 trigger_error($ex->getMessage(), $ex->getCode());
             }
             return false;
-        }
-        else if ($Data->DataID == "{152DA20A-FDB5-428C-91C6-480151EC98F3}")
-        {
-            $KodiData = new Kodi_RPC_Data();
-            $KodiData->CreateFromGenericObject($Data);
-            try
-            {
-                $anwser = $this->SendDirect($KodiData);
-                if (!is_null($anwser))
-                    return serialize($anwser);
-            }
-            catch (Exception $ex)
-            {
-                trigger_error($ex->getMessage(), $ex->getCode());
-            }
-            return false;
-            
-        }
     }
 
 ################## DATAPOINTS DEVICE
@@ -508,57 +491,6 @@ class KodiSplitter extends IPSModule
         return true;
     }
 
-        /**
-     * Versendet ein Kodi_RPC-Objekt über einen eigenen TCP-Port und empfängt die Antwort.
-     * 
-     * @access protected
-     * @param Kodi_RPC_Data $KodiData Das Objekt welches versendet werden soll.
-     * @result mixed Enthält die Antwort auf das Versendete Objekt oder NULL im Fehlerfall.
-     */
-    protected function SendDirect(Kodi_RPC_Data $KodiData)
-    {
-        try
-        {
-            if (!$this->HasActiveParent())
-                throw new Exception('Intance has no active parent.', E_USER_NOTICE);
-
-            $Data =$KodiData->ToRawRPCJSONString();
-            $URI = $this->ReadPropertyString("Host") .":".$this->ReadPropertyInteger("Port");
-            $fp = stream_socket_client("tcp://".$URI, $errno, $errstr, 30);
-            $raw="";
-            if (!$fp) {
-                throw new Exception('Kodi not reachable', E_USER_NOTICE);
-            } else {
-                fwrite($fp, $Data);
-                while (!feof($fp)) {
-                $raw.=fgets($fp, 1024);
-                }
-            fclose($fp);
-            }
-            $ReplayKodiData = new Kodi_RPC_Data();
-            $ReplayKodiData->CreateFromJSONString($ret);
-//            if ($ReplayKodiData === false)
-//                throw new Exception('No anwser from Kodi', E_USER_NOTICE);
-
-            $ret = $ReplayKodiData->GetResult();
-            if (is_a($ret, 'KodiRPCException'))
-            {
-                throw $ret;
-            }
-            return $ret;
-        }
-        catch (KodiRPCException $ex)
-        {
-            trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
-        }
-        catch (Exception $ex)
-        {
-            trigger_error($ex->getMessage(), $ex->getCode());
-        }
-        return NULL;
-    }
-
-    
     /**
      * Versendet ein Kodi_RPC-Objekt und empfängt die Antwort.
      * 

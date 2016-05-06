@@ -435,6 +435,7 @@ function wake($ip, $mac)
         return parent::RequestState($Ident);
     }
 
+
 }
 
 /** @} */

@@ -70,7 +70,39 @@ class KodiDeviceVideoLibrary extends KodiBase
         "uniqueid",
         "art"
     );
-
+    /**
+     * Ein Teil der Eigenschaften von Episoden.
+     * 
+     * @access private
+     *  @var array 
+     */
+    static $EpisodeItemListSmall = array(
+        "title",
+//        "plot",
+//        "votes",
+//        "rating",
+//        "writer",
+//        "firstaired",
+        "playcount",
+////        "runtime",
+//        "director",
+//        "productioncode",
+        "season",
+        "episode",
+        "originaltitle",
+        "showtitle",
+//        "cast",
+//        "streamdetails",
+//        "lastplayed",
+        "fanart",
+        "thumbnail",
+        "file",
+////        "resume",
+        "tvshowid",
+//        "dateadded",
+////        "uniqueid",
+//        "art"
+    );
     /**
      * Alle Eigenschaften von Filmen.
      * 
@@ -339,7 +371,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIVIDOLIB_Export'. Exportiert die Audio Datenbank.
+     * IPS-Instanz-Funktion 'KODIVIDOLIB_Export'. Exportiert die Video Datenbank.
      *
      * @access public
      * @param  string $Path Ziel-Verzeichnis für den Export.
@@ -366,7 +398,7 @@ class KodiDeviceVideoLibrary extends KodiBase
         }
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->Export(array("options" => array("path" => $Path, "overwrite" => $Overwrite, "images" => $includeImages)));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return $ret === "OK";
@@ -379,7 +411,7 @@ class KodiDeviceVideoLibrary extends KodiBase
      * @param  integer $EpisodeId EpisodenID der zu lesenden Episode.
      * @return array | boolean Array mit den Daten oder false bei Fehlern.
      */
-    public function GetEpisodeDetails(integer $EpisodeId)
+        public function GetEpisodeDetails(integer $EpisodeId)
     {
         if (!is_int($EpisodeId))
         {
@@ -389,7 +421,7 @@ class KodiDeviceVideoLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetEpisodeDetails(array("episodeid" => $EpisodeId, "properties" => static::$EpisodeItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->episodedetails), true);
@@ -404,9 +436,10 @@ class KodiDeviceVideoLibrary extends KodiBase
     public function GetEpisodes()
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->GetEpisodes(array("properties" => static::$EpisodeItemList));
-        
+        $KodiData->GetEpisodes(array("properties" => static::$EpisodeItemListSmall));
+        //ini_set("memory_limit","64M");        
         $ret = $this->SendDirect($KodiData);
+//        var_dump($ret);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -418,13 +451,22 @@ class KodiDeviceVideoLibrary extends KodiBase
      * IPS-Instanz-Funktion 'KODIVIDEOLIB_GetGenres'. Liest die Eigenschaften aller Genres aus.
      *
      * @access public
-     * @return array | boolean Array mit den Daten oder false bei Fehlern.
+     * @param string $Type Der Typ der zu suchenden Genres.
+     *   enum["movie"=Filme, "tvshow"=Serien, "musicvideo"=Musikvideos]
+*    * @return array | boolean Array mit den Daten oder false bei Fehlern.
      */
-    public function GetGenres()
+    public function GetGenres(string $Type)
     {
+        $Type = strtolower($Type);
+        if (!in_array($Type, array("movie", "musicvideo", "tvshow")))
+        {
+            trigger_error('Media must be "movie", "tvshow", or "musicvideo".', E_USER_NOTICE);
+            return false;
+        }
+        
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->GetGenres(array("properties" => static::$GenreItemList));
-        $ret = $this->Send($KodiData);
+        $KodiData->GetGenres(array("properties" => static::$GenreItemList,"type"=>$Type));
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -449,7 +491,7 @@ class KodiDeviceVideoLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetEpisodeDetails(array("movieid" => $MovieId, "properties" => static::$MovieItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->moviedetails), true);
@@ -465,7 +507,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetMovies(array("properties" => static::$MovieItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -490,7 +532,7 @@ class KodiDeviceVideoLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetMovieSetDetails(array("setid" => $SetId, "properties" => static::SetItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->setdetails), true);
@@ -506,7 +548,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetMovieSets(array("properties" => static::$SetItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -531,7 +573,7 @@ class KodiDeviceVideoLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetMusicVideoDetails(array("musicvideoid" => $MusicVideoId, "properties" => static::$MusicVideoItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->musicvideodetails), true);
@@ -547,7 +589,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetMusicVideos(array("properties" => static::$MusicVideoItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -565,7 +607,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyAddedEpisodes(array("properties" => static::$EpisodeItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -583,7 +625,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyAddedMovies(array("properties" => static::$MovieItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -601,7 +643,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecentlyAddedMusicVideos(array("properties" => static::$MusicVideoItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -626,7 +668,7 @@ class KodiDeviceVideoLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetSeasons(array("tvshowid" => $TvShowId, "properties" => static::$SeasonItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->seasons), true);
@@ -649,7 +691,7 @@ class KodiDeviceVideoLibrary extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetTVShowDetails(array("tvshowid" => $TvShowId, "properties" => static::$TvShowItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->tvshowdetails), true);
@@ -665,7 +707,7 @@ class KodiDeviceVideoLibrary extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetTVShows(array("properties" => static::$TvShowItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)

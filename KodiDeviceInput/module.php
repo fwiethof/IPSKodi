@@ -18,7 +18,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
  */
 class KodiDeviceInput extends KodiBase
 {
-
+           
     /**
      * RPC-Namespace
      * 

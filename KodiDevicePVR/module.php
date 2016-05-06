@@ -18,7 +18,7 @@ require_once(__DIR__ . "/../KodiClass.php");  // diverse Klassen
  */
 class KodiDevicePVR extends KodiBase
 {
-
+           
     /**
      * RPC-Namespace
      * 
@@ -299,7 +299,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetChannels(array("channelgroupid" => "all" . $ChannelTyp, "properties" => static::$ChanneltemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -324,7 +324,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetChannelDetails(array("channelid" => $ChannelId, "properties" => static::$ChanneltemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -349,7 +349,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetChannelGroups(array("channeltype" => "all" . $ChannelTyp)); //, "properties" => static::$ItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -374,7 +374,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetChannelGroupDetails(array("channelgroupid" => $ChannelGroupdId, "properties" => static::$ChanneltemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -399,7 +399,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetBroadcasts(array("channelid" => $ChannelId, "properties" => static::$BroadcastItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -424,7 +424,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetBroadcastDetails(array("broadcastid" => $BroadcastId, "properties" => static::$BroadcastItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->broadcastdetails), true);
@@ -440,7 +440,7 @@ class KodiDevicePVR extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecordings(array("properties" => static::$RecordingItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -465,7 +465,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetRecordingDetails(array("recordingid" => $RecordingId, "properties" => static::$RecordingItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->recordingdetails), true);
@@ -481,7 +481,7 @@ class KodiDevicePVR extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetTimers(array("properties" => static::$TimerItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -506,7 +506,7 @@ class KodiDevicePVR extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetTimerDetails(array("timerid" => $TimerId, "properties" => static::$TimerItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->timerdetails), true);

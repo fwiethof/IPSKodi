@@ -181,7 +181,7 @@ class KodiDeviceFiles extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetSources(array("media" => $Media));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         if ($ret->limits->total > 0)
@@ -220,7 +220,7 @@ class KodiDeviceFiles extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetFileDetails(array("file" => $File, "media" => $Media, "properties" => static::$ItemListFull));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->filedetails), true);
@@ -242,7 +242,7 @@ class KodiDeviceFiles extends KodiBase
         }
         $KodiData = new Kodi_RPC_Data(self::$Namespace); // 'GetDirectory', array("directory" => $Directory));
         $KodiData->GetDirectory(array("directory" => $Directory));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
 
@@ -282,7 +282,7 @@ class KodiDeviceFiles extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace); //, 'GetDirectory', array("directory" => $Directory, "media" => $Media, "properties" => static::$ItemListSmall));
         $KodiData->GetDirectory(array("directory" => $Directory, "media" => $Media, "properties" => static::$ItemListSmall));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
 

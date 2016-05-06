@@ -324,10 +324,13 @@ abstract class KodiBase extends IPSModule
         {
             if ($KodiData->Namespace == static::$Namespace)
             {
-                ob_start();
-                var_dump($Event);
-                $dump = ob_get_clean();
-                IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
+                if ($KodiData->Method <> "Power")
+                {
+                    ob_start();
+                    var_dump($Event);
+                    $dump = ob_get_clean();
+                    IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
+                }
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
@@ -357,7 +360,7 @@ abstract class KodiBase extends IPSModule
         IPS_LogMessage("Kodi-Dev-Result", $dump);
         return $result;
     }
-    
+
     /**
      * Konvertiert $Data zu einem JSONString und versendet diese an den Splitter zum Direktversand.
      *
@@ -367,19 +370,92 @@ abstract class KodiBase extends IPSModule
      */
     protected function SendDirect(Kodi_RPC_Data $KodiData)
     {
-        //IPS_LogMessage("Kodi-Dev-Send", print_r($KodiData, true));
 
-        $JSONData = $KodiData->ToJSONString('{152DA20A-FDB5-428C-91C6-480151EC98F3}');
-        $anwser = $this->SendDataToParent($JSONData);
-        if ($anwser === false)
-            return NULL;
-        $result = unserialize($anwser);
-        ob_start();
-        var_dump($result);
-        $dump = ob_get_clean();
-        //IPS_LogMessage("Kodi-Dev-Result", $dump);
-        return $result;
+        try
+        {
+            if (!$this->HasActiveParent())
+                throw new Exception('Intance has no active parent.', E_USER_NOTICE);
+
+            $instance = IPS_GetInstance($this->InstanceID);
+            $Data = $KodiData->ToRawRPCJSONString();
+
+            $URI = IPS_GetProperty($instance['ConnectionID'], "Host") . ":" . IPS_GetProperty($instance['ConnectionID'], "Webport") . "/jsonrpc";
+
+            //$header[] = "Accept: text/plain,text/xml,application/xml,application/xhtml+xml,text/html";
+            $header[] = "Accept: application/json";
+            $header[] = "Cache-Control: max-age=0";
+            $header[] = "Connection: close";
+            $header[] = "Accept-Charset: UTF-8";
+            $header[] = "Content-type: application/json;charset=\"UTF-8\"";
+            $ch = curl_init('http://' . $URI);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+            curl_setopt($ch, CURLOPT_FAILONERROR, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $Data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 1000);
+            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, 300000);
+            $this->SendDebug("send", $Data, 0);
+//			ini_set('max_execution_time', 120); // kann schon mal dauern :)            
+//ini_set("memory_limit","256M");            
+            $result = curl_exec($ch);
+            //var_dump(curl_getinfo($ch));
+            curl_close($ch);
+
+            if ($result === false)
+            {
+                throw new Exception('Kodi unreachable', E_USER_NOTICE);
+            }
+            $this->SendDebug("receive", $result, 0);
+//            $fp = stream_socket_client("tcp://" . $URI, $errno, $errstr, 10);
+//            stream_set_timeout($fp, 0, 5000);
+//            $raw = "";
+//            if (!$fp)
+//            {
+//                throw new Exception('Kodi not reachable', E_USER_NOTICE);
+//            }
+//            fwrite($fp, $Data);
+//            $this->SendDebug("send", $Data, 0);
+//            while (is_null(json_decode($raw)))
+//            {
+//                $read = fread($fp, 2048);
+//                if (strlen($read) != 0)
+//                {
+//                    $raw.=$read;
+//                    $this->SendDebug("receive", $raw, 0);
+//                }
+//            }
+//            $info = stream_get_meta_data($fp);
+//            fclose($fp);
+//            if (($info['timed_out']) or (strlen($raw) == 0))
+//            {
+//                throw new Exception('Connection timeout', E_USER_NOTICE);
+//            }
+            $ReplayKodiData = new Kodi_RPC_Data();
+            $ReplayKodiData->CreateFromJSONString($result);
+//            if ($ReplayKodiData === false)
+//                throw new Exception('No anwser from Kodi', E_USER_NOTICE);
+
+            $ret = $ReplayKodiData->GetResult();
+            if (is_a($ret, 'KodiRPCException'))
+            {
+                throw $ret;
+            }
+            return $ret;
+        }
+        catch (KodiRPCException $ex)
+        {
+            trigger_error('Error (' . $ex->getCode() . '): ' . $ex->getMessage(), E_USER_NOTICE);
+        }
+        catch (Exception $ex)
+        {
+            trigger_error($ex->getMessage(), $ex->getCode());
+        }
+        return NULL;
     }
+
 ################## DUMMYS / WOARKAROUNDS - protected
 
     /**
@@ -972,7 +1048,7 @@ class Kodi_RPC_Data extends stdClass
         return json_encode($SendData);
     }
 
-        /**
+    /**
      * Erzeugt einen, JSON-kodierten String zum versand an den RPC-Server.
      * 
      * @access public
@@ -988,6 +1064,7 @@ class Kodi_RPC_Data extends stdClass
         $RPC->id = $this->Id;
         return json_encode($RPC);
     }
+
     /**
      * Führt eine UTF8-Dekodierung für einen String oder ein Objekt durch (rekursiv)
      * 

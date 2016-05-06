@@ -94,7 +94,7 @@ class KodiDeviceAddons extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->ExecuteAddon(array("addonid" => $AddonId));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return ($ret == "OK");
@@ -117,7 +117,7 @@ class KodiDeviceAddons extends KodiBase
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->ExecuteAddon(array("addonid" => $AddonId, "wait" => true));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return ($ret == "OK");
@@ -146,7 +146,7 @@ class KodiDeviceAddons extends KodiBase
         $param = json_decode($Params, true);
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->ExecuteAddon(array("addonid" => $AddonId, "params" => $param));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return ($ret == "OK");
@@ -175,7 +175,7 @@ class KodiDeviceAddons extends KodiBase
         $param = json_decode($Params, true);
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->ExecuteAddon(array("addonid" => $AddonId, "params" => $param, "wait" => true));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return ($ret == "OK");
@@ -197,7 +197,7 @@ class KodiDeviceAddons extends KodiBase
         }
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetAddonDetails(array("addonid" => $AddonId, "properties" => static::$AddOnItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         return json_decode(json_encode($ret->addon), true);
@@ -213,7 +213,7 @@ class KodiDeviceAddons extends KodiBase
     {
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetAddons(array( "properties" => static::$AddOnItemList));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
 

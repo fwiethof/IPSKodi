@@ -101,7 +101,7 @@ class KodiDeviceFavourites extends KodiBase
         }
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
         $KodiData->GetFavourites(array("type" => $Type, "properties" => static::$FavouriteItemList ));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if ($ret->limits->total > 0)
             return json_decode(json_encode($ret->favourites), true);
     }
