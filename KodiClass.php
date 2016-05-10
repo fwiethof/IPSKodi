@@ -312,10 +312,11 @@ abstract class KodiBase extends IPSModule
         {
             if (in_array($KodiData->Namespace, static::$Namespace))
             {
-                ob_start();
-                var_dump($Event);
-                $dump = ob_get_clean();
-                IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
+//                ob_start();
+//                var_dump($Event);
+//                $dump = ob_get_clean();
+//                IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
+                $this->SendDebug('KODI_Event', $KodiData,0);
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
@@ -326,10 +327,12 @@ abstract class KodiBase extends IPSModule
             {
                 if ($KodiData->Method <> "Power")
                 {
-                    ob_start();
-                    var_dump($Event);
-                    $dump = ob_get_clean();
-                    IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
+//                    ob_start();
+//                    var_dump($Event);
+//                    $dump = ob_get_clean();
+//                    IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
+                $this->SendDebug('KODI_Event', $KodiData,0);
+                    
                 }
                 $this->Decode($KodiData->Method, $Event);
                 return true;
@@ -354,10 +357,12 @@ abstract class KodiBase extends IPSModule
         if ($anwser === false)
             return NULL;
         $result = unserialize($anwser);
-        ob_start();
-        var_dump($result);
-        $dump = ob_get_clean();
-        IPS_LogMessage("Kodi-Dev-Result", $dump);
+//        ob_start();
+//        var_dump($result);
+//        $dump = ob_get_clean();
+//        IPS_LogMessage("Kodi-Dev-Result", $dump);
+                $this->SendDebug('Kodi-Dev-Result', $result,0);
+        
         return $result;
     }
 
@@ -380,8 +385,6 @@ abstract class KodiBase extends IPSModule
             $Data = $KodiData->ToRawRPCJSONString();
 
             $URI = IPS_GetProperty($instance['ConnectionID'], "Host") . ":" . IPS_GetProperty($instance['ConnectionID'], "Webport") . "/jsonrpc";
-
-            //$header[] = "Accept: text/plain,text/xml,application/xml,application/xhtml+xml,text/html";
             $header[] = "Accept: application/json";
             $header[] = "Cache-Control: max-age=0";
             $header[] = "Connection: close";
@@ -398,10 +401,7 @@ abstract class KodiBase extends IPSModule
             curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
             curl_setopt($ch, CURLOPT_TIMEOUT_MS, 300000);
             $this->SendDebug("send", $Data, 0);
-//			ini_set('max_execution_time', 120); // kann schon mal dauern :)            
-//ini_set("memory_limit","256M");            
             $result = curl_exec($ch);
-            //var_dump(curl_getinfo($ch));
             curl_close($ch);
 
             if ($result === false)
@@ -409,35 +409,9 @@ abstract class KodiBase extends IPSModule
                 throw new Exception('Kodi unreachable', E_USER_NOTICE);
             }
             $this->SendDebug("receive", $result, 0);
-//            $fp = stream_socket_client("tcp://" . $URI, $errno, $errstr, 10);
-//            stream_set_timeout($fp, 0, 5000);
-//            $raw = "";
-//            if (!$fp)
-//            {
-//                throw new Exception('Kodi not reachable', E_USER_NOTICE);
-//            }
-//            fwrite($fp, $Data);
-//            $this->SendDebug("send", $Data, 0);
-//            while (is_null(json_decode($raw)))
-//            {
-//                $read = fread($fp, 2048);
-//                if (strlen($read) != 0)
-//                {
-//                    $raw.=$read;
-//                    $this->SendDebug("receive", $raw, 0);
-//                }
-//            }
-//            $info = stream_get_meta_data($fp);
-//            fclose($fp);
-//            if (($info['timed_out']) or (strlen($raw) == 0))
-//            {
-//                throw new Exception('Connection timeout', E_USER_NOTICE);
-//            }
+
             $ReplayKodiData = new Kodi_RPC_Data();
             $ReplayKodiData->CreateFromJSONString($result);
-//            if ($ReplayKodiData === false)
-//                throw new Exception('No anwser from Kodi', E_USER_NOTICE);
-
             $ret = $ReplayKodiData->GetResult();
             if (is_a($ret, 'KodiRPCException'))
             {
@@ -458,6 +432,44 @@ abstract class KodiBase extends IPSModule
 
 ################## DUMMYS / WOARKAROUNDS - protected
 
+    protected function SendDebug($Message, $Data, $Format)
+    {
+        if (is_a($Data, 'Kodi_RPC_Data'))
+        {
+            parent::SendDebug($Message . " Method", $Data->Namespace . '.' . $Data->Method, 0);
+            switch ($Data->Typ)
+            {
+                case Kodi_RPC_Data::$EventTyp:
+                    $this->SendDebug($Message . " Event", $Data->GetEvent(), 0);
+                    break;
+                case Kodi_RPC_Data::$ResultTyp:
+                    $this->SendDebug($Message . " Result", $Data->GetResult(), 0);
+                    break;
+                default:
+                    $this->SendDebug($Message . " Params", $Data->Params, 0);
+                    break;
+            }
+        }
+        elseif (is_array($Data))
+        {
+            foreach ($Data as $Key => $DebugData)
+            {
+                $this->SendDebug($Message . ":" . $Key, $DebugData, 0);
+            }
+        }
+        else if (is_object($Data))
+        {
+            foreach ($Data as $Key => $DebugData)
+            {
+                $this->SendDebug($Message . ":" . $Key, $DebugData, 0);
+            }
+        }
+        else
+        {
+            parent::SendDebug($Message, $Data, $Format);
+        }
+    }
+
     /**
      * Prüft den Parent auf vorhandensein und Status.
      * 
@@ -465,7 +477,6 @@ abstract class KodiBase extends IPSModule
      */
     protected function HasActiveParent()
     {
-//        IPS_LogMessage(__CLASS__, __FUNCTION__); //          
         $instance = IPS_GetInstance($this->InstanceID);
         if ($instance['ConnectionID'] > 0)
         {
@@ -543,9 +554,9 @@ abstract class KodiBase extends IPSModule
         {
             if ($Ident[0] <> "_")
             {
-                if ((($value == "") or ($value == "unknown")) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
+                if ((($value == "") or ( $value == "unknown")) and ( !IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, true);
-                if ((($value <> "") and ($value <> "unknown")) and ( IPS_GetObject($id)["ObjectIsHidden"]))
+                if ((($value <> "") and ( $value <> "unknown")) and ( IPS_GetObject($id)["ObjectIsHidden"]))
                     IPS_SetHidden($id, false);
             }
             SetValueString($id, $value);

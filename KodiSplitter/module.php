@@ -60,19 +60,32 @@ class KodiSplitter extends IPSModule
         if (!$Open)
         {
             $NewState = IS_INACTIVE;
+            $WatchdogTimer = 0;
         }
         else
         {
+            $WatchdogTimer = $this->ReadPropertyInteger('Interval');
             if ($this->ReadPropertyString('Host') == '')
             {
                 $NewState = IS_EBASE + 2;
                 $Open = false;
+                trigger_error('Host is empty', E_USER_NOTICE);
+                $WatchdogTimer = 0;
             }
-            if ($this->ReadPropertyString('Port') == '')
+            if ($this->ReadPropertyInteger('Port') == 0)
             {
                 $NewState = IS_EBASE + 2;
                 $Open = false;
+                trigger_error('Port is empty', E_USER_NOTICE);
+                $WatchdogTimer = 0;
             }
+            if ($this->ReadPropertyInteger('Webport') == 0)
+            {
+                $NewState = IS_EBASE + 2;
+                $Open = false;
+                trigger_error('Webport is empty', E_USER_NOTICE);
+                $WatchdogTimer = 0;
+            }            
         }
         $ParentID = $this->GetParent();
 
@@ -93,7 +106,7 @@ class KodiSplitter extends IPSModule
                 if (!$Open)
                 {
                     $NewState = IS_INACTIVE;
-                    $WatchdogTimer = $this->ReadPropertyInteger('Interval');                    
+                    $WatchdogTimer = $this->ReadPropertyInteger('Interval');
                 }
             }
             if (IPS_GetProperty($ParentID, 'Open') <> $Open)
@@ -158,6 +171,7 @@ class KodiSplitter extends IPSModule
                             $WatchdogTimer = $this->ReadPropertyInteger('Interval');
                             $this->SetTimerInterval("KeepAlive", 0);
                             $NewState = IS_EBASE + 3;
+                            trigger_error('No answer', E_USER_NOTICE);
                         }
                     }
                     else
@@ -171,6 +185,7 @@ class KodiSplitter extends IPSModule
                         $WatchdogTimer = $this->ReadPropertyInteger('Interval');
                         $this->SetTimerInterval("KeepAlive", 0);
                         $NewState = IS_EBASE + 3;
+                        trigger_error('could not connect', E_USER_NOTICE);
                     }
                     break;
                 case KR_INIT:
@@ -193,7 +208,6 @@ class KodiSplitter extends IPSModule
             else
                 $this->SetTimerInterval("Watchdog", 0);
         }
-        
     }
 
 ################## PRIVATE     
@@ -214,7 +228,8 @@ class KodiSplitter extends IPSModule
 
     protected function Decode($Method, $Event)
     {
-            IPS_LogMessage('KODI_Event:' . $Method, print_r($Event, true));
+//        IPS_LogMessage('KODI_Event:' . $Method, print_r($Event, true));
+                $this->SendDebug('KODI_Event', $Event,0);        
     }
 
 ################## PUBLIC
@@ -318,19 +333,19 @@ class KodiSplitter extends IPSModule
         $Data = json_decode($JSONString);
         if ($Data->DataID <> "{0222A902-A6FA-4E94-94D3-D54AA4666321}")
             return false;
-            $KodiData = new Kodi_RPC_Data();
-            $KodiData->CreateFromGenericObject($Data);
-            try
-            {
-                $anwser = $this->Send($KodiData);
-                if (!is_null($anwser))
-                    return serialize($anwser);
-            }
-            catch (Exception $ex)
-            {
-                trigger_error($ex->getMessage(), $ex->getCode());
-            }
-            return false;
+        $KodiData = new Kodi_RPC_Data();
+        $KodiData->CreateFromGenericObject($Data);
+        try
+        {
+            $anwser = $this->Send($KodiData);
+            if (!is_null($anwser))
+                return serialize($anwser);
+        }
+        catch (Exception $ex)
+        {
+            trigger_error($ex->getMessage(), $ex->getCode());
+        }
+        return false;
     }
 
 ################## DATAPOINTS DEVICE
@@ -479,10 +494,11 @@ class KodiSplitter extends IPSModule
             }
             else if ($KodiData->Typ == Kodi_RPC_Data::$EventTyp) // Event
             {
-                ob_start();
-                var_dump($KodiData);
-                $dump = ob_get_clean();
-                IPS_LogMessage('KODI_Event', $dump);
+//                ob_start();
+//                var_dump($KodiData);
+//                $dump = ob_get_clean();
+//                IPS_LogMessage('KODI_Event', $dump);
+                $this->SendDebug('KODI_Event', $KodiData,0);                
                 $this->SendDataToDevice($KodiData);
                 if (self::$Namespace == $KodiData->Namespace)
                     $this->Decode($KodiData->Method, $KodiData->GetEvent());
@@ -581,6 +597,44 @@ class KodiSplitter extends IPSModule
     }
 
 ################## DUMMYS / WORKAROUNDS - protected
+
+        protected function SendDebug($Message, $Data, $Format)
+    {
+        if (is_a($Data, 'Kodi_RPC_Data'))
+        {
+            parent::SendDebug($Message . " Method", $Data->Namespace . '.' . $Data->Method, 0);
+            switch ($Data->Typ)
+            {
+                case Kodi_RPC_Data::$EventTyp:
+                    $this->SendDebug($Message . " Event", $Data->GetEvent(), 0);
+                    break;
+                case Kodi_RPC_Data::$ResultTyp:
+                    $this->SendDebug($Message . " Result", $Data->GetResult(), 0);
+                    break;
+                default:
+                    $this->SendDebug($Message . " Params", $Data->Params, 0);
+                    break;
+            }
+        }
+        elseif (is_array($Data))
+        {
+            foreach ($Data as $Key => $DebugData)
+            {
+                $this->SendDebug($Message . ":" . $Key, $DebugData, 0);
+            }
+        }
+        else if (is_object($Data))
+        {
+            foreach ($Data as $Key => $DebugData)
+            {
+                $this->SendDebug($Message . ":" . $Key, $DebugData, 0);
+            }
+        }
+        else
+        {
+            parent::SendDebug($Message, $Data, $Format);
+        }
+    }
 
     /**
      * Liefert den Parent der Instanz.

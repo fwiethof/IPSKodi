@@ -211,10 +211,11 @@ class KodiDevicePVR extends KodiBase
                 }
                 break;
             default:
-                ob_start();
-                var_dump($KodiPayload);
-                $dump = ob_get_clean();
-                IPS_LogMessage('KODI_Event:' . $Method, $dump);
+//                ob_start();
+//                var_dump($KodiPayload);
+//                $dump = ob_get_clean();
+//                IPS_LogMessage('KODI_Event:' . $Method, $dump);
+                $this->SendDebug('KODI_Event', $KodiPayload,0);
 
                 break;
         }
