@@ -936,7 +936,7 @@ class Kodi_RPC_Data extends stdClass
                 if (property_exists($this->Error->data->stack, 'message'))
                     return new KodiRPCException((string) $this->Error->data->stack->message, (int) $this->Error->code);
                 else
-                    return new KodiRPCException((string) $this->Error->data->stack, (int) $this->Error->code);
+                    return new KodiRPCException((string)$this->Error->data->message.':'.(string) $this->Error->data->stack->name, (int) $this->Error->code);
             else
                 return new KodiRPCException($this->Error->data->message, (int) $this->Error->code);
         else

@@ -269,7 +269,7 @@ class KodiDevicePlaylist extends KodiBase
     private function Init()
     {
         if (is_null($this->PlaylistId))
-            $this->PlaylistId = $this->ReadPropertyInteger('PlaylistId');
+            $this->PlaylistId = $this->ReadPropertyInteger('PlaylistID');
     }
 
     /**
@@ -283,7 +283,7 @@ class KodiDevicePlaylist extends KodiBase
     {
         $this->Init();
         /*
-          $Param = array_merge($Params, array("playerid" => $this->PlayerId));
+          $Param = array_merge($Params, array("playerid" => $this->PlaylistId));
           //parent::RequestProperties($Params);
           if (!$this->isActive)
           return false;
@@ -369,11 +369,13 @@ class KodiDevicePlaylist extends KodiBase
     public function Get()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GetItems', array('playlistid' => $this->PlayerId, 'properties' => self::$ItemListSmall));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GetItems', array('playlistid' => $this->PlaylistId, 'properties' => self::$ItemListSmall));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return null;
-        return json_decode(json_encode($ret->items), true);
+        if ($ret->limits->total > 0)
+            return json_decode(json_encode($ret->items), true);
+        return array();
     }
 
     /**
@@ -387,7 +389,7 @@ class KodiDevicePlaylist extends KodiBase
     {
 
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Add', array_merge(array('playlistid' => $this->PlayerId, "item" => array($ItemTyp => $ItemValue)), $Ext));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Add', array_merge(array('playlistid' => $this->PlaylistId, "item" => array($ItemTyp => $ItemValue)), $Ext));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -501,7 +503,7 @@ class KodiDevicePlaylist extends KodiBase
     {
 
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Clear', array('playlistid' => $this->PlayerId));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Clear', array('playlistid' => $this->PlaylistId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -519,7 +521,7 @@ class KodiDevicePlaylist extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Insert', array_merge(array('playlistid' => $this->PlayerId, 'position' => $Position, 'item' => array($ItemTyp => $ItemValue)), $Ext));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Insert', array_merge(array('playlistid' => $this->PlaylistId, 'position' => $Position, 'item' => array($ItemTyp => $ItemValue)), $Ext));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -637,7 +639,7 @@ class KodiDevicePlaylist extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Remove', array('playlistid' => $this->PlayerId, 'position' => $Position));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Remove', array('playlistid' => $this->PlaylistId, 'position' => $Position));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -660,7 +662,7 @@ class KodiDevicePlaylist extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Clear', array('playlistid' => $this->PlayerId, 'position1' => $Position1, 'position2' => $Position2));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Swap', array('playlistid' => $this->PlaylistId, 'position1' => $Position1, 'position2' => $Position2));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
