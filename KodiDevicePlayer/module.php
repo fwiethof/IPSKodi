@@ -53,7 +53,7 @@ class KodiDevicePlayer extends KodiBase
      *  @var string
      * @value 'Application'
      */
-    static $Namespace = array('Player', 'Playlist');
+    static $Namespace = 'Player';
 
     /**
      * Alle Properties des RPC-Namespace
@@ -421,7 +421,7 @@ class KodiDevicePlayer extends KodiBase
     private function getActivePlayer()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetActivePlayers');
+        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetActivePlayers');
         $ret = $this->Send($KodiData);
         if (is_null($ret) or ( count($ret) == 0))
             $this->isActive = false;
@@ -458,7 +458,7 @@ class KodiDevicePlayer extends KodiBase
         //parent::RequestProperties($Params);
         if (!$this->isActive)
             return false;
-        $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Param);
+        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', $Param);
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1212,7 +1212,7 @@ class KodiDevicePlayer extends KodiBase
     public function GetItem()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GetItem', array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return null;
@@ -1234,7 +1234,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1266,7 +1266,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1298,7 +1298,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Stop', array("playerid" => $this->PlayerId));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Stop', array("playerid" => $this->PlayerId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1329,7 +1329,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => "next"));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GoTo', array("playerid" => $this->PlayerId, "to" => "next"));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1354,7 +1354,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => "previous"));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GoTo', array("playerid" => $this->PlayerId, "to" => "previous"));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1386,7 +1386,7 @@ class KodiDevicePlayer extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value + 1));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value + 1));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1412,7 +1412,7 @@ class KodiDevicePlayer extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetShuffle', array("playerid" => $this->PlayerId, "shuffle" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetShuffle', array("playerid" => $this->PlayerId, "shuffle" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1452,7 +1452,7 @@ class KodiDevicePlayer extends KodiBase
         }
         $this->Init();
         $repeat = array("off", "one", "all");
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetRepeat', array("playerid" => $this->PlayerId, "repeat" => $repeat[$Value]));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetRepeat', array("playerid" => $this->PlayerId, "repeat" => $repeat[$Value]));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1485,7 +1485,7 @@ class KodiDevicePlayer extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetPartymode', array("playerid" => $this->PlayerId, "partymode" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetPartymode', array("playerid" => $this->PlayerId, "partymode" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1530,7 +1530,7 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Invalid Value for speed.', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'SetSpeed', array("playerid" => $this->PlayerId, "speed" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetSpeed', array("playerid" => $this->PlayerId, "speed" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1575,113 +1575,17 @@ class KodiDevicePlayer extends KodiBase
           } */
     }
 
-    private function LoadItem(string $ItemTyp, string $ItemValue, $Ext = array())
+    private function Load(string $ItemTyp, string $ItemValue, $Ext = array())
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Open', array_merge(array("item" => array($ItemTyp => $ItemValue)), $Ext));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Open', array_merge(array("item" => array($ItemTyp => $ItemValue)), $Ext));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         if ($ret === "OK")
-        {
-//            $this->SetValueBoolean("partymode", $Value);
             return true;
-        }
-        else
-        {
-            trigger_error('Error on load ' . $ItemTyp . '.', E_USER_NOTICE);
-        }
+        trigger_error('Error on load ' . $ItemTyp . '.', E_USER_NOTICE);
         return false;
-    }
-
-    public function LoadPlaylist(integer $PlaylistId)
-    {
-        if (!is_int($PlaylistId))
-        {
-            trigger_error('PlaylistId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("playlistid", $PlaylistId);
-    }
-
-    public function LoadFile(integer $File)
-    {
-        if (!is_string($File))
-        {
-            trigger_error('File must be string', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("file", $File);
-    }
-
-    public function LoadDirectory(integer $Directory)
-    {
-        if (!is_string($Directory))
-        {
-            trigger_error('Directory must be string', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("directory", $Directory);
-    }
-
-    public function LoadDirectoryRecursive(integer $Directory)
-    {
-        if (!is_int($Directory))
-        {
-            trigger_error('Directory must be string', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("Directory", $Directory, array("recursive" => true));
-    }
-
-    public function LoadEpisode(integer $EpisodeId)
-    {
-        if (!is_int($EpisodeId))
-        {
-            trigger_error('EpisodeId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("episodeid", $EpisodeId);
-    }
-
-    public function LoadMovie(integer $MovieId)
-    {
-        if (!is_int($MovieId))
-        {
-            trigger_error('MovieId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("movieid", $MovieId);
-    }
-
-    public function LoadMusicvideo(integer $MusicvideoId)
-    {
-        if (!is_int($MusicvideoId))
-        {
-            trigger_error('MusicvideoId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("musicvideoid", $MusicvideoId);
-    }
-
-    public function LoadArtist(integer $ArtistId)
-    {
-        if (!is_int($ArtistId))
-        {
-            trigger_error('ArtistId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("artistid", $ArtistId);
-    }
-
-    public function LoadSong(integer $SongId)
-    {
-        if (!is_int($SongId))
-        {
-            trigger_error('SongId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->LoadItem("songid", $SongId);
     }
 
     public function LoadAlbum(integer $AlbumId)
@@ -1691,7 +1595,57 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('AlbumId must be integer', E_USER_NOTICE);
             return false;
         }
-        return $this->LoadItem("albumid", $AlbumId);
+        return $this->Load("albumid", $AlbumId);
+    }
+
+    public function LoadArtist(integer $ArtistId)
+    {
+        if (!is_int($ArtistId))
+        {
+            trigger_error('ArtistId must be integer', E_USER_NOTICE);
+            return false;
+        }
+        return $this->Load("artistid", $ArtistId);
+    }
+
+    public function LoadDirectory(integer $Directory)
+    {
+        if (!is_string($Directory))
+        {
+            trigger_error('Directory must be string', E_USER_NOTICE);
+            return false;
+        }
+        return $this->Load("directory", $Directory);
+    }
+
+    public function LoadDirectoryRecursive(integer $Directory)
+    {
+        if (!is_int($Directory))
+        {
+            trigger_error('Directory must be string', E_USER_NOTICE);
+            return false;
+        }
+        return $this->Load("Directory", $Directory, array("recursive" => true));
+    }
+
+    public function LoadEpisode(integer $EpisodeId)
+    {
+        if (!is_int($EpisodeId))
+        {
+            trigger_error('EpisodeId must be integer', E_USER_NOTICE);
+            return false;
+        }
+        return $this->Load("episodeid", $EpisodeId);
+    }
+
+    public function LoadFile(integer $File)
+    {
+        if (!is_string($File))
+        {
+            trigger_error('File must be string', E_USER_NOTICE);
+            return false;
+        }
+        return $this->Load("file", $File);
     }
 
     public function LoadGenre(integer $GenreId)
@@ -1701,172 +1655,46 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('GenreId must be integer', E_USER_NOTICE);
             return false;
         }
-        return $this->LoadItem("genreid", $GenreId);
+        return $this->Load("genreid", $GenreId);
     }
 
-    /**
-     * IPS-Instanz-Funktion 'KODIPLAYER_GetItem'.
-     * Holt sich die Daten des aktuellen wiedergegebenen Items, und gibt die Array zurück.
-     * 
-     * @access public
-     * @return array|null Das Array mit den Eigenschaften des Item, im Fehlerfall null
-     */
-    public function GetPlaylistItems()
-    {
-        $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[1], 'GetItems', array('playlistid' => $this->PlayerId, 'properties' => self::$ItemListSmall));
-        $ret = $this->Send($KodiData);
-        if (is_null($ret))
-            return null;
-        return json_decode(json_encode($ret->items), true);
-    }
-
-    /**
-     * IPS-Instanz-Funktion 'KODIPLAYER_GetItem'.
-     * Holt sich die Daten des aktuellen wiedergegebenen Items, und gibt die Array zurück.
-     * 
-     * @access public
-     * @return array|null Das Array mit den Eigenschaften des Item, im Fehlerfall null
-     */
-    private function AddPlaylistItem(string $ItemTyp, string $ItemValue, $Ext = array())
-    {
-
-        $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[1], 'Add', array_merge(array('playlistid' => $this->PlayerId, "item" => array($ItemTyp => $ItemValue)), $Ext));
-        $ret = $this->Send($KodiData);
-        if (is_null($ret))
-            return false;
-        if ($ret === "OK")
-        {
-//            $this->SetValueBoolean("partymode", $Value);
-            return true;
-        }
-        else
-        {
-            trigger_error('Error on load ' . $ItemTyp . '.', E_USER_NOTICE);
-        }
-        return false;
-    }
-
-    public function AddAlbum(integer $AlbumId)
-    {
-        if (!is_int($AlbumId))
-        {
-            trigger_error('AlbumId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("albumid", $AlbumId);
-    }
-
-    public function AddArtist(integer $ArtistId)
-    {
-        if (!is_int($ArtistId))
-        {
-            trigger_error('ArtistId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("artistid", $ArtistId);
-    }
-
-    public function AddDirectory(integer $Directory)
-    {
-        if (!is_string($Directory))
-        {
-            trigger_error('Directory must be string', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("directory", $Directory);
-    }
-
-    public function AddDirectoryRecursive(integer $Directory)
-    {
-        if (!is_int($Directory))
-        {
-            trigger_error('Directory must be string', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("Directory", $Directory, array("recursive" => true));
-    }
-
-    public function AddEpisode(integer $EpisodeId)
-    {
-        if (!is_int($EpisodeId))
-        {
-            trigger_error('EpisodeId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("episodeid", $EpisodeId);
-    }
-
-    public function AddFile(integer $File)
-    {
-        if (!is_string($File))
-        {
-            trigger_error('File must be string', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("file", $File);
-    }
-
-    public function AddGenre(integer $GenreId)
-    {
-        if (!is_int($GenreId))
-        {
-            trigger_error('GenreId must be integer', E_USER_NOTICE);
-            return false;
-        }
-        return $this->AddPlaylistItem("genreid", $GenreId);
-    }
-
-    public function AddMovie(integer $MovieId)
+    public function LoadMovie(integer $MovieId)
     {
         if (!is_int($MovieId))
         {
             trigger_error('MovieId must be integer', E_USER_NOTICE);
             return false;
         }
-        return $this->AddPlaylistItem("movieid", $MovieId);
+        return $this->Load("movieid", $MovieId);
     }
 
-    public function AddMusicVideo(integer $MusicvideoId)
+    public function LoadMusicvideo(integer $MusicvideoId)
     {
         if (!is_int($MusicvideoId))
         {
             trigger_error('MusicvideoId must be integer', E_USER_NOTICE);
             return false;
         }
-        return $this->AddPlaylistItem("musicvideoid", $MusicvideoId);
+        return $this->Load("musicvideoid", $MusicvideoId);
     }
 
-    public function AddSong(integer $SongId)
+    public function LoadPlaylist()
+    {
+        $this->Init();
+        return $this->Load("playlistid", $this->PlayerId);
+    }
+
+    public function LoadSong(integer $SongId)
     {
         if (!is_int($SongId))
         {
             trigger_error('SongId must be integer', E_USER_NOTICE);
             return false;
         }
-        return $this->AddPlaylistItem("songid", $SongId);
+        return $this->Load("songid", $SongId);
     }
-public function Clear()
-{
-    // clear playlistid
-}
-    
-//Insert
-//playlistid
-//position
-//item
 
-//Remove
-//playlistid
-//position
-
-//Swap
-//playlistid
-//position1
-//position2
-
-/**
+    /**
      * IPS-Instanz-Funktion 'KODIPLAYER_RequestState'. Frage eine oder mehrere Properties ab.
      *
      * @access public

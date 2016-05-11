@@ -1,0 +1,31 @@
+{
+    "elements":
+            [{
+                    "name": "PlaylistID",
+                    "type": "Select",
+                    "caption": "Playlist:",
+                    "options": [
+                        {
+                            "label": "Audio",
+                            "value": 0
+                        },
+                        {
+                            "label": "Video",
+                            "value": 1
+                        },
+                        {
+                            "label": "Bilder",
+                            "value": 2
+                        }
+                    ]
+                }
+            ],
+    "actions":
+            [
+                {
+                    "type": "Button",
+                    "label": "Request State",
+                    "onClick": "KODIPLAYLIST_RequestState($id,'ALL');"
+                }
+            ]
+}
