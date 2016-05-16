@@ -218,7 +218,7 @@ abstract class KodiBase extends IPSModule
         if (count($Params["properties"]) == 0)
             return true;
         $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', $Params);
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         $this->Decode('GetProperties', $ret);
@@ -312,11 +312,7 @@ abstract class KodiBase extends IPSModule
         {
             if (in_array($KodiData->Namespace, static::$Namespace))
             {
-//                ob_start();
-//                var_dump($Event);
-//                $dump = ob_get_clean();
-//                IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
-                $this->SendDebug('KODI_Event', $KodiData,0);
+                $this->SendDebug($KodiData->Method, $Event, 0);
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
@@ -326,14 +322,7 @@ abstract class KodiBase extends IPSModule
             if ($KodiData->Namespace == static::$Namespace)
             {
                 if ($KodiData->Method <> "Power")
-                {
-//                    ob_start();
-//                    var_dump($Event);
-//                    $dump = ob_get_clean();
-//                    IPS_LogMessage('KODI_Event:' . $KodiData->Method, $dump);
-                $this->SendDebug('KODI_Event', $KodiData,0);
-                    
-                }
+                    $this->SendDebug($KodiData->Method, $Event, 0);
                 $this->Decode($KodiData->Method, $Event);
                 return true;
             }
@@ -350,19 +339,12 @@ abstract class KodiBase extends IPSModule
      */
     protected function Send(Kodi_RPC_Data $KodiData)
     {
-        //IPS_LogMessage("Kodi-Dev-Send", print_r($KodiData, true));
-
         $JSONData = $KodiData->ToJSONString('{0222A902-A6FA-4E94-94D3-D54AA4666321}');
         $anwser = $this->SendDataToParent($JSONData);
         if ($anwser === false)
             return NULL;
         $result = unserialize($anwser);
-//        ob_start();
-//        var_dump($result);
-//        $dump = ob_get_clean();
-//        IPS_LogMessage("Kodi-Dev-Result", $dump);
-                $this->SendDebug('Kodi-Dev-Result', $result,0);
-        
+        $this->SendDebug('Kodi-Dev-Result', $result, 0);
         return $result;
     }
 
@@ -432,6 +414,92 @@ abstract class KodiBase extends IPSModule
 
 ################## DUMMYS / WOARKAROUNDS - protected
 
+    /**
+     * Löscht eine Statusvariable, sofern vorhanden.
+     *
+     * @access private
+     * @param integer $Ident Ident der Variable.
+     */
+    protected function UnregisterScript($Ident)
+    {
+        $sid = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
+        if ($sid === false)
+            return;
+        if (!IPS_ScriptExists($sid))
+            return; //bail out
+        IPS_DeleteScript($sid);
+    }
+
+    /**
+     * Erstellt einen WebHook, wenn nicht schon vorhanden.
+     *
+     * @access private
+     * @param string $WebHook URI des WebHook.
+     * @param integer $TargetID Ziel-Script des WebHook.
+     */
+    protected function RegisterHook($WebHook, $TargetID)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    if ($hook['TargetID'] == $TargetID)
+                        return;
+                    $hooks[$index]['TargetID'] = $TargetID;
+                    $found = true;
+                }
+            }
+            if (!$found)
+            {
+                $hooks[] = Array("Hook" => $WebHook, "TargetID" => $TargetID);
+            }
+            IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+            IPS_ApplyChanges($ids[0]);
+        }
+    }
+
+    /**
+     * Löscht einen WebHook, wenn vorhanden.
+     *
+     * @access private
+     * @param string $WebHook URI des WebHook.
+     */
+    protected function UnregisterHook($WebHook)
+    {
+        $ids = IPS_GetInstanceListByModuleID("{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}");
+        if (sizeof($ids) > 0)
+        {
+            $hooks = json_decode(IPS_GetProperty($ids[0], "Hooks"), true);
+            $found = false;
+            foreach ($hooks as $index => $hook)
+            {
+                if ($hook['Hook'] == $WebHook)
+                {
+                    unset($hooks[$index]);
+                    $found = true;
+                }
+            }
+            if ($found)
+            {
+                IPS_SetProperty($ids[0], "Hooks", json_encode($hooks));
+                IPS_ApplyChanges($ids[0]);
+            }
+        }
+    }
+
+    /**
+     * Formatiert eine DebugAusgabe und gibt sie an IPS weiter.
+     *
+     * @access protected
+     * @param string $Message Nachrichten-Feld.
+     * @param string|array|Kodi_RPC_Data $Data Daten-Feld.
+     * @param integer $Format Ausgabe in Klartext(0) oder Hex(1)
+     */
     protected function SendDebug($Message, $Data, $Format)
     {
         if (is_a($Data, 'Kodi_RPC_Data'))
@@ -461,7 +529,7 @@ abstract class KodiBase extends IPSModule
         {
             foreach ($Data as $Key => $DebugData)
             {
-                $this->SendDebug($Message . ":" . $Key, $DebugData, 0);
+                $this->SendDebug($Message . "." . $Key, $DebugData, 0);
             }
         }
         else
@@ -681,6 +749,7 @@ class KodiRPCException extends Exception
  * @method null SetVolume(array $Params (integer "volume" Neue Lautstärke)) Setzen der Lautstärke.
  * @method null SetMute(array $Params (boolean "mute" Neuer Wert der Stummschaltung)) Setzen der Stummschaltung.
  * @method null Quit(null) Beendet Kodi.
+ * 
  * @method null Clean(null) Startet das bereinigen der Datenbank.
  * @method null Export(array $Params (array "options" (string "path" Ziel-Verzeichnis für den Export) (boolean "overwrite" Vorhandene Daten überschreiben.) (boolean "images" Bilder mit exportieren.)) Exportiert die Audio Datenbank.
  * @method null GetAlbumDetails(array $Params (string "albumid" AlbumID) (array "properties" Zu lesende Album-Eigenschaften) Liest die Eigenschaften eines Album aus.
@@ -715,6 +784,7 @@ class KodiRPCException extends Exception
  * @method null ShowCodec(null) Codec-Info anzeigen.
  * @method null ExecuteAction(array $Params (string "action" Die auszuführende Aktion)) Sendet eine Aktion.
  * @method null SendText(array $Params (string "text" Zu sender String) (boolean "done" True zum beenden der Eingabe)) Sendet einen Eingabetext.
+ * 
  * @method null Record(array $Params (boolean "record" Starten/Stoppen) (string "channel" Kanal für die Aufnahme)) Startet/Beendet eine laufende Aufnahme.
  * 
  * @method null GetBroadcasts
@@ -728,7 +798,32 @@ class KodiRPCException extends Exception
  * @method null GetTimers
  * @method null GetTimerDetails
  * 
- * PLAYER FEHLT
+ * @method null GetActivePlayers
+ * @method null GetItem
+ * @method null GetPlayers
+ * @method null GetProperties
+ * @method null GoTo
+ * @method null Move
+ * @method null Open
+ * @method null PlayPause
+ * @method null Rotate
+ * @method null Seek
+ * @method null SetAudioStream
+ * @method null SetPartymode
+ * @method null SetRepeat
+ * @method null SetShuffle
+ * @method null SetSpeed
+ * @method null SetSubtitle
+ * @method null Stop
+ * @method null Zoom
+ * 
+ * @method null Add
+ * @method null Clear
+ * @method null GetItems
+ * @method null GetPlaylists
+ * @method null Insert
+ * @method null Remove
+ * @method null Swap
  * 
  * @method null Shutdown(null) Führt einen Shutdown auf Betriebssystemebene aus.
  * @method null Hibernate(null) Führt einen Hibernate auf Betriebssystemebene aus.
@@ -936,7 +1031,7 @@ class Kodi_RPC_Data extends stdClass
                 if (property_exists($this->Error->data->stack, 'message'))
                     return new KodiRPCException((string) $this->Error->data->stack->message, (int) $this->Error->code);
                 else
-                    return new KodiRPCException((string)$this->Error->data->message.':'.(string) $this->Error->data->stack->name, (int) $this->Error->code);
+                    return new KodiRPCException((string) $this->Error->data->message . ':' . (string) $this->Error->data->stack->name, (int) $this->Error->code);
             else
                 return new KodiRPCException($this->Error->data->message, (int) $this->Error->code);
         else

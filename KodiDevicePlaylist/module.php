@@ -59,56 +59,24 @@ class KodiDevicePlaylist extends KodiBase
      * Alle Properties des RPC-Namespace
      * 
      * @access private
-     *  @var array 
+     * @var array 
      */
-    /*
-      static $Properties = array(
-      "type",
-      "partymode",
-      "speed",
-      "time",
-      "percentage",
-      "totaltime",
-      "playlistid",
-      "position",
-      "repeat",
-      "shuffled",
-      "canseek",
-      "canchangespeed",
-      "canmove",
-      "canzoom",
-      "canrotate",
-      "canshuffle",
-      "canrepeat",
-      "currentaudiostream",
-      "audiostreams",
-      "subtitleenabled",
-      "currentsubtitle",
-      "subtitles",
-      "live"
-      );
-     */
+    static $Properties = array();
 
     /**
-     * Ein Teil der Properties des RPC-Namespace für Statusmeldungen
+     * Zuordnung der von Kodi gemeldeten Medientypen zu den PlaylistIDs
      * 
      * @access private
-     *  @var array 
+     *  @var array Key ist der Medientyp, Value die PlaylistID
      */
-    /*
-      static $PartialProperties = array(
-      "type",
-      "partymode",
-      "speed",
-      "time",
-      "percentage",
-      "repeat",
-      "shuffled",
-      "currentaudiostream",
-      "subtitleenabled",
-      "currentsubtitle"
-      );
-     */
+    static $Playertype = array(
+        "song" => 0,
+        "audio" => 0,
+        "video" => 1,
+        "episode" => 1,
+        "movie" => 1,
+        "pictures" => 2
+    );
 
     /**
      * Alle Properties eines Item
@@ -233,6 +201,11 @@ class KodiDevicePlaylist extends KodiBase
     {
         parent::Create();
         $this->RegisterPropertyInteger('PlaylistID', 0);
+        $this->RegisterPropertyBoolean('showPlaylist', true);
+        $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
+        IPS_SetHidden($ID, true);
+
+        $this->RegisterPropertyInteger("Playlistconfig", $ID);
     }
 
     /**
@@ -242,17 +215,50 @@ class KodiDevicePlaylist extends KodiBase
      */
     public function ApplyChanges()
     {
-        $this->Init();
-        switch ($this->PlaylistId)
-        {
-            case self::Audio:
 
-                break;
-            case self::Video:
-                break;
-            case self::Pictures:
-                break;
+        if ($this->ReadPropertyBoolean('showPlaylist'))
+        {
+            $this->RegisterVariableString("Playlist", "Playlist", "~HTMLBox", 2);
+            $sid = $this->RegisterScript("WebHookPlaylist", "WebHookPlaylist", '<? //Do not delete or modify.
+if (isset($_GET["Index"]))
+    IPS_RequestAction(' . $this->InstanceID . ',"position",$_GET["Index"]);
+', -8);
+            IPS_SetHidden($sid, true);
+            if (IPS_GetKernelRunlevel() == KR_READY)
+                $this->RegisterHook('/hook/KodiPlaylist' . $this->InstanceID, $sid);
+
+            $ID = $this->RegisterScript('PlaylistDesign', 'Playlist Config', $this->CreatePlaylistConfigScript(), -7);
+            IPS_SetHidden($ID, true);
         }
+        else
+        {
+            $this->UnregisterVariable("Playlist");
+            $this->UnregisterScript("WebHookPlaylist");
+            if (IPS_GetKernelRunlevel() == KR_READY)
+                $this->UnregisterHook('/hook/KodiPlaylist' . $this->InstanceID);
+        }
+
+        $this->RegisterProfileInteger("Tracklist.Kodi." . $this->InstanceID, "", "", "", 1, 1, 1);
+
+        $this->RegisterVariableInteger("position", "Playlist Position", "Tracklist.Kodi." . $this->InstanceID, 1);
+        $this->EnableAction("position");
+
+        $this->Init();
+//        switch ($this->PlaylistId)
+//        {
+//            case self::Audio:
+////
+//
+//                break;
+//            case self::Video:
+////                $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
+//
+//                break;
+//            case self::Pictures:
+////                $this->UnregisterVariable("position");
+//
+//                break;
+//        }
         parent::ApplyChanges();
 
         $this->RequestState('ALL');
@@ -279,22 +285,22 @@ class KodiDevicePlaylist extends KodiBase
      * @param array $Params Enthält den Index "properties", in welchen alle anzufragenden Eigenschaften als Array enthalten sind.
      * @return boolean true bei erfolgreicher Ausführung und dekodierung, sonst false.
      */
-    protected function RequestProperties(array $Params)
-    {
-        $this->Init();
-        /*
-          $Param = array_merge($Params, array("playerid" => $this->PlaylistId));
-          //parent::RequestProperties($Params);
-          if (!$this->isActive)
-          return false;
-          $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Param);
-          $ret = $this->Send($KodiData);
-          if (is_null($ret))
-          return false;
-          $this->Decode('GetProperties', $ret);
-         */
-        return true;
-    }
+//    protected function RequestProperties(array $Params)
+//    {
+//        $this->Init();
+    /*
+      $Param = array_merge($Params, array("playerid" => $this->PlaylistId));
+      //parent::RequestProperties($Params);
+      if (!$this->isActive)
+      return false;
+      $KodiData = new Kodi_RPC_Data(static::$Namespace[0], 'GetProperties', $Param);
+      $ret = $this->Send($KodiData);
+      if (is_null($ret))
+      return false;
+      $this->Decode('GetProperties', $ret);
+     */
+//        return true;
+//    }
 
     /**
      * Dekodiert die empfangenen Daten und führt die Statusvariablen nach.
@@ -308,8 +314,26 @@ class KodiDevicePlaylist extends KodiBase
         $this->Init();
         //prüfen ob Player oder Playlist
         //Player nur bei neuer Position
+        if (property_exists($KodiPayload, 'playlistid'))
+        {
+            if ($KodiPayload->playlistid <> $this->PlaylistId)
+                return;
+        }
+        else if (property_exists($KodiPayload, 'player'))
+        {
+            if ($KodiPayload->player->playerid <> $this->PlaylistId)
+                return;
+        }
+        elseif (property_exists($KodiPayload, 'item'))
+        {
+            if (self::$Playertype[(string) $KodiPayload->item->type] <> $this->PlaylistId)
+                return false;
+        }
+        else
+            return false;
+
         $this->SendDebug($Method, $KodiPayload, 0);
-        return;
+
         switch ($Method)
         {
             case 'GetProperties':
@@ -318,25 +342,330 @@ class KodiDevicePlaylist extends KodiBase
                 {
                     switch ($param)
                     {
-                        
+                        case "position":
+                            if ($this->SetValueInteger($param, (int) $value + 1))// and ( $KodiPayload->playlistid <> -1))
+                                $this->RefreshPlaylist();
+                            break;
                     }
                 }
                 break;
-            case 'OnStop':
-
-                break;
             case 'OnPlay':
+            case 'OnStop':
+                $KodiData = new Kodi_RPC_Data(self::$Namespace[1]);
+                $KodiData->GetProperties(array('playerid' => $this->PlaylistId, 'properties' => array("playlistid", "position")));
+                $ret = $this->SendDirect($KodiData);
+                if (is_null($ret))
+                    return;
+                $this->Decode('GetProperties', $ret);
                 break;
-            case 'OnPause':
-                break;
-            case 'OnSeek':
-                break;
-            case 'OnSpeedChanged':
+            case 'OnAdd':
+            case 'OnRemove':
+            case 'OnClear':
+                $this->RefreshPlaylist();
                 break;
             default:
                 $this->SendDebug($Method, $KodiPayload, 0);
                 break;
         }
+    }
+
+    /**
+     * Erzeugt aus der Playlist eine HTML-Tabelle für eine ~HTMLBox-Variable.
+     * 
+     * @access private
+     */
+    private function RefreshPlaylist()
+    {
+        if (!$this->ReadPropertyBoolean('showPlaylist'))
+            return;
+        $ScriptID = $this->ReadPropertyInteger('Playlistconfig');
+        if ($ScriptID == 0)
+            return;
+        $result = IPS_RunScriptWaitEx($ScriptID, array('SENDER' => 'Kodi'));
+        //var_dump($Config);
+        $Config = unserialize($result);
+        if (($Config === false) or ( !is_array($Config)))
+            throw new Exception('Error on read Playlistconfig-Script');
+        $Data = $this->Get();
+
+        $Name = "Tracklist.Kodi." . $this->InstanceID;
+        if (!IPS_VariableProfileExists($Name))
+        {
+            IPS_CreateVariableProfile($Name, 1);
+            IPS_SetVariableProfileValues($Name, 1, count($Data), 1);
+        }
+        else
+        {
+            if (IPS_GetVariableProfile($Name)['MaxValue'] <> count($Data))
+                IPS_SetVariableProfileValues($Name, 1, count($Data), 1);
+        }
+
+
+        if (is_null($Data))
+            return;
+
+        $HTMLData = $this->GetTableHeader($Config);
+        $pos = 0;
+        $CurrentTrack = GetValueInteger($this->GetIDForIdent('position'));
+        if (count($Data) > 0)
+        {
+            foreach ($Data as $Position => $line)
+            {
+                $Line = array();
+                foreach ($line as $key => $value)
+                {
+                    if (is_string($key))
+                        $Line[ucfirst($key)] = $value;
+                    else
+                        $Line[$key] = $value; //$key is not a string
+                }
+                $Line['Position'] = $Position + 1;
+                $Line['Type'] = ucfirst($Line['Type']);
+
+                if (array_key_exists('Runtime', $Line))
+                {
+                    if ($Line['Runtime'] > 3600)
+                        $Line['Runtime'] = @date("H:i:s", $Line['Runtime'] - 3600);
+                    elseif ($Line['Runtime'] > 0)
+                        $Line['Runtime'] = @date("i:s", $Line['Runtime']);
+                    else
+                        $Line['Runtime'] = '---';
+                } else
+                {
+                    $Line['Runtime'] = '---';
+                }
+
+                $Line['Play'] = ($Line['Position'] == $CurrentTrack ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '');
+
+                $HTMLData .='<tr style="' . $Config['Style']['BR' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G'))] . '"
+                        onclick="window.xhrGet=function xhrGet(o) {var HTTP = new XMLHttpRequest();HTTP.open(\'GET\',o.url,true);HTTP.send();};window.xhrGet({ url: \'hook/KodiPlaylist' . $this->InstanceID . '?Index=' . $Line['Position'] . '\' })">';
+                foreach ($Config['Spalten'] as $feldIndex => $value)
+                {
+                    if (!array_key_exists($feldIndex, $Line))
+                        $Line[$feldIndex] = '';
+                    if ($Line[$feldIndex] === -1)
+                        $Line[$feldIndex] = '';
+                    if ($Line[$feldIndex] === 0)
+                        $Line[$feldIndex] = '';
+                    if (is_array($Line[$feldIndex]))
+                        $Line[$feldIndex] = implode(', ', $Line[$feldIndex]);
+                    $HTMLData .= '<td style="' . $Config['Style']['DF' . ($Line['Position'] == $CurrentTrack ? 'A' : ($pos % 2 ? 'U' : 'G')) . $feldIndex] . '">' . (string) $Line[$feldIndex] . '</td>';
+                }
+                $HTMLData .= '</tr>' . PHP_EOL;
+                $pos++;
+            }
+        }
+        $HTMLData .= $this->GetTableFooter();
+        $this->SetValueString('Playlist', $HTMLData);
+    }
+
+    /**
+     * Gibt den Inhalt des PHP-Scriptes zurück, welche die Konfiguration und das Design der Playlist-Tabelle enthält.
+     * 
+     * @access private
+     * @return string Ein PHP-Script welche als Grundlage für die User dient.
+     */
+    private function CreatePlaylistConfigScript()
+    {
+        $Script = '<?
+### Konfig ab Zeile 10 !!!
+
+if ($_IPS["SENDER"] <> "Kodi")
+{
+	echo "Dieses Script kann nicht direkt ausgeführt werden!";
+	return;
+}
+##########   KONFIGURATION
+#### Tabellarische Ansicht
+# Folgende Parameter bestimmen das Aussehen der HTML-Tabelle in der die Playlist dargestellt wird.
+
+// Reihenfolge und Überschriften der Tabelle. Der vordere Wert darf nicht verändert werden.
+// Die Reihenfolge, der hintere Wert (Anzeigetext) und die Reihenfolge sind beliebig änderbar.
+$Config["Spalten"] = array(
+    "Play" =>"",
+    "Position"=>"Pos",
+    "Type" => "Type",
+    "Title"=>"Titel",
+    "Season"=>"S",
+    "Episode"=>"E",
+    "Album" => "Album",
+    "Track" => "Track",
+    "Genre" => "Stil",
+    "Artist"=>"Interpret",
+    "Year" => "Jahr",
+    "Runtime"=>"Dauer"
+
+);
+#### Mögliche Index-Felder
+/*
+
+| Index            | Typ     | Beschreibung                        |
+| :--------------: | :-----: | :---------------------------------: |
+| Play             |  kein   | Play-Icon                           |
+| Position         | integer | Position in der Playlist            |
+| Type             | string  | Typ des Eintrags                    |
+| Id               | integer | UID der Datei in der Kodi-Datenbank |
+| Title            | string  | Titel                               |
+| Season           | integer | Season                              |
+| Episode          | integer | Episode                             | 
+| Genre            | string  | Genre                               |
+| Album            | string  | Album                               |
+| Artist           | string  | Interpret                           |
+| Runtime          | integer | Länge in Sekunden                   |
+| Track            | integer | Tracknummer im Album                |
+| Url              | string  | Pfad der Playlist                   |
+| Year             | integer | Jahr, soweit hinterlegt             |
+*/
+// Breite der Spalten (Reihenfolge ist egal)
+$Config["Breite"] = array(
+    "Play" =>"50em",
+    "Position" => "50em",
+    "Type" => "100em",
+    "Title" => "300em",
+    "Season" => "50em",
+    "Episode" => "50em",
+    "Genre" => "200em",
+    "Album" => "200em",
+    "Track" => "50em",
+    "Artist" => "200em",
+    "Year" => "50em",
+    "Runtime" => "100em"
+);
+// Style Informationen der Tabelle
+$Config["Style"] = array(
+    // <table>-Tag:
+    "T"    => "margin:0 auto; font-size:0.8em;",
+    // <thead>-Tag:
+    "H"    => "",
+    // <tr>-Tag im thead-Bereich:
+    "HR"   => "",
+    // <th>-Tag Feld Play:
+    "HFPlay"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Position:
+    "HFPosition"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Type:
+    "HFType"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Title:
+    "HFTitle"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Season:
+    "HFSeason"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Episode:
+    "HFEpisode"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Album:
+    "HFAlbum"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Track:
+    "HFTrack"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Genre:
+    "HFGenre"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Artist:
+    "HFArtist"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Year:
+    "HFYear"  => "color:#ffffff; width:35px; align:left;",
+    // <th>-Tag Feld Runtime:
+    "HFRuntime"  => "color:#ffffff; width:35px; align:left;",
+    // <tbody>-Tag:
+    "B"    => "",
+    // <tr>-Tag:
+    "BRG"  => "background-color:#000000; color:#ffffff;",
+    "BRU"  => "background-color:#080808; color:#ffffff;",
+    "BRA"  => "background-color:#808000; color:#ffffff;",
+    // <td>-Tag Feld Play:
+    "DFGPlay" => "text-align:center;",
+    "DFUPlay" => "text-align:center;",
+    "DFAPlay" => "text-align:center;",
+    // <td>-Tag Feld Position:
+    "DFGPosition" => "text-align:center;",
+    "DFUPosition" => "text-align:center;",
+    "DFAPosition" => "text-align:center;",
+    // <td>-Tag Feld Type:
+    "DFGType" => "text-align:center;",
+    "DFUType" => "text-align:center;",
+    "DFAType" => "text-align:center;",
+    // <td>-Tag Feld Title:
+    "DFGTitle" => "text-align:center;",
+    "DFUTitle" => "text-align:center;",
+    "DFATitle" => "text-align:center;",
+    // <td>-Tag Feld Season:
+    "DFGSeason" => "text-align:center;",
+    "DFUSeason" => "text-align:center;",
+    "DFASeason" => "text-align:center;",
+    // <td>-Tag Feld Episode:
+    "DFGEpisode" => "text-align:center;",
+    "DFUEpisode" => "text-align:center;",
+    "DFAEpisode" => "text-align:center;",
+    // <td>-Tag Feld Album:
+    "DFGAlbum" => "text-align:center;",
+    "DFUAlbum" => "text-align:center;",
+    "DFAAlbum" => "text-align:center;",
+    // <td>-Tag Feld Track:
+    "DFGTrack" => "text-align:center;",
+    "DFUTrack" => "text-align:center;",
+    "DFATrack" => "text-align:center;",
+    // <td>-Tag Feld Genre:
+    "DFGGenre" => "text-align:center;",
+    "DFUGenre" => "text-align:center;",
+    "DFAGenre" => "text-align:center;",
+    // <td>-Tag Feld Artist:
+    "DFGArtist" => "text-align:center;",
+    "DFUArtist" => "text-align:center;",
+    "DFAArtist" => "text-align:center;",
+    // <td>-Tag Feld Year:
+    "DFGYear" => "text-align:center;",
+    "DFUYear" => "text-align:center;",
+    "DFAYear" => "text-align:center;",
+    // <td>-Tag Feld Runtime:
+    "DFGRuntime" => "text-align:center;",
+    "DFURuntime" => "text-align:center;",
+    "DFARuntime" => "text-align:center;"
+    // ^- Der Buchstabe "G" steht für gerade, "U" für ungerade., "A" für Aktiv
+ );
+### Konfig ENDE !!!
+//LSQ_DisplayPlaylist($_IPS["TARGET"],$Config);
+echo serialize($Config);
+?>';
+        return $Script;
+    }
+
+    /**
+     * Liefert den Header der HTML-Tabelle für die Playlist.
+     * 
+     * @access private
+     * @param array $Config Die Kofiguration der Tabelle
+     * @return string HTML-String
+     */
+    private function GetTableHeader($Config)
+    {
+        // Kopf der Tabelle erzeugen
+        $html = '<table style="' . $Config['Style']['T'] . '">' . PHP_EOL;
+        $html .= '<colgroup>' . PHP_EOL;
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<col width="' . $Config['Breite'][$Index] . '" />' . PHP_EOL;
+        }
+        $html .= '</colgroup>' . PHP_EOL;
+        $html .= '<thead style="' . $Config['Style']['H'] . '">' . PHP_EOL;
+        $html .= '<tr style="' . $Config['Style']['HR'] . '">';
+        foreach ($Config['Spalten'] as $Index => $Value)
+        {
+            $html .= '<th style="' . $Config['Style']['HF' . $Index] . '">' . $Value . '</th>';
+        }
+        $html .= '</tr>' . PHP_EOL;
+        $html .= '</thead>' . PHP_EOL;
+        $html .= '<tbody style="' . $Config['Style']['B'] . '">' . PHP_EOL;
+        return $html;
+    }
+
+    /**
+     * Liefert den Footer der HTML-Tabelle für die Playlist.
+     * 
+     * @access private
+     * @return string HTML-String
+     */
+    private function GetTableFooter()
+    {
+        $html = '</tbody>' . PHP_EOL;
+        $html .= '</table>' . PHP_EOL;
+        return $html;
     }
 
 ################## ActionHandler
@@ -352,8 +681,18 @@ class KodiDevicePlaylist extends KodiBase
     {
         switch ($Ident)
         {
-            case "Status":
-                break;
+            case "position":
+                $this->Init();
+                $KodiData = new Kodi_RPC_Data(self::$Namespace[1]);
+                $KodiData->GoTo(array('playerid' => $this->PlaylistId, "to" => (int) $Value - 1));
+                $ret = $this->Send($KodiData);
+                if (is_null($ret))
+                    return;
+                if ($ret === "OK")
+                    return true;
+                return trigger_error('Error on GoTo Track.', E_USER_NOTICE);
+            default:
+                return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
     }
 
@@ -370,7 +709,7 @@ class KodiDevicePlaylist extends KodiBase
     {
         $this->Init();
         $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'GetItems', array('playlistid' => $this->PlaylistId, 'properties' => self::$ItemListSmall));
-        $ret = $this->Send($KodiData);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return null;
         if ($ret->limits->total > 0)
@@ -379,17 +718,20 @@ class KodiDevicePlaylist extends KodiBase
     }
 
     /**
-     * IPS-Instanz-Funktion 'KODIPLAYER_GetItem'.
-     * Holt sich die Daten des aktuellen wiedergegebenen Items, und gibt die Array zurück.
+     * Fügt der Playlist ein Item hinzu.
      * 
-     * @access public
-     * @return array|null Das Array mit den Eigenschaften des Item, im Fehlerfall null
+     * @access private
+     * @param string $ItemTyp Der Typ des Item.
+     * @param string $ItemValue Der Wert des Item.
+     * @param array $Ext Array welches mit übergeben werden soll (optional).
+     * @return boolean True bei Erfolg. Sonst false.
      */
     private function Add(string $ItemTyp, string $ItemValue, $Ext = array())
     {
 
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Add', array_merge(array('playlistid' => $this->PlaylistId, "item" => array($ItemTyp => $ItemValue)), $Ext));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0]);
+        $KodiData->Add(array_merge(array('playlistid' => $this->PlaylistId, "item" => array($ItemTyp => $ItemValue)), $Ext));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -399,6 +741,14 @@ class KodiDevicePlaylist extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddAlbum'.
+     * Fügt der Playlist ein Album hinzu.
+     * 
+     * @access public
+     * @param integer $AlbumId ID des Album.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function AddAlbum(integer $AlbumId)
     {
         if (!is_int($AlbumId))
@@ -409,6 +759,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("albumid", $AlbumId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddArtist'.
+     * Fügt der Playlist alle Itemes eines Artist hinzu.
+     * 
+     * @access public
+     * @param integer $ArtistId ID des Artist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function AddArtist(integer $ArtistId)
     {
         if (!is_int($ArtistId))
@@ -419,7 +777,15 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("artistid", $ArtistId);
     }
 
-    public function AddDirectory(integer $Directory)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddDirectory'.
+     * Fügt der Playlist alle Itemes eines Verzeichnisses hinzu.
+     * 
+     * @access public
+     * @param string $Directory Pfad welcher hinzugefügt werden soll.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function AddDirectory(string $Directory)
     {
         if (!is_string($Directory))
         {
@@ -429,9 +795,17 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("directory", $Directory);
     }
 
-    public function AddDirectoryRecursive(integer $Directory)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddDirectoryRecursive'.
+     * Fügt der Playlist alle Itemes eines Verzeichnisses, sowie dessen Unterverzeichnisse, hinzu.
+     * 
+     * @access public
+     * @param string $Directory Pfad welcher hinzugefügt werden soll.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function AddDirectoryRecursive(string $Directory)
     {
-        if (!is_int($Directory))
+        if (!is_string($Directory))
         {
             trigger_error('Directory must be string', E_USER_NOTICE);
             return false;
@@ -439,6 +813,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("Directory", $Directory, array("recursive" => true));
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddEpisode'.
+     * Fügt der Playlist eine Episode hinzu.
+     * 
+     * @access public
+     * @param integer $EpisodeId ID der Episode.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function AddEpisode(integer $EpisodeId)
     {
         if (!is_int($EpisodeId))
@@ -449,7 +831,15 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("episodeid", $EpisodeId);
     }
 
-    public function AddFile(integer $File)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddFile'.
+     * Fügt der Playlist eine Datei hinzu.
+     * 
+     * @access public
+     * @param string $File Pfad zu einer Datei.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function AddFile(string $File)
     {
         if (!is_string($File))
         {
@@ -459,6 +849,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("file", $File);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddGenre'.
+     * Fügt der Playlist eine komplettes Genre hinzu.
+     * 
+     * @access public
+     * @param integer $GenreId ID des Genres.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE. 
+     */
     public function AddGenre(integer $GenreId)
     {
         if (!is_int($GenreId))
@@ -469,6 +867,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("genreid", $GenreId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddMovie'.
+     * Fügt der Playlist ein Film hinzu.
+     * 
+     * @access public
+     * @param integer $MovieId ID des Filmes.
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     public function AddMovie(integer $MovieId)
     {
         if (!is_int($MovieId))
@@ -479,6 +885,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("movieid", $MovieId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddMusicVideo'.
+     * Fügt der Playlist ein Musicvideo hinzu.
+     * 
+     * @access public
+     * @param integer $MusicvideoId ID des Musicvideos.
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     public function AddMusicVideo(integer $MusicvideoId)
     {
         if (!is_int($MusicvideoId))
@@ -489,6 +903,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("musicvideoid", $MusicvideoId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_AddSong'.
+     * Fügt der Playlist ein Song hinzu.
+     * 
+     * @access public
+     * @param integer $SongId ID des Songs.
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     public function AddSong(integer $SongId)
     {
         if (!is_int($SongId))
@@ -499,11 +921,19 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Add("songid", $SongId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_Clear'.
+     * Leert die Playlist
+     * 
+     * @access public
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     public function Clear()
     {
 
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace[0], 'Clear', array('playlistid' => $this->PlaylistId));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace[0]);
+        $KodiData->Clear(array('playlistid' => $this->PlaylistId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -513,6 +943,16 @@ class KodiDevicePlaylist extends KodiBase
         return false;
     }
 
+    /**
+     * Fügt der Playlist ein Item, an einer bestimmten Position, hinzu.
+     * 
+     * @access private
+     * @param integer $Position Position des Item in der Playlist.
+     * @param string $ItemTyp Der Typ des Item.
+     * @param string $ItemValue Der Wert des Item.
+     * @param array $Ext Array welches mit übergeben werden soll (optional).
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     private function Insert(integer $Position, string $ItemTyp, string $ItemValue, $Ext = array())
     {
         if (!is_int($Position))
@@ -531,6 +971,16 @@ class KodiDevicePlaylist extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertAlbum'.
+     * Fügt in der Playlist ein Album ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $AlbumId ID des Album.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertAlbum(integer $AlbumId, integer $Position)
     {
         if (!is_int($AlbumId))
@@ -541,6 +991,16 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "albumid", $AlbumId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertArtist'.
+     * Fügt in der Playlist alle Items eines Artist ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $ArtistId ID des Artist.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertArtist(integer $ArtistId, integer $Position)
     {
         if (!is_int($ArtistId))
@@ -551,7 +1011,17 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "artistid", $ArtistId);
     }
 
-    public function InsertDirectory(integer $Directory, integer $Position)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertDirectory'.
+     * Fügt in der Playlist alle Itemes eines Verzeichnisses ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param string $Directory Pfad welcher hinzugefügt werden soll.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function InsertDirectory(string $Directory, integer $Position)
     {
         if (!is_string($Directory))
         {
@@ -561,9 +1031,19 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "directory", $Directory);
     }
 
-    public function InsertDirectoryRecursive(integer $Directory, integer $Position)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertDirectoryRecursive'.
+     * Fügt in der Playlist alle Itemes eines Verzeichnisses, sowie dessen Unterverzeichnisse, ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param string $Directory Pfad welcher hinzugefügt werden soll.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function InsertDirectoryRecursive(string $Directory, integer $Position)
     {
-        if (!is_int($Directory))
+        if (!is_string($Directory))
         {
             trigger_error('Directory must be string', E_USER_NOTICE);
             return false;
@@ -571,6 +1051,16 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "Directory", $Directory, array("recursive" => true));
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertEpisode'.
+     * Fügt in der Playlist eine Episode ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $EpisodeId ID der Episode.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertEpisode(integer $EpisodeId, integer $Position)
     {
         if (!is_int($EpisodeId))
@@ -581,7 +1071,17 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "episodeid", $EpisodeId);
     }
 
-    public function InsertFile(integer $File, integer $Position)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertFile'.
+     * Fügt in der Playlist eine Datei ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param string $File Pfad zu einer Datei.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function InsertFile(string $File, integer $Position)
     {
         if (!is_string($File))
         {
@@ -591,6 +1091,16 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "file", $File);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertGenre'.
+     * Fügt in der Playlist eine komplettes Genre ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $GenreId ID des Genres welches hinzugefügt werden soll.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertGenre(integer $GenreId, integer $Position)
     {
         if (!is_int($GenreId))
@@ -601,6 +1111,16 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "genreid", $GenreId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertMovie'.
+     * Fügt in der Playlist ein Filme ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $MovieId ID des Filmes.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertMovie(integer $MovieId, integer $Position)
     {
         if (!is_int($MovieId))
@@ -611,6 +1131,16 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "movieid", $MovieId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertMusicVideo'.
+     * Fügt in der Playlist ein Musicvideo ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $MusicvideoId ID des Musicvideos.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertMusicVideo(integer $MusicvideoId, integer $Position)
     {
         if (!is_int($MusicvideoId))
@@ -621,6 +1151,16 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "musicvideoid", $MusicvideoId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_InsertSong'.
+     * Fügt in der Playlist ein Lied ein.
+     * Alle anderen Einträge werden automatisch nach hinten verschoben.
+     * 
+     * @access public
+     * @param integer $SongId ID des Songs.
+     * @param integer $Position Startposition des Album in der Playlist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function InsertSong(integer $SongId, integer $Position)
     {
         if (!is_int($SongId))
@@ -631,6 +1171,14 @@ class KodiDevicePlaylist extends KodiBase
         return $this->Insert($Position, "songid", $SongId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_Remove'.
+     * Entfernt einen Eintrag aus der Playlist.
+     * 
+     * @access public
+     * @param integer $Position Eintrag welcher entfernt wird.
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     public function Remove(integer $Position)
     {
         if (!is_int($Position))
@@ -649,6 +1197,14 @@ class KodiDevicePlaylist extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYLIST_Swap'.
+     * Tauscht zwei Einträge innerhalb der Playlist
+     * 
+     * @access public
+     * @param integer $Position1 | $Position2 Positionen der Einträge welche untereinander getsucht werden.
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     public function Swap(integer $Position1, integer $Position2)
     {
         if (!is_int($Position1))
@@ -672,19 +1228,6 @@ class KodiDevicePlaylist extends KodiBase
         return false;
     }
 
-    /**
-     * IPS-Instanz-Funktion 'KODIPLAYER_RequestState'. Frage eine oder mehrere Properties ab.
-     *
-     * @access public
-     * @param string $Ident Enthält den Names des "properties" welches angefordert werden soll.
-     * @return boolean true bei erfolgreicher Ausführung, sonst false.
-     */
-    /*
-      public function RequestState(string $Ident)
-      {
-      return parent::RequestState($Ident);
-      }
-     */
 }
 
 /** @} */

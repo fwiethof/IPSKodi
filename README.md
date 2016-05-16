@@ -50,7 +50,7 @@ Implementierung der Kodi JSON-RPC API in IP-Symcon.
     - Allow control of Kodi via HTTP
 
 Aktuell wird eine Authentifizierung des Webservers nicht unterstützt.
-Der Zugriff wird außerdem nur für das Anzeigen von Covern, Bannern bzw. Poster benötigt.
+
 
 ## 5. Einrichten der  Instanzen in IPS
 
@@ -125,7 +125,22 @@ Hinweise zu den 'Window IDs' und 'Window Name' sind hier verfügbar:
  Tastendruck    - Senden  
  Text           - Senden  
 
- ---
+---
+
+ **Kodi Playerstatus (KodiDevicePlayer):**  
+ PRC-Namensraum : Player  
+ TODO  
+
+---
+
+ **Kodi Playlist (KodiDevicePlaylist):**  
+ PRC-Namensraum : Playlist  
+ Hinweis: Jeder 'Player' (Ausio,Video,Bilder) hat immer nur eine Playlist!  
+
+ Playlist           - Beschreiben, lesen und visualisieren.  
+ Player             - Direktes anspringen eines Eintrages.
+ 
+---
 
  **Kodi PVR (KodiDevicePVR):**  
  RPC-Namensraum : PVR  
@@ -136,14 +151,8 @@ Hinweise zu den 'Window IDs' und 'Window Name' sind hier verfügbar:
  Kanäle & Gruppen   - Lesen  
  Aufnahmen          - Lesen  
  Timer              - Lesen  
- 
----
 
- **Kodi Playerstatus (KodiDevicePlayer):**  
- PRC-Namensraum : Player  
- TODO  
-
----
+ ---
 
  **Kodi System (KodiDeviceSystem):**  
  RPC-Namensraum : System  
@@ -721,6 +730,25 @@ boolean KODIINPUT_SendText(integer $InstanzeID, string $Text, boolean $Done);
  Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
 
 ---
+
+ **Kodi Playerstatus (KodiDevicePlayer):**  
+
+ TODO  
+
+---
+
+ **Kodi Playlist (KodiDevicePlaylist):**  
+
+Hinweis: Ein mischen von verschiednen Medien (Audio, Video, Bilder) ist nicht möglich.  
+
+ ```php
+boolean KODPLAYLIST_AddAlbum(integer $InstanzeID, integer $AlbumId);
+```  
+ Fügt der Playliste ein Album hinzu.
+ Rückgabewert TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+
+ ---
+
  **Kodi PVR (KodiDevicePVR):**  
 
 ```php
@@ -885,12 +913,6 @@ array|boolean KODIPVR_GetTimerDetails(integer $InstanzeID, integer $TimerId);
  Es gilt die Tabelle von KODIPVR_GetTimers. 
 
 ---
-
- **Kodi Playerstatus (KodiDevicePlayer):**  
-
- TODO  
-
- ---
 
  **Kodi System (KodiDeviceSystem):**  
 

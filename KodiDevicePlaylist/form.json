@@ -18,14 +18,17 @@
                             "value": 2
                         }
                     ]
-                }
-            ],
-    "actions":
-            [
+                },
                 {
-                    "type": "Button",
-                    "label": "Request State",
-                    "onClick": "KODIPLAYLIST_RequestState($id,'ALL');"
+                    "name": "showPlaylist",
+                    "type": "CheckBox",
+                    "caption": "Playlist als HTML-Box anzeigen"
+                }, 
+                {
+                    "name": "Playlistconfig",
+                    "type": "SelectScript",
+                    "caption": "Playlist Config"
                 }
             ]
+
 }

@@ -319,7 +319,7 @@ class KodiDevicePlayer extends KodiBase
                     Array(4, "Next", "", -1)
                 ));
 
-                $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
+//                $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
                 $this->RegisterVariableInteger("repeat", "Wiederholen", "Repeat.Kodi", 11);
                 $this->RegisterVariableBoolean("shuffled", "Zufall", "~Switch", 12);
                 $this->RegisterVariableBoolean("partymode", "Partymodus", "~Switch", 13);
@@ -332,7 +332,7 @@ class KodiDevicePlayer extends KodiBase
 
                 break;
             case self::Video:
-                $this->UnregisterVariable("position");
+//                $this->RegisterVariableInteger("position", "Playlist Position", "", 9);
                 $this->UnregisterVariable("repeat");
                 $this->UnregisterVariable("shuffled");
                 $this->UnregisterVariable("partymode");
@@ -365,6 +365,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 42);
                 break;
             case self::Pictures:
+//                $this->UnregisterVariable("position");                
                 $this->RegisterProfileIntegerEx("Status." . $this->InstanceID . ".Kodi", "Information", "", "", Array(
                     Array(0, "Prev", "", -1),
                     Array(1, "Stop", "", -1),
@@ -384,6 +385,7 @@ class KodiDevicePlayer extends KodiBase
         $this->RegisterVariableString("duration", "Dauer", "", 24);
         $this->RegisterVariableString("time", "Spielzeit", "", 25);
         $this->RegisterVariableInteger("percentage", "Position", "Intensity.Kodi", 26);
+        $this->EnableAction("percentage");
 
         parent::ApplyChanges();
 
@@ -421,8 +423,9 @@ class KodiDevicePlayer extends KodiBase
     private function getActivePlayer()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetActivePlayers');
-        $ret = $this->Send($KodiData);
+        $KodiData = new Kodi_RPC_Data(static::$Namespace);
+        $KodiData->GetActivePlayers();
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret) or ( count($ret) == 0))
             $this->isActive = false;
         else
@@ -458,8 +461,9 @@ class KodiDevicePlayer extends KodiBase
         //parent::RequestProperties($Params);
         if (!$this->isActive)
             return false;
-        $KodiData = new Kodi_RPC_Data(static::$Namespace, 'GetProperties', $Param);
-        $ret = $this->Send($KodiData);
+        $KodiData = new Kodi_RPC_Data(static::$Namespace);
+        $KodiData->GetProperties($Param);
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return false;
         $this->Decode('GetProperties', $ret);
@@ -497,6 +501,8 @@ class KodiDevicePlayer extends KodiBase
                 }
             }
         }
+        $this->SendDebug($Method, $KodiPayload, 0);
+
         switch ($Method)
         {
             case 'GetProperties':
@@ -629,21 +635,20 @@ class KodiDevicePlayer extends KodiBase
                         case "percentage":
                             $this->SetValueInteger($param, (int) $value);
                             break;
-                        case "position":
-                            //                        if ($this->PlayerId == self::Video)
-                            // TODO
-                            // PLAYLIST refresh ?                                
-                            //                              break;
+//                        case "position":
+                        //                        if ($this->PlayerId == self::Video)
+                        // TODO
+                        // PLAYLIST refresh ?                                
+                        //                              break;
 //                            $this->SetValueInteger($param, (int) $value + 1);
-                            if ($KodiPayload->playlist <> -1)
-                            {
-                                if ($this->SetValueInteger($param, (int) $value))
-                                {
-                                    // PLAYLIST refresh !
-                                }
-                            }
-
-                            break;
+//                            if ($KodiPayload->playlist <> -1)
+//                            {
+//                                if ($this->SetValueInteger($param, (int) $value))
+//                                {
+//                                    // PLAYLIST refresh !
+//                                }
+//                            }
+                        //                          break;
 
                         /*    {"canrotate":false,"canzoom":false,
                           "currentsubtitle":null,
@@ -740,7 +745,6 @@ class KodiDevicePlayer extends KodiBase
      */
     private function SetCover(string $file)
     {
-//        $Ext = pathinfo($file, PATHINFO_EXTENSION);
         $CoverID = @IPS_GetObjectIDByIdent('CoverIMG', $this->InstanceID);
         $Size = $this->ReadPropertyString("CoverSize");
         if ($CoverID === false)
@@ -806,20 +810,17 @@ class KodiDevicePlayer extends KodiBase
                 switch ($Value)
                 {
                     case 0: //Prev
-                        $result = $this->Previous();
-                        break;
+                        return $this->Previous();
                     case 1: //Stop
-                        $result = $this->Stop();
-                        break;
+                        return $this->Stop();
                     case 2: //Play
-                        $result = $this->Play();
-                        break;
+                        return $this->Play();
                     case 3: //Pause
-                        $result = $this->Pause();
-                        break;
+                        return $this->Pause();
                     case 4: //Next
-                        $result = $this->Next();
-                        break;
+                        return $this->Next();
+                    default:
+                        return trigger_error('Invalid Ident.', E_USER_NOTICE);
                 }
                 return $result;
             case "shuffled":
@@ -832,18 +833,12 @@ class KodiDevicePlayer extends KodiBase
                 return $this->SetPartymode($Value);
             case "percentage":
                 return $this->SetPosition($Value);
-//            default:
-//                return trigger_error('Invalid Ident.', E_USER_NOTICE);
+            default:
+                return trigger_error('Invalid Ident.', E_USER_NOTICE);
         }
     }
 
 ################## PUBLIC
-    /*
-      public function RawSend(string $Namespace, string $Method, $Params)
-      {
-      return parent::RawSend($Namespace, $Method, $Params);
-      }
-     */
 
     /**
      * IPS-Instanz-Funktion 'KODIPLAYER_GetItemInternal'.
@@ -1212,8 +1207,9 @@ class KodiDevicePlayer extends KodiBase
     public function GetItem()
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GetItem', array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
-        $ret = $this->Send($KodiData);
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GetItem(array('playerid' => $this->PlayerId, 'properties' => self::$ItemList));
+        $ret = $this->SendDirect($KodiData);
         if (is_null($ret))
             return null;
         return $ret->item;
@@ -1230,11 +1226,13 @@ class KodiDevicePlayer extends KodiBase
     {
         $this->Init();
         if (!$this->isActive)
-        {
-            trigger_error('Player not active', E_USER_NOTICE);
-            return false;
-        }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => true));
+            return $this->LoadPlaylist();
+
+//        {
+//            trigger_error('Player not active', E_USER_NOTICE);
+//        }
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->PlayPause(array("playerid" => $this->PlayerId, "play" => true));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1266,7 +1264,8 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'PlayPause', array("playerid" => $this->PlayerId, "play" => false));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->PlayPause(array("playerid" => $this->PlayerId, "play" => false));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1298,7 +1297,8 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Stop', array("playerid" => $this->PlayerId));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Stop(array("playerid" => $this->PlayerId));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1323,20 +1323,7 @@ class KodiDevicePlayer extends KodiBase
      */
     public function Next()
     {
-        $this->Init();
-        if (!$this->isActive)
-        {
-            trigger_error('Player not active', E_USER_NOTICE);
-            return false;
-        }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GoTo', array("playerid" => $this->PlayerId, "to" => "next"));
-        $ret = $this->Send($KodiData);
-        if (is_null($ret))
-            return false;
-        if ($ret === "OK")
-            return true;
-        trigger_error('Error on send next.', E_USER_NOTICE);
-        return false;
+        return $this->GoToValue('next');
     }
 
     /**
@@ -1348,19 +1335,25 @@ class KodiDevicePlayer extends KodiBase
      */
     public function Previous()
     {
+        return $this->GoToValue('previous');
+    }
+
+    private function GoToValue(string $Value)
+    {
         $this->Init();
         if (!$this->isActive)
         {
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GoTo', array("playerid" => $this->PlayerId, "to" => "previous"));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->GoTo(array("playerid" => $this->PlayerId, "to" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
         if ($ret === "OK")
             return true;
-        trigger_error('Error on send previous.', E_USER_NOTICE);
+        trigger_error('Error on send ' . $Value . '.', E_USER_NOTICE);
         return false;
     }
 
@@ -1386,7 +1379,8 @@ class KodiDevicePlayer extends KodiBase
             return false;
         }
 
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'GoTo', array("playerid" => $this->PlayerId, "to" => $Value + 1));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $Kodi->GoTo(array("playerid" => $this->PlayerId, "to" => $Value + 1));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1412,7 +1406,8 @@ class KodiDevicePlayer extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetShuffle', array("playerid" => $this->PlayerId, "shuffle" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->SetShuffle(array("playerid" => $this->PlayerId, "shuffle" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1452,7 +1447,8 @@ class KodiDevicePlayer extends KodiBase
         }
         $this->Init();
         $repeat = array("off", "one", "all");
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetRepeat', array("playerid" => $this->PlayerId, "repeat" => $repeat[$Value]));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->SetRepeat(array("playerid" => $this->PlayerId, "repeat" => $repeat[$Value]));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1485,7 +1481,8 @@ class KodiDevicePlayer extends KodiBase
             return false;
         }
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetPartymode', array("playerid" => $this->PlayerId, "partymode" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->SetPartymode(array("playerid" => $this->PlayerId, "partymode" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1530,7 +1527,8 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Invalid Value for speed.', E_USER_NOTICE);
             return false;
         }
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'SetSpeed', array("playerid" => $this->PlayerId, "speed" => $Value));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->SetSpeed(array("playerid" => $this->PlayerId, "speed" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1551,7 +1549,7 @@ class KodiDevicePlayer extends KodiBase
      * Springt auf eine absolute Position innerhalb einer Wiedergabe.
      * 
      * @access public
-     * @param integer $Value Position in....
+     * @param integer $Value Position in Prozent
      * @return boolean True bei Erfolg, sonst false.
      */
     public function SetPosition(integer $Value)
@@ -1561,24 +1559,49 @@ class KodiDevicePlayer extends KodiBase
             trigger_error('Value must be integer', E_USER_NOTICE);
             return false;
         }
+        if (($Value < 0) or ( $Value > 100))
+        {
+            trigger_error('Value must be between 0 and 100', E_USER_NOTICE);
+            return false;
+        }
         $this->Init();
         if (!$this->isActive)
         {
             trigger_error('Player not active', E_USER_NOTICE);
             return false;
         }
-        //TODO
-        /*        if ($this->PlayerId <> self::Audio)
-          {
-          trigger_error('Not supported', E_USER_NOTICE);
-          return false;
-          } */
+
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Seek(array("playerid" => $this->PlayerId, "value" => array("percentage" => $Value)));
+        $ret = $this->Send($KodiData);
+        if (is_null($ret))
+            return false;
+        if ((int) $ret->percentage == $Value)
+        {
+            $this->SetValueInteger("percentage", $Value);
+            return true;
+        }
+        else
+        {
+            trigger_error('Error on set Position.', E_USER_NOTICE);
+        }
+        return false;
     }
 
+    /**
+     * Lädt ein Item und startet die Wiedergabe.
+     * 
+     * @access private
+     * @param string $ItemTyp Der Typ des Item.
+     * @param string $ItemValue Der Wert des Item.
+     * @param array $Ext Array welches mit übergeben werden soll (optional).
+     * @return boolean True bei Erfolg. Sonst false.
+     */
     private function Load(string $ItemTyp, string $ItemValue, $Ext = array())
     {
         $this->Init();
-        $KodiData = new Kodi_RPC_Data(self::$Namespace, 'Open', array_merge(array("item" => array($ItemTyp => $ItemValue)), $Ext));
+        $KodiData = new Kodi_RPC_Data(self::$Namespace);
+        $KodiData->Open(array_merge(array("item" => array($ItemTyp => $ItemValue)), $Ext));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
@@ -1588,6 +1611,14 @@ class KodiDevicePlayer extends KodiBase
         return false;
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadAlbum'.
+     * Lädt ein Album und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $AlbumId ID des Album.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadAlbum(integer $AlbumId)
     {
         if (!is_int($AlbumId))
@@ -1598,6 +1629,14 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("albumid", $AlbumId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadArtist'.
+     * Lädt alle Itemes eines Artist und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $ArtistId ID des Artist.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadArtist(integer $ArtistId)
     {
         if (!is_int($ArtistId))
@@ -1608,7 +1647,15 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("artistid", $ArtistId);
     }
 
-    public function LoadDirectory(integer $Directory)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadDirectory'.
+     * Lädt alle Itemes eines Verzeichnisses und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param string $Directory Pfad welcher hinzugefügt werden soll.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function LoadDirectory(string $Directory)
     {
         if (!is_string($Directory))
         {
@@ -1618,9 +1665,17 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("directory", $Directory);
     }
 
-    public function LoadDirectoryRecursive(integer $Directory)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadDirectoryRecursive'.
+     * Lädt alle Itemes eines Verzeichnisses, sowie dessen Unterverzeichnisse, und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param string $Directory Pfad welcher hinzugefügt werden soll.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function LoadDirectoryRecursive(string $Directory)
     {
-        if (!is_int($Directory))
+        if (!is_string($Directory))
         {
             trigger_error('Directory must be string', E_USER_NOTICE);
             return false;
@@ -1628,6 +1683,14 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("Directory", $Directory, array("recursive" => true));
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadEpisode'.
+     * Lädt ein Album und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $EpisodeId ID der Episode.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadEpisode(integer $EpisodeId)
     {
         if (!is_int($EpisodeId))
@@ -1638,7 +1701,15 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("episodeid", $EpisodeId);
     }
 
-    public function LoadFile(integer $File)
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadFile'.
+     * Lädt eine Datei und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param string $File Pfad zu einer Datei.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
+    public function LoadFile(string $File)
     {
         if (!is_string($File))
         {
@@ -1648,6 +1719,14 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("file", $File);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadGenre'.
+     * Lädt eine komplettes Genre und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $GenreId ID des Genres.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadGenre(integer $GenreId)
     {
         if (!is_int($GenreId))
@@ -1658,6 +1737,14 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("genreid", $GenreId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadMovie'.
+     * Lädt ein Film und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $MovieId ID des Filmes.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadMovie(integer $MovieId)
     {
         if (!is_int($MovieId))
@@ -1668,6 +1755,14 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("movieid", $MovieId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadMusicvideo'.
+     * Lädt ein Musicvideo und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $MusicvideoId ID des Musicvideos.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadMusicvideo(integer $MusicvideoId)
     {
         if (!is_int($MusicvideoId))
@@ -1678,12 +1773,27 @@ class KodiDevicePlayer extends KodiBase
         return $this->Load("musicvideoid", $MusicvideoId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadPlaylist'.
+     * Lädt die Playlist und startet die Wiedergabe.
+     * 
+     * @access public
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadPlaylist()
     {
         $this->Init();
         return $this->Load("playlistid", $this->PlayerId);
     }
 
+    /**
+     * IPS-Instanz-Funktion 'KODPLAYER_LoadSong'.
+     * Lädt ein Songs und startet die Wiedergabe.
+     * 
+     * @access public
+     * @param integer $SongId ID des Songs.
+     * @return boolean TRUE bei erfolgreicher Ausführung, sonst FALSE.  
+     */
     public function LoadSong(integer $SongId)
     {
         if (!is_int($SongId))
