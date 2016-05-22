@@ -307,7 +307,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->UnregisterVariable("audiobitrate");
                 $this->UnregisterVariable("audiostreams");
                 $this->UnregisterVariable("subtitleenabled");
-                $this->UnregisterVariable("subtitle");
+                //$this->UnregisterVariable("subtitle");
                 $this->UnregisterVariable("subtitles");
 
                 $this->UnregisterProfile("AudioTracks." . $this->InstanceID . ".Kodi");
@@ -362,7 +362,7 @@ class KodiDevicePlayer extends KodiBase
                 $this->RegisterVariableInteger("audiobitrate", "Audio Bitrate", "", 34);
                 $this->RegisterVariableInteger("audiostreams", "Anzahl Audiotracks", "", 35);
                 $this->RegisterVariableBoolean("subtitleenabled", "Untertitel aktiv", "~Switch", 40);
-                $this->RegisterVariableInteger("subtitle", "Aktiver Untertitel", "Subtitels." . $this->InstanceID . ".Kodi", 41);
+                //$this->RegisterVariableInteger("subtitle", "Aktiver Untertitel", "Subtitels." . $this->InstanceID . ".Kodi", 41);
                 $this->RegisterVariableInteger("subtitles", "Anzahl Untertitel", "", 42);
                 break;
             case self::Pictures:
@@ -533,18 +533,18 @@ class KodiDevicePlayer extends KodiBase
                             {
                                 if (property_exists($value, 'index'))
                                 {
-                                    $this->SetValueInteger('subtitle', (int) $value->index);
+                                    //$this->SetValueInteger('subtitle', (int) $value->index);
 //                                    $this->SetValueBoolean('subtitleenabled', true);
                                 }
                                 else
                                 {
-                                    $this->SetValueInteger('subtitle', -1);
+                                    //$this->SetValueInteger('subtitle', -1);
                                     //                                  $this->SetValueBoolean('subtitleenabled', false);
                                 }
                             }
                             else
                             {
-                                $this->SetValueInteger('subtitle', -1);
+                                //$this->SetValueInteger('subtitle', -1);
                             }
                             break;
                         case "currentaudiostream":
