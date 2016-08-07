@@ -1573,7 +1573,7 @@ class KodiDevicePlayer extends KodiBase
         }
 
         $KodiData = new Kodi_RPC_Data(self::$Namespace);
-        $KodiData->Seek(array("playerid" => $this->PlayerId, "value" => array("percentage" => $Value)));
+        $KodiData->Seek(array("playerid" => $this->PlayerId, "percentage" => $Value));
         $ret = $this->Send($KodiData);
         if (is_null($ret))
             return false;
